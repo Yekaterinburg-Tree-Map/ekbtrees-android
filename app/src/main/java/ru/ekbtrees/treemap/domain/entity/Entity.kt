@@ -1,4 +1,4 @@
-package ru.ekbtrees.treemap
+package ru.ekbtrees.treemap.domain.entity
 
 data class ClusterTreesEntity(val count: Int, val coord: LatLonEntity)
 
