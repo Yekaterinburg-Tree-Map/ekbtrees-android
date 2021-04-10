@@ -44,7 +44,7 @@ class TreesRepositoryImpl : TreesRepository {
                     )
                 val diameter = treeData.getString("diameter_crown").toFloat()
                 val genus = treeData.getString("genus:ru")
-                val species = SpeciesEntity("no_id", "#0000FF00", genus)
+                val species = SpeciesEntity("no_id", "#00FF00", genus)
                 val treeEntity = TreeEntity("$id", diameter, species, latLon)
                 id++
                 result.add(treeEntity)
