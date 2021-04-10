@@ -6,30 +6,61 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.maps.android.clustering.ClusterManager
 import ru.ekbtrees.treemap.R
+import ru.ekbtrees.treemap.ui.map.cluster.TreeClusterItem
 
 class TreeMapFragment : Fragment() {
 
+    private lateinit var treeMapViewModel: TreeMapViewModel
+    private lateinit var map: GoogleMap
+    private lateinit var clusterManager: ClusterManager<TreeClusterItem>
+
     private val callback = OnMapReadyCallback { googleMap ->
-        /**
-         * Manipulates the map once available.
-         * This callback is triggered when the map is ready to be used.
-         * This is where we can add markers or lines, add listeners or move the camera.
-         * In this case, we just add a marker near Sydney, Australia.
-         * If Google Play services is not installed on the device, the user will be prompted to
-         * install it inside the SupportMapFragment. This method will only be triggered once the
-         * user has installed Google Play services and returned to the app.
-         */
-        val sydney = LatLng(-34.0, 151.0)
-        googleMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        map = googleMap
+        setUpCamera()
+        setUpCluster()
+    }
+
+    private fun setUpCamera() {
+        val cityCenter = LatLng(56.835378, 60.611970)
+        map.setMinZoomPreference(11f)
+        if (treeMapViewModel.cameraPosition != null)
+            map.moveCamera(CameraUpdateFactory.newCameraPosition(treeMapViewModel.cameraPosition))
+        else // if you have location permission, move camera at user location
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(cityCenter, 11f))
+        val cityBounds = LatLngBounds(
+            LatLng(56.777584, 60.492406), // SW bounds
+            LatLng(56.901152, 60.675740) // NE bounds
+        )
+        map.setLatLngBoundsForCameraTarget(cityBounds)
+    }
+
+    private fun setUpCluster() {
+        clusterManager = ClusterManager(this.context, map)
+
+        map.setOnCameraIdleListener(clusterManager)
+        map.setOnMarkerClickListener(clusterManager)
+
+        addItems()
+    }
+
+    private fun addItems() {
+        val trees = treeMapViewModel.trees
+        if (trees != null) {
+            for (tree in trees) {
+                val offsetItem = TreeClusterItem(tree)
+                clusterManager.addItem(offsetItem)
+            }
+        }
     }
 
     override fun onCreateView(
@@ -37,6 +68,9 @@ class TreeMapFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        treeMapViewModel = ViewModelProvider(this).get(TreeMapViewModel::class.java)
+        if (treeMapViewModel.trees == null)
+            treeMapViewModel.trees = treeMapViewModel.getTrees(requireContext())
         return inflater.inflate(R.layout.fragment_tree_map, container, false)
     }
 
@@ -44,6 +78,11 @@ class TreeMapFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        treeMapViewModel.cameraPosition = map.cameraPosition
     }
 
     companion object {

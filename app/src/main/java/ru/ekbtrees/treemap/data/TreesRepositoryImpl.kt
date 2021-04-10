@@ -39,8 +39,8 @@ class TreesRepositoryImpl : TreesRepository {
                     arr.getJSONObject(i).getJSONObject("geometry").getJSONArray("coordinates")
                 val latLon =
                     LatLonEntity(
-                        position.getString(1).toFloat(),
-                        position.getString(0).toFloat()
+                        position.getDouble(1).toFloat(),
+                        position.getDouble(0).toFloat()
                     )
                 val diameter = treeData.getString("diameter_crown").toFloat()
                 val genus = treeData.getString("genus:ru")
