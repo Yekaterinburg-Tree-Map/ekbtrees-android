@@ -10,7 +10,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Treemap">
-        <activity android:name=".ui.MainActivity">
+<!--        <activity android:name=".ui.MainActivity">-->
+        <activity android:name=".ui.ClusteringActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
