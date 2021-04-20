@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">treemap</string>
     <string name="title_activity_maps">Map</string>
+    <string name="tree_marker">Tree marker</string>
+    <string name="add_tree">Add tree</string>
+    <string name="basic_information">Basic information</string>
 </resources>
