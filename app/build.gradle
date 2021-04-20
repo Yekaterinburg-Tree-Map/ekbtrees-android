@@ -3,6 +3,17 @@ plugins {
     id 'kotlin-android'
 }
 
+repositories {
+    maven {
+        url "http://maven.google.com/"
+    }
+}
+
+Properties apiKeyProperties = new Properties()
+if (rootProject.file("local.properties").exists()) {
+    apiKeyProperties.load(new FileInputStream(rootProject.file("local.properties")))
+}
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
@@ -15,6 +26,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "MAPKIT_API_KEY", apiKeyProperties['MAPKIT_API_KEY'])
     }
 
     buildTypes {
@@ -43,4 +55,10 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    // Облегчённая библиотека, содержит только карту, слой пробок,
+    // LocationManager, UserLocationLayer и возможность скачивать оффлайн карты (только в платной версии).
+    implementation 'com.yandex.android:maps.mobile:4.0.0-lite'
+
+    implementation 'com.google.code.gson:gson:2.8.6'
 }
