@@ -9,6 +9,11 @@ repositories {
     }
 }
 
+Properties apiKeyProperties = new Properties()
+if (rootProject.file("local.properties").exists()) {
+    apiKeyProperties.load(new FileInputStream(rootProject.file("local.properties")))
+}
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
@@ -21,6 +26,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "MAPKIT_API_KEY", apiKeyProperties['MAPKIT_API_KEY'])
     }
 
     buildTypes {

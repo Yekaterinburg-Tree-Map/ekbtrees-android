@@ -1,9 +1,16 @@
 package ru.ekbtrees.treemap.ui
 
+import com.google.gson.annotations.SerializedName
+
 class Tree {
-    var Id = 0
-    var Latitude = 0f
-    var Longitude = 0f
-    var DiameterOfCrown = 0f
-    var Type: String? = null
+    @SerializedName("Id")
+    val id = 0
+    @SerializedName("Latitude")
+    val latitude: Double = 0.0
+    @SerializedName("Longitude")
+    val longitude: Double = 0.0
+    @SerializedName("DiameterOfCrown")
+    val diameterOfCrown: Double = 0.0
+    @SerializedName("Type")
+    val type: String? = null
 }
