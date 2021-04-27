@@ -23,7 +23,7 @@ class TreesRepositoryImpl(private val context: Context) : TreesRepository {
     override fun getTreesInClusteringBy(): Collection<TreeEntity> {
         // asset location: app/src/main/assets
         var id = 0
-        val json = loadJSON(context)
+        val json = loadJSON(context = context)
         val result = mutableListOf<TreeEntity>()
         val arr = json.getJSONArray("features")
         for (i in 0 until arr.length()) {
@@ -79,7 +79,7 @@ class TreesRepositoryImpl(private val context: Context) : TreesRepository {
         TODO("Not yet implemented")
     }
 
-    override fun getSpecies(): Collection<SpeciesEntity> {
+    override fun getAllSpecies(): Collection<SpeciesEntity> {
         return arrayListOf(
             SpeciesEntity("1", Color.parseColor("#C8BEEB5A"), "клен"),
             SpeciesEntity("2", Color.parseColor("#C800FFBF"), "тополь"),
@@ -92,7 +92,7 @@ class TreesRepositoryImpl(private val context: Context) : TreesRepository {
     }
 
     private fun getSpeciesByName(name: String): SpeciesEntity {
-        for (type in getSpecies()) {
+        for (type in getAllSpecies()) {
             if (type.name == name) return type
         }
         throw Exception("$name не был определён")

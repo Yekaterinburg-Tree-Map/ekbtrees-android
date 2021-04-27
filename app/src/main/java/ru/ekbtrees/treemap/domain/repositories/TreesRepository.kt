@@ -13,5 +13,5 @@ interface TreesRepository {
 
     fun getTreeBy(id: String): TreeEntity
 
-    fun getSpecies(): Collection<SpeciesEntity>
+    fun getAllSpecies(): Collection<SpeciesEntity>
 }

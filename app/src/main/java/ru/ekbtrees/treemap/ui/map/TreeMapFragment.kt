@@ -16,6 +16,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import ru.ekbtrees.treemap.R
+import ru.ekbtrees.treemap.data.LatLonMapper
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
 
 class TreeMapFragment : Fragment() {
@@ -28,7 +29,7 @@ class TreeMapFragment : Fragment() {
     private fun addTrees(items: Collection<TreeEntity>) {
         for (item in items) {
             val circle = CircleOptions().apply {
-                center(item.coord.asLatLng())
+                center(LatLonMapper().map(item.coord))
                 radius(item.diameter.toDouble() / 2.0)
                 fillColor(item.species.color)
                 clickable(true)
