@@ -1,17 +1,20 @@
 package ru.ekbtrees.treemap.ui.map
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.CameraPosition
-import ru.ekbtrees.treemap.data.TreesInteractorImpl
+import dagger.hilt.android.lifecycle.HiltViewModel
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
+import ru.ekbtrees.treemap.domain.interactors.TreesInteractor
+import javax.inject.Inject
 
-class TreeMapViewModel(context: Context) : ViewModel() {
+@HiltViewModel
+class TreeMapViewModel @Inject constructor(
+    private val interactor: TreesInteractor
+) : ViewModel() {
 
     var cameraPosition: CameraPosition? = null
     lateinit var trees: Collection<TreeEntity>
 
-    private val interactor = TreesInteractorImpl(context = context)
 
     fun prepareData() {
         trees = interactor.getTrees()
