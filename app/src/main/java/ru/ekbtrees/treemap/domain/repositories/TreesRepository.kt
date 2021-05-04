@@ -1,7 +1,8 @@
 package ru.ekbtrees.treemap.domain.repositories
 
-import ru.ekbtrees.treemap.ClusterTreesEntity
-import ru.ekbtrees.treemap.TreeEntity
+import ru.ekbtrees.treemap.domain.entity.ClusterTreesEntity
+import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
+import ru.ekbtrees.treemap.domain.entity.TreeEntity
 
 
 interface TreesRepository {
@@ -12,4 +13,5 @@ interface TreesRepository {
 
     fun getTreeBy(id: String): TreeEntity
 
+    fun getAllSpecies(): Collection<SpeciesEntity>
 }
