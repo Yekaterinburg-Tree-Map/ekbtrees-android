@@ -9,22 +9,26 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import dagger.hilt.android.AndroidEntryPoint
 import ru.ekbtrees.treemap.R
-import ru.ekbtrees.treemap.data.LatLonMapper
+import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
 
+@AndroidEntryPoint
 class TreeMapFragment : Fragment() {
-    private lateinit var treeMapViewModel: TreeMapViewModel
     private lateinit var map: GoogleMap
     private lateinit var marker: Marker
     private lateinit var treeMarker: ImageView
     private lateinit var addTreeButton: Button
+
+    private val treeMapViewModel: TreeMapViewModel by viewModels()
 
     private fun addTrees(items: Collection<TreeEntity>) {
         for (item in items) {
@@ -62,12 +66,6 @@ class TreeMapFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_tree_map, container, false)
         treeMarker = view.findViewById(R.id.tree_marker)
         addTreeButton = view.findViewById(R.id.add_tree_button)
-
-        treeMapViewModel =
-            ViewModelProvider(
-                this,
-                TreeMapViewModelFactory(requireContext().applicationContext)
-            ).get(TreeMapViewModel::class.java)
         treeMapViewModel.prepareData()
 
         return view

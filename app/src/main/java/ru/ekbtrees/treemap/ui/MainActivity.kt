@@ -2,9 +2,11 @@ package ru.ekbtrees.treemap.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import dagger.hilt.android.AndroidEntryPoint
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.ui.map.TreeMapFragment
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
