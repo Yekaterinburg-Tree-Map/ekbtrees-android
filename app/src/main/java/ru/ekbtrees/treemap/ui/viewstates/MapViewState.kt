@@ -1,9 +1,9 @@
 package ru.ekbtrees.treemap.ui.viewstates
 
 
-sealed class MapViewState {
-    object MapLoadingState : MapViewState()
-    object MapAddNewTreeState : MapViewState()
-    object MapLoadedState : MapViewState()
+sealed class MapViewState : ViewState {
+    object Idle: MapViewState()
+    object MapState : MapViewState()
+    object MapPickTreeLocationState : MapViewState()
     class MapErrorState(val massage: String) : MapViewState()
 }
