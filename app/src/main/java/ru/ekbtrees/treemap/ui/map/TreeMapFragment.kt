@@ -4,38 +4,37 @@ import android.graphics.Color
 import androidx.fragment.app.Fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.Toast
+import androidx.fragment.app.viewModels
 import android.widget.*
 import androidx.cardview.widget.CardView
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.whenStarted
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import dagger.hilt.android.AndroidEntryPoint
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.R
-import ru.ekbtrees.treemap.ui.mapper.LatLonMapper
+import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
+import ru.ekbtrees.treemap.ui.SharedViewModel
 import ru.ekbtrees.treemap.ui.intent.TreeMapIntent
 import ru.ekbtrees.treemap.ui.viewstates.MapViewState
 import ru.ekbtrees.treemap.ui.viewstates.TreesViewState
 
+@AndroidEntryPoint
 class TreeMapFragment : Fragment() {
-    interface TreeMapCallback {
-        fun onTreeSelected(treeId: String)
-        fun addNewTree(coordinate: LatLng)
-    }
-
-    private lateinit var treeMapViewModel: TreeMapViewModel
 
     // map state
     private lateinit var map: GoogleMap
@@ -52,7 +51,8 @@ class TreeMapFragment : Fragment() {
     private lateinit var previewCloseButton: ImageButton
     private lateinit var previewShowDescriptionButton: MaterialButton
 
-    private lateinit var callback: TreeMapCallback
+    private val treeMapViewModel: TreeMapViewModel by viewModels()
+    private val sharedViewModel: SharedViewModel by activityViewModels()
 
     private var selectedCircle: Circle? = null
 
@@ -82,9 +82,9 @@ class TreeMapFragment : Fragment() {
     }
 
     private fun setUpMap() {
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 
-        mapFragment?.getMapAsync { googleMap ->
+        mapFragment.getMapAsync { googleMap ->
             map = googleMap
             setUpCamera()
             map.setOnCircleClickListener { circle ->
@@ -99,14 +99,14 @@ class TreeMapFragment : Fragment() {
             addTreeButton.setOnClickListener {
                 lifecycleScope.launch {
                     disableSelectedCircle()
-                    treeMapViewModel.intent.send(TreeMapIntent.NewTreeLocation)
+                    treeMapViewModel.intent.send(TreeMapIntent.OnAddTreeSelected)
                 }
             }
 
             observeViewModel()
 
             lifecycleScope.launch {
-                treeMapViewModel.intent.send(TreeMapIntent.FetchTrees)
+                treeMapViewModel.intent.send(TreeMapIntent.OnMapViewReady)
             }
         }
     }
@@ -141,12 +141,6 @@ class TreeMapFragment : Fragment() {
         previewTreeSpeciesText = view.findViewById(R.id.preview_tree_species_text)
         previewShowDescriptionButton = view.findViewById(R.id.preview_tree_description_button)
 
-        treeMapViewModel =
-            ViewModelProvider(
-                this,
-                TreeMapViewModelFactory(requireContext().applicationContext)
-            ).get(TreeMapViewModel::class.java)
-
         previewCloseButton.setOnClickListener {
             disableSelectedCircle()
             treePreview.visibility = View.GONE
@@ -156,76 +150,65 @@ class TreeMapFragment : Fragment() {
             Toast.makeText(requireContext(), "Show tree description.", Toast.LENGTH_SHORT).show()
         }
 
-        callback = context as TreeMapCallback
-
         return view
     }
 
+    private fun showViews() {
+        treeMarker.visibility = View.VISIBLE
+        treeEditButton.visibility = View.VISIBLE
+        cancelButton.visibility = View.VISIBLE
+    }
+
+    private fun hideViews() {
+        treeMarker.visibility = View.GONE
+        treeEditButton.visibility = View.GONE
+        cancelButton.visibility = View.GONE
+    }
+
     private fun observeViewModel() {
-        lifecycleScope.launch {
-            whenStarted {
-                treeMapViewModel.mapState.collect { mapViewState ->
-                    if (mapViewState is MapViewState.MapState) {
+        lifecycleScope.launchWhenStarted {
+            treeMapViewModel.mapState.collect { mapViewState ->
+                when (mapViewState) {
+                    is MapViewState.Idle -> {
+                    }
+                    is MapViewState.MapState -> {
+                        hideViews()
                         addTreeButton.show()
-                    } else {
+                        map.setOnCircleClickListener { treeCircle ->
+                            disableSelectedCircle()
+
+                            enableSelectedCircle(treeCircle)
+
+                            val tag = treeCircle.tag as String
+                            val treeEntity = treeMapViewModel.getTreeBy(id = tag)
+                            previewTreeSpeciesText.text = treeEntity.species.name
+                            treePreview.visibility = View.VISIBLE
+                        }
+                    }
+                    is MapViewState.MapErrorState -> {
+                        hideViews()
                         addTreeButton.hide()
+                        // show error text or picture
                     }
-                    if (mapViewState is MapViewState.MapPickTreeLocationState) {
-                        treeMarker.visibility = View.VISIBLE
-                        treeEditButton.visibility = View.VISIBLE
-                        cancelButton.visibility = View.VISIBLE
-                    } else {
-                        treeMarker.visibility = View.GONE
-                        treeEditButton.visibility = View.GONE
-                        cancelButton.visibility = View.GONE
-                    }
-                    treeMarker.visibility =
-                        if (mapViewState is MapViewState.MapPickTreeLocationState) View.VISIBLE
-                        else View.GONE
-                    treeEditButton.visibility =
-                        if (mapViewState is MapViewState.MapPickTreeLocationState) View.VISIBLE
-                        else View.GONE
-                    cancelButton.visibility =
-                        if (mapViewState is MapViewState.MapPickTreeLocationState) View.VISIBLE
-                        else View.GONE
-
-                    when (mapViewState) {
-                        is MapViewState.Idle -> {
-                        }
-                        is MapViewState.MapState -> {
-                            map.setOnCircleClickListener { treeCircle ->
-                                disableSelectedCircle()
-
-                                enableSelectedCircle(treeCircle)
-
-                                val tag = treeCircle.tag as String
-                                val treeEntity = treeMapViewModel.getTreeBy(id = tag)
-                                previewTreeSpeciesText.text = treeEntity.species.name
-                                treePreview.visibility = View.VISIBLE
-                            }
-                        }
-                        is MapViewState.MapErrorState -> {
-                            // show error text or picture
-                        }
-                        is MapViewState.MapPickTreeLocationState -> {
-                            treePreview.visibility = View.GONE
-                            map.setOnCircleClickListener { }
-                            val cameraUpdateFactory =
-                                CameraUpdateFactory.newLatLngZoom(map.cameraPosition.target, 18f)
-                            map.animateCamera(cameraUpdateFactory)
-                        }
+                    is MapViewState.MapPickTreeLocationState -> {
+                        showViews()
+                        addTreeButton.hide()
+                        treePreview.visibility = View.GONE
+                        map.setOnCircleClickListener { }
+                        val cameraUpdateFactory =
+                            CameraUpdateFactory.newLatLngZoom(map.cameraPosition.target, 18f)
+                        map.animateCamera(cameraUpdateFactory)
                     }
                 }
             }
         }
 
-        lifecycleScope.launch {
+        lifecycleScope.launchWhenStarted {
             treeMapViewModel.treeDataState.collect { treeDataViewState ->
                 when (treeDataViewState) {
                     is TreesViewState.Idle -> {
                     }
                     is TreesViewState.TreesLoadingState -> {
-                        Log.d(TAG, "Got TreesLoadingState.")
                         // show progress bar over the map
                     }
                     is TreesViewState.TreesLoadedState -> {
@@ -249,12 +232,14 @@ class TreeMapFragment : Fragment() {
         setUpMap()
 
         treeEditButton.setOnClickListener {
-            callback.addNewTree(map.cameraPosition.target)
+            lifecycleScope.launch {
+                sharedViewModel.addNewTree(map.cameraPosition.target)
+            }
         }
 
         cancelButton.setOnClickListener {
             lifecycleScope.launch {
-                treeMapViewModel.intent.send(TreeMapIntent.RequestMapState)
+                treeMapViewModel.intent.send(TreeMapIntent.OnAddTreeCanceled)
             }
         }
     }
@@ -271,8 +256,8 @@ class TreeMapFragment : Fragment() {
             LatLng(56.777584, 60.492406), // SW bounds
             LatLng(56.901152, 60.675740) // NE bounds
         )
-
         private const val MIN_ZOOM_LEVEL = 11f
+
         fun newInstance(): TreeMapFragment {
             return TreeMapFragment()
         }

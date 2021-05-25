@@ -1,15 +1,15 @@
 package ru.ekbtrees.treemap.ui.map
 
-import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.CameraPosition
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import ru.ekbtrees.treemap.data.TreesInteractorImpl
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
+import ru.ekbtrees.treemap.domain.interactors.TreesInteractor
+import javax.inject.Inject
 import ru.ekbtrees.treemap.ui.intent.TreeMapIntent
 import ru.ekbtrees.treemap.ui.viewstates.MapViewState
 import ru.ekbtrees.treemap.ui.viewstates.TreesViewState
@@ -17,12 +17,13 @@ import kotlin.Exception
 
 private const val TAG = "TreeMapViewModel"
 
-class TreeMapViewModel(context: Context) : ViewModel() {
+@HiltViewModel
+class TreeMapViewModel @Inject constructor(
+    private val interactor: TreesInteractor
+) : ViewModel() {
 
     var cameraPosition: CameraPosition? = null
     private lateinit var trees: Array<TreeEntity>
-
-    private val interactor = TreesInteractorImpl(context = context)
 
     val intent = Channel<TreeMapIntent>(Channel.UNLIMITED)
 
@@ -48,16 +49,13 @@ class TreeMapViewModel(context: Context) : ViewModel() {
         viewModelScope.launch {
             intent.consumeAsFlow().collect { treeMapIntent ->
                 when (treeMapIntent) {
-                    is TreeMapIntent.RequestMapState -> {
-                        Log.d(TAG, "Got RequestMap intent. Send MapLoadedState")
+                    is TreeMapIntent.OnAddTreeCanceled -> {
                         _mapState.value = MapViewState.MapState
                     }
-                    is TreeMapIntent.NewTreeLocation -> {
-                        Log.d(TAG, "Got NewTreeLocation intent. Send MapAddNewTreeState")
+                    is TreeMapIntent.OnAddTreeSelected -> {
                         _mapState.value = MapViewState.MapPickTreeLocationState
                     }
-                    is TreeMapIntent.FetchTrees -> {
-                        Log.d(TAG, "Got FetchTrees intent.")
+                    is TreeMapIntent.OnMapViewReady -> {
                         fetchTrees()
                     }
                 }

@@ -1,4 +1,4 @@
-package ru.ekbtrees.treemap.ui.mapper
+package ru.ekbtrees.treemap.ui.mappers
 
 import com.google.android.gms.maps.model.LatLng
 import ru.ekbtrees.treemap.domain.entity.LatLonEntity

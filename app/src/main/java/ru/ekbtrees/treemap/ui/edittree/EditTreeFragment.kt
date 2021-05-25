@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
@@ -23,7 +23,8 @@ private const val LON_PARAM = "longitude"
 class EditTreeFragment : Fragment() {
     private lateinit var treeLocation: LatLng
 
-    private lateinit var viewModel: EditTreeViewModel
+    private val viewModel: EditTreeViewModel by viewModels()
+
     private lateinit var map: GoogleMap
     private lateinit var latitudeValue: TextView
     private lateinit var longitudeValue: TextView
@@ -46,8 +47,6 @@ class EditTreeFragment : Fragment() {
 
         latitudeValue = view.findViewById(R.id.latitude_value)
         longitudeValue = view.findViewById(R.id.longitude_value)
-
-        viewModel = ViewModelProvider(this).get(EditTreeViewModel::class.java)
 
         return view
     }

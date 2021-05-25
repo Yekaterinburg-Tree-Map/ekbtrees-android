@@ -2,12 +2,19 @@ package ru.ekbtrees.treemap.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
+import dagger.hilt.android.AndroidEntryPoint
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.flow.collect
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.ui.edittree.EditTreeFragment
 import ru.ekbtrees.treemap.ui.map.TreeMapFragment
 
-class MainActivity : AppCompatActivity(), TreeMapFragment.TreeMapCallback {
+@AndroidEntryPoint
+class MainActivity : AppCompatActivity() {
+
+    private val sharedViewModel: SharedViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,14 +27,25 @@ class MainActivity : AppCompatActivity(), TreeMapFragment.TreeMapCallback {
             supportFragmentManager.beginTransaction()
                 .add(R.id.fragment_container, fragment).commit()
         }
+
+        lifecycleScope.launchWhenStarted {
+            sharedViewModel.treeSelected.collect { treeId ->
+                onTreeSelected(treeId)
+            }
+        }
+        lifecycleScope.launchWhenStarted {
+            sharedViewModel.addNewTree.collect { location ->
+                addNewTree(location)
+            }
+        }
     }
 
-    override fun onTreeSelected(treeId: String) {
+    private fun onTreeSelected(treeId: String) {
         // Выводим фрагмент описания дерева по его id.
     }
 
-    override fun addNewTree(coordinate: LatLng) {
-        val fragment = EditTreeFragment.newInstance(coordinate)
+    private fun addNewTree(location: LatLng) {
+        val fragment = EditTreeFragment.newInstance(location)
         supportFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
