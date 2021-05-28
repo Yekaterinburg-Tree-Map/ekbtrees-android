@@ -1,6 +1,8 @@
 package ru.ekbtrees.treemap.ui.edittree
 
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class EditTreeViewModel: ViewModel() {
-}
+@HiltViewModel
+class EditTreeViewModel @Inject constructor() : ViewModel()

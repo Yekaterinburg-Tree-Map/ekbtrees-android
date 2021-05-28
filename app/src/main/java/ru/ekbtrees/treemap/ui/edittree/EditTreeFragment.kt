@@ -14,12 +14,14 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import dagger.hilt.android.AndroidEntryPoint
 import ru.ekbtrees.treemap.R
 
 private const val TAG = "EditTreeFragment"
 private const val LAT_PARAM = "latitude"
 private const val LON_PARAM = "longitude"
 
+@AndroidEntryPoint
 class EditTreeFragment : Fragment() {
     private lateinit var treeLocation: LatLng
 
