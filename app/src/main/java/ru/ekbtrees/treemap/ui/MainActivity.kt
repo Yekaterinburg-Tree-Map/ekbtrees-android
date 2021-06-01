@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.collect
+import dagger.hilt.android.AndroidEntryPoint
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.ui.edittree.EditTreeFragment
 import ru.ekbtrees.treemap.ui.map.TreeMapFragment
