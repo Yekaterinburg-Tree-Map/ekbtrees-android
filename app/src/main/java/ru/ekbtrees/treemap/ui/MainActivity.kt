@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
-import dagger.hilt.android.AndroidEntryPoint
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.collect
 import dagger.hilt.android.AndroidEntryPoint
