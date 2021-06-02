@@ -1,12 +1,13 @@
 package ru.ekbtrees.treemap.ui.edittree
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.ArrayAdapter
 import androidx.fragment.app.viewModels
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -16,6 +17,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.AndroidEntryPoint
 import ru.ekbtrees.treemap.R
+import ru.ekbtrees.treemap.databinding.FragmentEditTreeBinding
 
 private const val TAG = "EditTreeFragment"
 private const val LAT_PARAM = "latitude"
@@ -27,9 +29,9 @@ class EditTreeFragment : Fragment() {
 
     private val viewModel: EditTreeViewModel by viewModels()
 
+    private lateinit var binding: FragmentEditTreeBinding
+
     private lateinit var map: GoogleMap
-    private lateinit var latitudeValue: TextView
-    private lateinit var longitudeValue: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,22 +45,18 @@ class EditTreeFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_edit_tree, container, false)
+    ): View {
+        binding = FragmentEditTreeBinding.inflate(inflater, container, false)
 
-        latitudeValue = view.findViewById(R.id.latitude_value)
-        longitudeValue = view.findViewById(R.id.longitude_value)
-
-        return view
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 
-        mapFragment?.getMapAsync { googleMap ->
+        mapFragment.getMapAsync { googleMap ->
             map = googleMap
             val circleOptions = CircleOptions().apply {
                 center(treeLocation)
@@ -81,8 +79,17 @@ class EditTreeFragment : Fragment() {
             val mapView = mapFragment.view
             mapView?.isClickable = false
         }
-        latitudeValue.text = treeLocation.latitude.toString()
-        longitudeValue.text = treeLocation.longitude.toString()
+        binding.latitudeValue.text = String.format("%.8f", treeLocation.latitude)
+        binding.longitudeValue.text = String.format("%.8f", treeLocation.longitude)
+
+        val treeSpecies = viewModel.getTreeSpecies().map { it.name }
+        val spinnerAdapter = ArrayAdapter<String>(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            treeSpecies
+        )
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.treeSpeciesValue.adapter = spinnerAdapter
     }
 
     companion object {

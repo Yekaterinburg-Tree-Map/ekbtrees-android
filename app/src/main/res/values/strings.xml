@@ -6,9 +6,19 @@
     <string name="basic_information">Basic information</string>
     <string name="cancel">Cancel</string>
     <string name="add_new_tree">Add new tree</string>
-    <string name="latitude">latitude</string>
-    <string name="longitude">longitude</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
     <string name="show_description">Show description</string>
     <string name="close">Close</string>
     <string name="loading_map">Loading map</string>
+    <string name="gradient">Gradient</string>
+    <string name="save_tree">Save tree</string>
+    <string name="change_location">Change location</string>
+    <string name="new_tree">New tree</string>
+    <string name="species">Species</string>
+    <string name="height">Height</string>
+    <string name="number_of_trunks">Number of trunks</string>
+    <string name="trunk_girth">Trunk girth</string>
+    <string name="diameter_of_crown">Diameter of crown</string>
+    <string name="age">Age</string>
 </resources>

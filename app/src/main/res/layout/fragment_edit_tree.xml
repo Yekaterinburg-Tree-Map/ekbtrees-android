@@ -6,70 +6,177 @@
     android:layout_height="match_parent"
     tools:context=".ui.edittree.EditTreeFragment">
 
-    <androidx.fragment.app.FragmentContainerView xmlns:map="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+    <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:clickable="false"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        map:cameraZoom="18"
-        map:liteMode="true" />
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <View
-        android:id="@+id/line_view"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="75dp"
+            android:orientation="vertical">
+
+            <androidx.fragment.app.FragmentContainerView xmlns:map="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:clickable="false"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                map:cameraZoom="18"
+                map:liteMode="true" />
+
+            <View
+                android:id="@+id/line_view"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/black"
+                tools:layout_editor_absoluteX="16dp"
+                tools:viewBindingIgnore="true" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    style="@style/EditTreeParameterLabel"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/latitude"
+                    tools:viewBindingIgnore="true" />
+
+                <TextView
+                    android:id="@+id/latitude_value"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="24dp"
+                    android:gravity="end"
+                    android:textSize="20sp"
+                    tools:text="Value" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    style="@style/EditTreeParameterLabel"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/longitude"
+                    tools:viewBindingIgnore="true" />
+
+                <TextView
+                    android:id="@+id/longitude_value"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="24dp"
+                    android:gravity="end"
+                    android:textSize="20sp"
+                    tools:text="Value" />
+            </RelativeLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/change_location_button"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/change_location" />
+
+            <TextView
+                style="@style/EditTreeParameterLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/species" />
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/tree_species_value"
+                style="@style/EditTreeParameterInputValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                style="@style/EditTreeParameterLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/number_of_trunks" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/number_of_trunks"
+                style="@style/EditTreeParameterInputValue"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="numberDecimal" />
+
+            <TextView
+                style="@style/EditTreeParameterLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/trunk_girth" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/trunk_girth_value"
+                style="@style/EditTreeParameterInputValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal" />
+
+            <TextView
+                style="@style/EditTreeParameterLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/diameter_of_crown" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/diameter_value"
+                style="@style/EditTreeParameterInputValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginBottom="12dp"
+                android:inputType="numberDecimal" />
+
+            <TextView
+                style="@style/EditTreeParameterLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/age" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/age_value"
+                style="@style/EditTreeParameterInputValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal" />
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/save_data"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/black"
-        app:layout_constraintTop_toBottomOf="@+id/map"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/save_tree"
+        app:backgroundTint="@color/green"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:layout_editor_absoluteX="16dp" />
 
-    <TextView
-        android:id="@+id/latitude"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/latitude"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/line_view" />
-
-    <TextView
-        android:id="@+id/latitude_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/line_view"
-        tools:text="Value" />
-
-    <TextView
-        android:id="@+id/longitude"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="24dp"
-        android:layout_marginStart="16dp"
-        android:text="@string/longitude"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/latitude" />
-
-    <TextView
-        android:id="@+id/longitude_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/latitude_value"
-        tools:text="Value" />
+    <ImageView
+        style="@style/GradientStyle"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:contentDescription="@string/gradient"
+        android:src="@drawable/background_gradient"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
