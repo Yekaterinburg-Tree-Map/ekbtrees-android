@@ -2,6 +2,13 @@
     <string name="app_name">treemap</string>
     <string name="title_activity_maps">Map</string>
     <string name="tree_marker">Tree marker</string>
-    <string name="add_tree">Add tree</string>
+    <string name="edit_tree">Edit tree</string>
     <string name="basic_information">Basic information</string>
+    <string name="cancel">Cancel</string>
+    <string name="add_new_tree">Add new tree</string>
+    <string name="latitude">latitude</string>
+    <string name="longitude">longitude</string>
+    <string name="show_description">Show description</string>
+    <string name="close">Close</string>
+    <string name="loading_map">Loading map</string>
 </resources>
