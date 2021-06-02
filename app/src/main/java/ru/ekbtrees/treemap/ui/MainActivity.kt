@@ -10,6 +10,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.ui.edittree.EditTreeFragment
 import ru.ekbtrees.treemap.ui.map.TreeMapFragment
+import ru.ekbtrees.treemap.ui.treedetail.TreeDetailFragment
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -41,12 +42,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onTreeSelected(treeId: String) {
-        // Выводим фрагмент описания дерева по его id.
+        val fragment = TreeDetailFragment.newInstance(treeId)
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun addNewTree(location: LatLng) {
         val fragment = EditTreeFragment.newInstance(location)
-        supportFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
     }

@@ -129,7 +129,9 @@ class TreeMapFragment : Fragment() {
         }
 
         previewShowDescriptionButton.setOnClickListener {
-            Toast.makeText(requireContext(), "Show tree description.", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                sharedViewModel.onTreeSelected(selectedCircle?.tag.toString())
+            }
         }
 
         return view
