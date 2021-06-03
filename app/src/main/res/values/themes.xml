@@ -22,7 +22,6 @@
     </style>
 
     <style name="GradientStyle">
-        <item name="android:visibility">visible</item>
         <item name="android:src">@drawable/background_gradient</item>
     </style>
 
