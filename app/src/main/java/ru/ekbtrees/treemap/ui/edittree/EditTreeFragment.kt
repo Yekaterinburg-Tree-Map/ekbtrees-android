@@ -20,27 +20,19 @@ import kotlinx.coroutines.flow.collect
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentEditTreeBinding
 import ru.ekbtrees.treemap.domain.entity.TreeDetailEntity
+import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.ui.mvi.contract.EditTreeContract
 
 private const val TAG = "EditTreeFragment"
-private const val TREE_LOCATION = "TreeLocation"
 
 @AndroidEntryPoint
 class EditTreeFragment : Fragment() {
-    private lateinit var treeLocation: LatLng
 
     private val viewModel: EditTreeViewModel by viewModels()
 
     private lateinit var binding: FragmentEditTreeBinding
 
     private lateinit var map: GoogleMap
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            treeLocation = it.getParcelable(TREE_LOCATION)!!
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,15 +47,12 @@ class EditTreeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         observeViewStates()
-
-        setupMap()
-        setUpTreeData()
     }
 
     /**
-     * Выводит карту с местоположением дерева.
+     * Выводит карту с местоположением дерева и заполняет поля координат.
      * */
-    private fun setupMap() {
+    private fun setupTreeLocation(treeLocation: LatLng) {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 
         mapFragment.getMapAsync { googleMap ->
@@ -88,13 +77,17 @@ class EditTreeFragment : Fragment() {
             map.setLatLngBoundsForCameraTarget(bounds)
             val mapView = mapFragment.view
             mapView?.isClickable = false
+
+            binding.latitudeValue.text = String.format("%.8f", treeLocation.latitude)
+            binding.longitudeValue.text = String.format("%.8f", treeLocation.longitude)
         }
     }
 
-    private fun setUpTreeData() {
-        binding.latitudeValue.text = String.format("%.8f", treeLocation.latitude)
-        binding.longitudeValue.text = String.format("%.8f", treeLocation.longitude)
-
+    /**
+     * Выводит всю полученную информацию.
+     * */
+    private fun setupTreeData(treeDetail: TreeDetailEntity) {
+        setupTreeLocation(treeLocation = LatLonMapper().map(treeDetail.coord))
         val treeSpecies = viewModel.getTreeSpecies().map { it.name }.toMutableList()
         treeSpecies.add(0, getString(R.string.select_tree_species))
         val spinnerAdapter = ArrayAdapter(
@@ -112,17 +105,17 @@ class EditTreeFragment : Fragment() {
                 when (editTreeViewState) {
                     is EditTreeContract.EditTreeViewState.Idle -> {
                     }
-                    is EditTreeContract.EditTreeViewState.NewTreeState -> {
-
+                    is EditTreeContract.EditTreeViewState.EmptyTreeDataState -> {
+                        setupTreeLocation(treeLocation = editTreeViewState.treeLocation)
                     }
                     is EditTreeContract.EditTreeViewState.TreeDataLoadingState -> {
-
+                        // Show progressBar
                     }
                     is EditTreeContract.EditTreeViewState.TreeDataLoadedState -> {
-
+                        setupTreeData(treeDetail = editTreeViewState.treeData)
                     }
-                    is EditTreeContract.EditTreeViewState.MapErrorState -> {
-
+                    is EditTreeContract.EditTreeViewState.TreeDataLoadingFailedState -> {
+                        // Show error message and show reload data button
                     }
                 }
             }
@@ -131,10 +124,10 @@ class EditTreeFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(treeLocation: LatLng) =
+        fun newInstance(instanceValue: EditTreeInstanceValue) =
             EditTreeFragment().apply {
                 arguments = Bundle().apply {
-                    putParcelable(TREE_LOCATION, treeLocation)
+                    putParcelable(INSTANCE_VALUE_KEY, instanceValue)
                 }
             }
     }

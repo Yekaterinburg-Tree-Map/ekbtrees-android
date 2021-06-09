@@ -22,4 +22,8 @@
     <string name="diameter_of_crown">Diameter of crown</string>
     <string name="age">Age</string>
     <string name="select_tree_species">Select tree species…</string>
+    <string name="tree_planting_type">Tree planting type</string>
+    <string name="status">Status</string>
+    <string name="height_of_the_first_branch">Height of the first branch</string>
+    <string name="condition_assessment">Condition assessment</string>
 </resources>

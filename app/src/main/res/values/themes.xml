@@ -25,7 +25,7 @@
         <item name="android:src">@drawable/background_gradient</item>
     </style>
 
-    <style name="EditTreeParameterInputValue">
+    <style name="EditTreeParameterInputTextValue">
         <item name="android:layout_marginStart">24dp</item>
         <item name="android:layout_marginEnd">24dp</item>
         <item name="android:layout_marginBottom">12dp</item>

@@ -1,5 +1,6 @@
 package ru.ekbtrees.treemap.ui.mvi.contract
 
+import com.google.android.gms.maps.model.LatLng
 import ru.ekbtrees.treemap.domain.entity.TreeDetailEntity
 import ru.ekbtrees.treemap.ui.mvi.base.UiEffect
 import ru.ekbtrees.treemap.ui.mvi.base.UiEvent
@@ -11,10 +12,10 @@ class EditTreeContract {
      * */
     sealed class EditTreeViewState : UiState {
         object Idle : EditTreeViewState()
-        object NewTreeState : EditTreeViewState()
         object TreeDataLoadingState : EditTreeViewState()
+        object TreeDataLoadingFailedState : EditTreeViewState()
+        class EmptyTreeDataState(val treeLocation: LatLng) : EditTreeViewState()
         class TreeDataLoadedState(val treeData: TreeDetailEntity) : EditTreeViewState()
-        class MapErrorState(val massage: String) : EditTreeViewState()
     }
 
     /**
@@ -22,14 +23,14 @@ class EditTreeContract {
      * */
     sealed class EditTreeEvent : UiEvent {
         /**
-         * Инициируем повторную загрузку данных.
+         * Инициируем загрузку данных дерева.
          * */
-        object OnReloadDataLaunched : EditTreeEvent()
+        class OnReloadButtonClicked(val treeId: String) : EditTreeEvent()
 
         /**
          * Инициируем сохранение введённых данных.
          */
-        class OnSaveDataLaunched(val treeData: TreeDetailEntity) : EditTreeEvent()
+        class OnSaveButtonClicked(val treeData: TreeDetailEntity) : EditTreeEvent()
     }
 
     class TreeMapEffect : UiEffect

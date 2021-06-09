@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.collect
 import dagger.hilt.android.AndroidEntryPoint
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.ui.edittree.EditTreeFragment
+import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
 import ru.ekbtrees.treemap.ui.map.TreeMapFragment
 
 @AndroidEntryPoint
@@ -70,7 +71,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addNewTree(location: LatLng) {
-        val fragment = EditTreeFragment.newInstance(location)
+        val fragment = EditTreeFragment.newInstance(EditTreeInstanceValue.TreeLocation(location))
         supportFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()

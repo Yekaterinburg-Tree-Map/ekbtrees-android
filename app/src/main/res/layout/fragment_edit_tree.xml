@@ -95,12 +95,12 @@
                 style="@style/EditTreeParameterLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/species"
-                android:layout_marginBottom="12dp"/>
+                android:layout_marginBottom="12dp"
+                android:text="@string/species" />
 
             <androidx.appcompat.widget.AppCompatSpinner
                 android:id="@+id/tree_species_value"
-                style="@style/EditTreeParameterInputValue"
+                style="@style/EditTreeParameterInputTextValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:isScrollContainer="true" />
@@ -113,7 +113,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/number_of_trunks"
-                style="@style/EditTreeParameterInputValue"
+                style="@style/EditTreeParameterInputTextValue"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="numberDecimal" />
@@ -126,7 +126,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/trunk_girth_value"
-                style="@style/EditTreeParameterInputValue"
+                style="@style/EditTreeParameterInputTextValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal" />
@@ -139,7 +139,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/diameter_value"
-                style="@style/EditTreeParameterInputValue"
+                style="@style/EditTreeParameterInputTextValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="24dp"
@@ -154,10 +154,43 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/age_value"
-                style="@style/EditTreeParameterInputValue"
+                style="@style/EditTreeParameterInputTextValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal" />
+
+            <TextView
+                style="@style/EditTreeParameterLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/height_of_the_first_branch" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/height_to_first_branch_value"
+                style="@style/EditTreeParameterInputTextValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal" />
+
+            <TextView
+                style="@style/EditTreeParameterLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/condition_assessment" />
+
+
+
+            <TextView
+                style="@style/EditTreeParameterLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tree_planting_type" />
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/planting_type_value"
+                style="@style/EditTreeParameterInputTextValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </ScrollView>
 
