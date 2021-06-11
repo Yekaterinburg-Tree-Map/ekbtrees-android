@@ -1,43 +1,37 @@
 package ru.ekbtrees.treemap.ui.map
 
-import android.annotation.SuppressLint
 import android.graphics.Color
-import androidx.fragment.app.Fragment
-
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.Toast
-import androidx.fragment.app.viewModels
 import android.widget.*
 import androidx.cardview.widget.CardView
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import dagger.hilt.android.AndroidEntryPoint
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.R
-import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
 import ru.ekbtrees.treemap.ui.SharedViewModel
 import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
+import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.ui.mvi.contract.TreeMapContract
 import ru.ekbtrees.treemap.ui.viewstates.TreesViewState
 
 @AndroidEntryPoint
 class TreeMapFragment : Fragment() {
-
-    // map state
     private lateinit var map: GoogleMap
     private lateinit var addTreeButton: FloatingActionButton
 
@@ -47,20 +41,10 @@ class TreeMapFragment : Fragment() {
     private lateinit var cancelButton: FloatingActionButton
 
     // tree preview
-    private lateinit var previewTree: CardView
+    private lateinit var treePreview: CardView
     private lateinit var previewTreeSpeciesText: TextView
-    private lateinit var previewTreePosition: TextView
-    private lateinit var previewTreeDiameter: TextView
     private lateinit var previewCloseButton: ImageButton
     private lateinit var previewShowDescriptionButton: MaterialButton
-
-    //tree description
-    private lateinit var treeDescription: LinearLayout
-    private lateinit var treeDescriptionImage: ImageView
-    private lateinit var treeDescriptionSpecies: TextView
-    private lateinit var treeDescriptionPosition: TextView
-    private lateinit var treeDescriptionDiameter: TextView
-    private lateinit var treeDescriptionCloseButton: ImageView
 
     private val treeMapViewModel: TreeMapViewModel by viewModels()
     private val sharedViewModel: SharedViewModel by activityViewModels()
@@ -130,20 +114,10 @@ class TreeMapFragment : Fragment() {
         treeEditButton = view.findViewById(R.id.edit_tree_button)
         cancelButton = view.findViewById(R.id.cancel_button)
         addTreeButton = view.findViewById(R.id.add_tree_button)
-        previewTree = view.findViewById(R.id.preview_tree)
+        treePreview = view.findViewById(R.id.tree_preview)
         previewCloseButton = view.findViewById(R.id.preview_close_button)
         previewTreeSpeciesText = view.findViewById(R.id.preview_tree_species_text)
-        previewTreePosition = view.findViewById(R.id.preview_tree_position)
-        previewTreeDiameter = view.findViewById(R.id.preview_tree_diameter)
-
         previewShowDescriptionButton = view.findViewById(R.id.preview_tree_description_button)
-        val treeDescriptionContainer = view.findViewById<LinearLayout>(R.id.description_tree_container)
-        treeDescription = inflater.inflate(R.layout.fragment_tree_description, treeDescriptionContainer as ViewGroup, true) as LinearLayout
-        treeDescription.visibility = View.GONE
-        treeDescriptionCloseButton = treeDescription.findViewById(R.id.description_tree_close_button)
-        treeDescriptionSpecies = treeDescription.findViewById(R.id.description_tree_species_text)
-        treeDescriptionPosition = treeDescription.findViewById(R.id.description_tree_position)
-        treeDescriptionDiameter = treeDescription.findViewById(R.id.description_tree_diameter_crown)
 
         addTreeButton.setOnClickListener {
             lifecycleScope.launch {
@@ -154,16 +128,13 @@ class TreeMapFragment : Fragment() {
 
         previewCloseButton.setOnClickListener {
             disableSelectedCircle()
-            previewTree.visibility = View.GONE
+            treePreview.visibility = View.GONE
         }
 
         previewShowDescriptionButton.setOnClickListener {
-            previewTree.visibility = View.GONE
-            treeDescription.visibility = View.VISIBLE
-        }
-        treeDescriptionCloseButton.setOnClickListener {
-            disableSelectedCircle()
-            treeDescription.visibility = View.GONE
+            lifecycleScope.launch {
+                sharedViewModel.onTreeSelected(selectedCircle?.tag.toString())
+            }
         }
 
         return view
@@ -179,7 +150,7 @@ class TreeMapFragment : Fragment() {
     }
 
     /**
-     * Скрывает View объекты состояния добавления дерева
+     * Скарывает View объекты состояния добавления дерева
      * */
     private fun hideViews() {
         treeMarker.visibility = View.GONE
@@ -187,7 +158,6 @@ class TreeMapFragment : Fragment() {
         cancelButton.hide()
     }
 
-    @SuppressLint("SetTextI18n")
     private fun observeViewModel() {
         lifecycleScope.launchWhenStarted {
             treeMapViewModel.uiState.collect { mapViewState ->
@@ -203,14 +173,8 @@ class TreeMapFragment : Fragment() {
 
                             val tag = treeCircle.tag as String
                             val treeEntity = treeMapViewModel.getTreeBy(id = tag)
-                            previewTreeSpeciesText.text = "Порода ".plus(treeEntity.species.name.uppercase())
-                            previewTreePosition.text = "Геопозиция ".plus("${treeEntity.coord.lat} ${treeEntity.coord.lon}")
-                            previewTreeDiameter.text = "Диаметр кроны ".plus(treeEntity.diameter.toString())
-                            previewTree.visibility = View.VISIBLE
-
-                            treeDescriptionSpecies.text = "Порода ".plus(treeEntity.species.name.uppercase())
-                            treeDescriptionPosition.text = "Геопозиция ".plus("${treeEntity.coord.lat} ${treeEntity.coord.lon}")
-                            treeDescriptionDiameter.text = "Диаметр кроны ".plus(treeEntity.diameter.toString())
+                            previewTreeSpeciesText.text = treeEntity.species.name
+                            treePreview.visibility = View.VISIBLE
                         }
                     }
                     is TreeMapContract.MapViewState.MapErrorState -> {
@@ -221,7 +185,7 @@ class TreeMapFragment : Fragment() {
                     is TreeMapContract.MapViewState.MapPickTreeLocationState -> {
                         showViews()
                         addTreeButton.hide()
-                        previewTree.visibility = View.GONE
+                        treePreview.visibility = View.GONE
                         map.setOnCircleClickListener { }
                         val cameraUpdateFactory =
                             CameraUpdateFactory.newLatLngZoom(map.cameraPosition.target, 18f)
