@@ -12,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.beust.klaxon.Klaxon
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
@@ -21,6 +22,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
 import ru.ekbtrees.treemap.ui.SharedViewModel
@@ -133,7 +135,8 @@ class TreeMapFragment : Fragment() {
 
         previewShowDescriptionButton.setOnClickListener {
             lifecycleScope.launch {
-                sharedViewModel.onTreeSelected(selectedCircle?.tag.toString())
+                val treeEntity = treeMapViewModel.getTreeBy(id = selectedCircle?.tag.toString())
+                sharedViewModel.onTreeSelected(Klaxon().toJsonString(treeEntity))
             }
         }
 
