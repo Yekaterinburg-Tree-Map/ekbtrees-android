@@ -1,5 +1,6 @@
 package ru.ekbtrees.treemap.ui.treedetail
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -11,6 +12,12 @@ import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.beust.klaxon.Klaxon
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.CircleOptions
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import ru.ekbtrees.treemap.R
@@ -27,8 +34,10 @@ private const val ARG_PARAM1 = "TreeId"
  * */
 @AndroidEntryPoint
 class TreeDetailFragment : Fragment() {
+    private lateinit var treeLocation: LatLng
     private lateinit var stringifiedTree: String
     private lateinit var parsedTree: TreeEntity
+    private lateinit var map: GoogleMap
 
     private val treeDetailViewModel: TreeDetailViewModel by viewModels()
 
@@ -45,8 +54,28 @@ class TreeDetailFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        parsedTree = Klaxon().parse<TreeEntity>(stringifiedTree)!!
         binding = FragmentTreeDetailBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+        mapFragment?.getMapAsync { googleMap ->
+            map = googleMap
+            treeLocation = LatLng(parsedTree.coord.lat, parsedTree.coord.lon)
+            val circleOptions = CircleOptions().apply {
+                center(treeLocation)
+                radius(parsedTree.diameter/2.0)
+                fillColor(parsedTree.species.color)
+                strokeColor(Color.BLACK)
+                strokeWidth(2f)
+            }
+            map.addCircle(circleOptions)
+            val zoomLevel = 19f
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(treeLocation, zoomLevel))
+        }
     }
 
     override fun onResume() {
@@ -59,7 +88,6 @@ class TreeDetailFragment : Fragment() {
             treeDetailViewModel.uiState.collect { viewState ->
                 when (viewState) {
                     is TreeDetailContract.TreeDetailViewState.Idle -> {
-                        parsedTree = Klaxon().parse<TreeEntity>(stringifiedTree)!!
                         binding.latitudeValue.text = parsedTree.coord.lat.toString()
                         binding.longitudeValue.text = parsedTree.coord.lon.toString()
                         binding.treeSpeciesValue.text = parsedTree.species.name

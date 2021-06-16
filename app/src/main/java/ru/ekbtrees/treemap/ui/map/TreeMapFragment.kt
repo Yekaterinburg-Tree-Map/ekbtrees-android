@@ -28,6 +28,7 @@ import ru.ekbtrees.treemap.ui.SharedViewModel
 import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.ui.mvi.contract.TreeMapContract
 import ru.ekbtrees.treemap.ui.viewstates.TreesViewState
+import java.util.*
 
 @AndroidEntryPoint
 class TreeMapFragment : Fragment() {
@@ -42,6 +43,8 @@ class TreeMapFragment : Fragment() {
     // tree preview
     private lateinit var treePreview: CardView
     private lateinit var previewTreeSpeciesText: TextView
+    private lateinit var previewTreePosition: TextView
+    private lateinit var previewTreeDiameter: TextView
     private lateinit var previewCloseButton: ImageButton
     private lateinit var previewShowDescriptionButton: MaterialButton
 
@@ -116,6 +119,8 @@ class TreeMapFragment : Fragment() {
         treePreview = view.findViewById(R.id.tree_preview)
         previewCloseButton = view.findViewById(R.id.preview_close_button)
         previewTreeSpeciesText = view.findViewById(R.id.preview_tree_species_text)
+        previewTreePosition = view.findViewById(R.id.preview_tree_position)
+        previewTreeDiameter = view.findViewById(R.id.preview_tree_diameter)
         previewShowDescriptionButton = view.findViewById(R.id.preview_tree_description_button)
 
         addTreeButton.setOnClickListener {
@@ -173,7 +178,15 @@ class TreeMapFragment : Fragment() {
 
                             val tag = treeCircle.tag as String
                             val treeEntity = treeMapViewModel.getTreeBy(id = tag)
-                            previewTreeSpeciesText.text = treeEntity.species.name
+                            previewTreeSpeciesText.text = treeEntity.species.name.replaceFirstChar {
+                                if (it.isLowerCase()) it.titlecase(
+                                    Locale.getDefault()
+                                ) else it.toString()
+                            }
+                            previewTreePosition.text =
+                                getString(R.string.tree_location).plus(" ${treeEntity.coord.lat} ${treeEntity.coord.lon}")
+                            previewTreeDiameter.text =
+                                getString(R.string.diameter_of_crown).plus(" ${treeEntity.diameter}")
                             treePreview.visibility = View.VISIBLE
                         }
                     }
