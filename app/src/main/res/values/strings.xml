@@ -6,6 +6,7 @@
     <string name="basic_information">Basic information</string>
     <string name="cancel">Cancel</string>
     <string name="add_new_tree">Add new tree</string>
+    <string name="tree_location">Location</string>
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
     <string name="show_description">Show description</string>
