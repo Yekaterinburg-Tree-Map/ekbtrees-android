@@ -9,14 +9,15 @@ import ru.ekbtrees.treemap.ui.mvi.base.UiEvent
 import ru.ekbtrees.treemap.ui.mvi.contract.EditTreeContract
 import javax.inject.Inject
 
-const val INSTANCE_VALUE_KEY = "InstanceValue"
-
+/**
+ * ViewModel для [EditTreeFragment].
+ * Для работы требуется добавить в аргумент фрагмента с ключём [EditTreeViewModel.INSTANCE_VALUE_KEY] и значением [EditTreeInstanceValue].
+ * */
 @HiltViewModel
 class EditTreeViewModel @Inject constructor(
     private val interactor: TreesInteractor,
     savedStateHandle: SavedStateHandle
-) :
-    BaseViewModel<EditTreeContract.EditTreeEvent, EditTreeContract.EditTreeViewState, EditTreeContract.TreeMapEffect>() {
+) : BaseViewModel<EditTreeContract.EditTreeEvent, EditTreeContract.EditTreeViewState, EditTreeContract.TreeMapEffect>() {
 
     init {
         handleViewInstanceValue(
@@ -55,5 +56,9 @@ class EditTreeViewModel @Inject constructor(
                 // Save tree data
             }
         }
+    }
+
+    companion object {
+        const val INSTANCE_VALUE_KEY = "InstanceValue"
     }
 }

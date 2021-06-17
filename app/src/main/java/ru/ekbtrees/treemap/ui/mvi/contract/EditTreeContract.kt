@@ -5,7 +5,12 @@ import ru.ekbtrees.treemap.domain.entity.TreeDetailEntity
 import ru.ekbtrees.treemap.ui.mvi.base.UiEffect
 import ru.ekbtrees.treemap.ui.mvi.base.UiEvent
 import ru.ekbtrees.treemap.ui.mvi.base.UiState
+import ru.ekbtrees.treemap.ui.edittree.EditTreeFragment
+import ru.ekbtrees.treemap.ui.edittree.EditTreeViewModel
 
+/**
+ * Соглашение между [EditTreeFragment] и [EditTreeViewModel]
+ * */
 class EditTreeContract {
     /**
      * Состояния редактирования (добавления) дерева.

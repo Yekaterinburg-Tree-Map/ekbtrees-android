@@ -26,4 +26,7 @@
     <string name="status">Status</string>
     <string name="height_of_the_first_branch">Height of the first branch</string>
     <string name="condition_assessment">Condition assessment</string>
+    <string name="tree_id">Tree id</string>
+    <string name="author_of_tree">Author of tree</string>
+    <string name="condition_assessment_holder">%1$s/5</string>
 </resources>
