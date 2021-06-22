@@ -16,14 +16,14 @@ data class TreeDetailEntity(
     val height: Double,
     val numberOfTrunks: Int,
     val trunkGirth: Double,
-    val diameter: Int,
+    val diameterOfCrown: Int,
     val heightOfTheFirstBranch: Double,
     val conditionAssessment: Int,
     val age: Int,
-    val treePlantingType: Int,
+    val treePlantingType: String,
     val createTime: String,
     val updateTime: String,
-    val authorId: String,
+    val authorId: Int,
     val status: String,
     val fileIds: Collection<Int>
 )

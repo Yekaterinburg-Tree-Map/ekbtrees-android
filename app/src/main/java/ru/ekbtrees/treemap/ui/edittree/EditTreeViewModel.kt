@@ -1,7 +1,9 @@
 package ru.ekbtrees.treemap.ui.edittree
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
 import ru.ekbtrees.treemap.domain.interactors.TreesInteractor
 import ru.ekbtrees.treemap.ui.mvi.base.BaseViewModel
@@ -33,7 +35,7 @@ class EditTreeViewModel @Inject constructor(
     private fun handleViewInstanceValue(instanceValue: EditTreeInstanceValue) {
         when (instanceValue) {
             is EditTreeInstanceValue.TreeLocation -> {
-                setState(EditTreeContract.EditTreeViewState.EmptyTreeDataState(instanceValue.treeLocation))
+                setState(EditTreeContract.EditTreeViewState.EmptyData(instanceValue.treeLocation))
             }
             is EditTreeInstanceValue.TreeId -> {
                 /**
@@ -53,7 +55,9 @@ class EditTreeViewModel @Inject constructor(
                 // Launch loading tree data by treeId
             }
             is EditTreeContract.EditTreeEvent.OnSaveButtonClicked -> {
-                // Save tree data
+                viewModelScope.launch {
+                    interactor.uploadTreeDetail(event.treeDetail)
+                }
             }
         }
     }

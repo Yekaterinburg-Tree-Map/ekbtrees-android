@@ -17,10 +17,10 @@ class EditTreeContract {
      * */
     sealed class EditTreeViewState : UiState {
         object Idle : EditTreeViewState()
-        object TreeDataLoadingState : EditTreeViewState()
-        object TreeDataLoadingFailedState : EditTreeViewState()
-        class EmptyTreeDataState(val treeLocation: LatLng) : EditTreeViewState()
-        class TreeDataLoadedState(val treeData: TreeDetailEntity) : EditTreeViewState()
+        object DataLoading : EditTreeViewState()
+        object Error : EditTreeViewState()
+        class EmptyData(val treeLocation: LatLng) : EditTreeViewState()
+        class DataLoaded(val treeData: TreeDetailEntity) : EditTreeViewState()
     }
 
     /**
@@ -35,7 +35,7 @@ class EditTreeContract {
         /**
          * Инициируем сохранение введённых данных.
          */
-        class OnSaveButtonClicked(val treeData: TreeDetailEntity) : EditTreeEvent()
+        class OnSaveButtonClicked(val treeDetail: TreeDetailEntity) : EditTreeEvent()
     }
 
     class TreeMapEffect : UiEffect
