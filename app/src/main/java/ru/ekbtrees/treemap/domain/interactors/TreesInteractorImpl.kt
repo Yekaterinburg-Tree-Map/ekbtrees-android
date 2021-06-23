@@ -10,11 +10,11 @@ class TreesInteractorImpl(private val treesRepository: TreesRepository) : TreesI
         return treesRepository.getTreesInClusteringBy()
     }
 
-    override fun getTreeDetailBy(id: String): TreeDetailEntity {
+    override suspend fun getTreeDetailBy(id: String): TreeDetailEntity {
         return treesRepository.getTreeDetailBy(id)
     }
 
-    override fun uploadTreeDetail(treeDetail: TreeDetailEntity) {
+    override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity) {
         return treesRepository.uploadTreeDetail(treeDetail)
     }
 }

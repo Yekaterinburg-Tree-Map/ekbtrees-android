@@ -9,7 +9,7 @@ import ru.ekbtrees.treemap.domain.entity.TreeEntity
 interface TreesInteractor {
     fun getTrees(): Collection<TreeEntity>
 
-    fun getTreeDetailBy(id: String): TreeDetailEntity
+    suspend fun getTreeDetailBy(id: String): TreeDetailEntity
 
-    fun uploadTreeDetail(treeDetail: TreeDetailEntity)
+    suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity)
 }

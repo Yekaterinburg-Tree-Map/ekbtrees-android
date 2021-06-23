@@ -90,11 +90,11 @@ class TreesRepositoryImpl(private val context: Context) : TreesRepository {
         )
     }
 
-    override fun getTreeDetailBy(id: String): TreeDetailEntity {
+    override suspend fun getTreeDetailBy(id: String): TreeDetailEntity {
         TODO("Not yet implemented")
     }
 
-    override fun uploadTreeDetail(treeDetail: TreeDetailEntity) {
+    override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity) {
         TODO("Not yet implemented")
     }
 
