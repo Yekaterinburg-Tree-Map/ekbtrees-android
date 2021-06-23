@@ -5,10 +5,7 @@ import android.graphics.Color
 import android.util.Log
 import org.json.JSONException
 import org.json.JSONObject
-import ru.ekbtrees.treemap.domain.entity.ClusterTreesEntity
-import ru.ekbtrees.treemap.domain.entity.LatLonEntity
-import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
-import ru.ekbtrees.treemap.domain.entity.TreeEntity
+import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
 import java.io.IOException
 import java.lang.Exception
@@ -66,11 +63,13 @@ class TreesRepositoryImpl(private val context: Context) : TreesRepository {
                 "Failed to load local asset. Check asset location and the name of a file.",
                 e
             )
-            return JSONObject("""
+            return JSONObject(
+                """
                 {
                     "features": []
                 }
-            """.trimIndent())
+            """.trimIndent()
+            )
         }
         return JSONObject(jsonString)
     }
@@ -89,6 +88,14 @@ class TreesRepositoryImpl(private val context: Context) : TreesRepository {
             SpeciesEntity("6", Color.parseColor("#C8ff00ff"), "вяз"),
             SpeciesEntity("7", Color.parseColor("#C800bfff"), "ель"),
         )
+    }
+
+    override suspend fun getTreeDetailBy(id: String): TreeDetailEntity {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity) {
+        TODO("Not yet implemented")
     }
 
     private fun getSpeciesByName(name: String): SpeciesEntity {
