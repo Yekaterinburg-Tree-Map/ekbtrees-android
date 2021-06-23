@@ -203,6 +203,8 @@ class EditTreeFragment : Fragment() {
             getString(R.string.condition_assessment_holder, "-")
 
         binding.treeIdValue.text = UUID.randomUUID().toString()
+        binding.createTimeValue.text = Calendar.getInstance(Locale.ROOT).time.toString()
+        binding.updateTimeValue.text = Calendar.getInstance(Locale.ROOT).time.toString()
     }
 
     private fun observeViewStates() {
