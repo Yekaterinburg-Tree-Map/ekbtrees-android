@@ -1,5 +1,6 @@
 package ru.ekbtrees.treemap.domain.interactors
 
+import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
 import ru.ekbtrees.treemap.domain.entity.TreeDetailEntity
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
 
@@ -12,4 +13,6 @@ interface TreesInteractor {
     suspend fun getTreeDetailBy(id: String): TreeDetailEntity
 
     suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity)
+
+    fun getTreeSpecies(): Collection<SpeciesEntity>
 }

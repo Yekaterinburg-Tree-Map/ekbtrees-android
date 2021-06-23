@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-parcelize'
     id "kotlin-kapt"
     id "dagger.hilt.android.plugin"
     id 'com.google.secrets_gradle_plugin' version '0.5'
@@ -23,7 +24,11 @@ android {
         if (rootProject.file("local.properties").exists()) {
             properties.load(rootProject.file("local.properties").newDataInputStream())
         }
-        manifestPlaceholders = [ mapsApiKey : properties.getProperty("MAPS_API_KEY", "") ]
+        manifestPlaceholders = [mapsApiKey: properties.getProperty("MAPS_API_KEY", "")]
+    }
+
+    buildFeatures {
+        viewBinding = true
     }
 
     buildTypes {
