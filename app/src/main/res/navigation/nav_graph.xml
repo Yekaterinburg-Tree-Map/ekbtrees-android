@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/treeMapFragment">
+
+    <fragment
+        android:id="@+id/treeMapFragment"
+        android:name="ru.ekbtrees.treemap.ui.map.TreeMapFragment"
+        android:label="TreeMapFragment" >
+        <action
+            android:id="@+id/action_treeMapFragment_to_editTreeFragment"
+            app:destination="@id/editTreeFragment" />
+        <action
+            android:id="@+id/action_treeMapFragment_to_placeholder"
+            app:destination="@id/placeholder" />
+    </fragment>
+    <fragment
+        android:id="@+id/editTreeFragment"
+        android:name="ru.ekbtrees.treemap.ui.edittree.EditTreeFragment"
+        android:label="fragment_edit_tree"
+        tools:layout="@layout/fragment_edit_tree" >
+        <argument
+            android:name="instanceValue"
+            app:argType="ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue" />
+    </fragment>
+    <fragment android:id="@+id/placeholder" >
+        <action
+            android:id="@+id/action_placeholder_to_editTreeFragment"
+            app:destination="@id/editTreeFragment" />
+    </fragment>
+</navigation>
