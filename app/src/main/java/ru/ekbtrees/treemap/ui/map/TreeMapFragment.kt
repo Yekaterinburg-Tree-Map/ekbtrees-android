@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -15,12 +14,11 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.R
+import ru.ekbtrees.treemap.databinding.FragmentTreeMapBinding
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
 import ru.ekbtrees.treemap.ui.SharedViewModel
 import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
@@ -29,19 +27,10 @@ import ru.ekbtrees.treemap.ui.viewstates.TreesViewState
 
 @AndroidEntryPoint
 class TreeMapFragment : Fragment() {
+
+    private lateinit var binding: FragmentTreeMapBinding
+
     private lateinit var map: GoogleMap
-    private lateinit var addTreeButton: FloatingActionButton
-
-    // pick tree location state
-    private lateinit var treeMarker: ImageView
-    private lateinit var treeEditButton: FloatingActionButton
-    private lateinit var cancelButton: FloatingActionButton
-
-    // tree preview
-    private lateinit var treePreview: CardView
-    private lateinit var previewTreeSpeciesText: TextView
-    private lateinit var previewCloseButton: ImageButton
-    private lateinit var previewShowDescriptionButton: MaterialButton
 
     private val treeMapViewModel: TreeMapViewModel by viewModels()
     private val sharedViewModel: SharedViewModel by activityViewModels()
@@ -105,52 +94,45 @@ class TreeMapFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_tree_map, container, false)
-        treeMarker = view.findViewById(R.id.tree_marker)
-        treeEditButton = view.findViewById(R.id.edit_tree_button)
-        cancelButton = view.findViewById(R.id.cancel_button)
-        addTreeButton = view.findViewById(R.id.add_tree_button)
-        treePreview = view.findViewById(R.id.tree_preview)
-        previewCloseButton = view.findViewById(R.id.preview_close_button)
-        previewTreeSpeciesText = view.findViewById(R.id.preview_tree_species_text)
-        previewShowDescriptionButton = view.findViewById(R.id.preview_tree_description_button)
+    ): View {
 
-        addTreeButton.setOnClickListener {
+        binding = FragmentTreeMapBinding.inflate(inflater, container, false)
+
+        binding.addTreeButton.setOnClickListener {
             lifecycleScope.launch {
                 disableSelectedCircle()
                 treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnAddTreeLaunched)
             }
         }
 
-        previewCloseButton.setOnClickListener {
+        binding.previewCloseButton.setOnClickListener {
             disableSelectedCircle()
-            treePreview.visibility = View.GONE
+            binding.treePreview.visibility = View.GONE
         }
 
-        previewShowDescriptionButton.setOnClickListener {
+        binding.previewTreeDescriptionButton.setOnClickListener {
             Toast.makeText(requireContext(), "Show tree description.", Toast.LENGTH_SHORT).show()
         }
 
-        return view
+        return binding.root
     }
 
     /**
      * Выводит на экран View объекты состояния добавления дерева
      * */
     private fun showViews() {
-        treeMarker.visibility = View.VISIBLE
-        treeEditButton.show()
-        cancelButton.show()
+        binding.treeMarker.visibility = View.VISIBLE
+        binding.editTreeButton.show()
+        binding.cancelButton.show()
     }
 
     /**
      * Скарывает View объекты состояния добавления дерева
      * */
     private fun hideViews() {
-        treeMarker.visibility = View.GONE
-        treeEditButton.hide()
-        cancelButton.hide()
+        binding.treeMarker.visibility = View.GONE
+        binding.editTreeButton.hide()
+        binding.cancelButton.hide()
     }
 
     private fun observeViewModel() {
@@ -161,26 +143,26 @@ class TreeMapFragment : Fragment() {
                     }
                     is TreeMapContract.MapViewState.MapState -> {
                         hideViews()
-                        addTreeButton.show()
+                        binding.addTreeButton.show()
                         map.setOnCircleClickListener { treeCircle ->
                             disableSelectedCircle()
                             enableSelectedCircle(treeCircle)
 
                             val tag = treeCircle.tag as String
                             val treeEntity = treeMapViewModel.getTreeBy(id = tag)
-                            previewTreeSpeciesText.text = treeEntity.species.name
-                            treePreview.visibility = View.VISIBLE
+                            binding.previewTreeSpeciesText.text = treeEntity.species.name
+                            binding.treePreview.visibility = View.VISIBLE
                         }
                     }
                     is TreeMapContract.MapViewState.MapErrorState -> {
                         hideViews()
-                        addTreeButton.hide()
+                        binding.addTreeButton.hide()
                         // show error text or picture
                     }
                     is TreeMapContract.MapViewState.MapPickTreeLocationState -> {
                         showViews()
-                        addTreeButton.hide()
-                        treePreview.visibility = View.GONE
+                        binding.addTreeButton.hide()
+                        binding.treePreview.visibility = View.GONE
                         map.setOnCircleClickListener { }
                         val cameraUpdateFactory =
                             CameraUpdateFactory.newLatLngZoom(map.cameraPosition.target, 18f)
@@ -218,13 +200,13 @@ class TreeMapFragment : Fragment() {
 
         setUpMap()
 
-        treeEditButton.setOnClickListener {
+        binding.editTreeButton.setOnClickListener {
             lifecycleScope.launch {
                 sharedViewModel.addNewTree(map.cameraPosition.target)
             }
         }
 
-        cancelButton.setOnClickListener {
+        binding.cancelButton.setOnClickListener {
             lifecycleScope.launch {
                 treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnAddTreeCanceled)
             }
