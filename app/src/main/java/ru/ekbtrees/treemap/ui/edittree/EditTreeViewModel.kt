@@ -1,6 +1,5 @@
 package ru.ekbtrees.treemap.ui.edittree
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -13,26 +12,18 @@ import javax.inject.Inject
 
 /**
  * ViewModel для [EditTreeFragment].
- * Для работы требуется добавить в аргумент фрагмента с ключём [EditTreeViewModel.INSTANCE_VALUE_KEY] и значением [EditTreeInstanceValue].
+ * Для запуска нужно передать [EditTreeInstanceValue] в метод [provideInstanceValue].
  * */
 @HiltViewModel
 class EditTreeViewModel @Inject constructor(
-    private val interactor: TreesInteractor,
-    savedStateHandle: SavedStateHandle
+    private val interactor: TreesInteractor
 ) : BaseViewModel<EditTreeContract.EditTreeEvent, EditTreeContract.EditTreeViewState, EditTreeContract.TreeMapEffect>() {
-
-    init {
-        handleViewInstanceValue(
-            savedStateHandle.get<EditTreeInstanceValue>(INSTANCE_VALUE_KEY)
-                ?: throw Exception("Instance value must be added.")
-        )
-    }
 
     fun getTreeSpecies(): Array<SpeciesEntity> {
         return interactor.getTreeSpecies().toTypedArray()
     }
 
-    private fun handleViewInstanceValue(instanceValue: EditTreeInstanceValue) {
+    fun provideInstanceValue(instanceValue: EditTreeInstanceValue) {
         when (instanceValue) {
             is EditTreeInstanceValue.TreeLocation -> {
                 setState(EditTreeContract.EditTreeViewState.EmptyData(instanceValue.treeLocation))

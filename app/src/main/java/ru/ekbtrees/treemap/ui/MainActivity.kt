@@ -10,8 +10,6 @@ import kotlinx.coroutines.flow.collect
 import dagger.hilt.android.AndroidEntryPoint
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.ui.edittree.EditTreeFragment
-import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
-import ru.ekbtrees.treemap.ui.map.TreeMapFragment
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -22,14 +20,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
-
-        when (currentFragment) {
-            null -> {
-                val fragment = TreeMapFragment.newInstance()
-                supportFragmentManager.beginTransaction()
-                    .add(R.id.fragment_container, fragment).commit()
-            }
+        when (supportFragmentManager.findFragmentById(R.id.fragment_container)) {
             is EditTreeFragment -> {
                 supportActionBar?.apply {
                     setDisplayHomeAsUpEnabled(true)
@@ -71,10 +62,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addNewTree(location: LatLng) {
-        val fragment = EditTreeFragment.newInstance(EditTreeInstanceValue.TreeLocation(location))
-        supportFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
             title = getString(R.string.new_tree)

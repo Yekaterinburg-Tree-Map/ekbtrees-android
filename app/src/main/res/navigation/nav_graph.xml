@@ -8,26 +8,32 @@
     <fragment
         android:id="@+id/treeMapFragment"
         android:name="ru.ekbtrees.treemap.ui.map.TreeMapFragment"
-        android:label="TreeMapFragment" >
+        android:label="fragment_tree_map"
+        tools:layout="@layout/fragment_tree_map">
         <action
             android:id="@+id/action_treeMapFragment_to_editTreeFragment"
-            app:destination="@id/editTreeFragment" />
+            app:destination="@id/editTreeFragment"
+            app:popUpTo="@id/treeMapFragment" />
         <action
             android:id="@+id/action_treeMapFragment_to_placeholder"
-            app:destination="@id/placeholder" />
+            app:destination="@id/placeholder"
+            app:popUpTo="@id/treeMapFragment" />
     </fragment>
     <fragment
         android:id="@+id/editTreeFragment"
         android:name="ru.ekbtrees.treemap.ui.edittree.EditTreeFragment"
         android:label="fragment_edit_tree"
-        tools:layout="@layout/fragment_edit_tree" >
+        tools:layout="@layout/fragment_edit_tree">
         <argument
             android:name="instanceValue"
             app:argType="ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue" />
     </fragment>
-    <fragment android:id="@+id/placeholder" >
+    <fragment android:id="@+id/placeholder">
         <action
             android:id="@+id/action_placeholder_to_editTreeFragment"
             app:destination="@id/editTreeFragment" />
+        <argument
+            android:name="TreeId"
+            app:argType="string" />
     </fragment>
 </navigation>
