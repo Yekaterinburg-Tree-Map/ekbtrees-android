@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -99,9 +100,18 @@ class TreeMapFragment : Fragment() {
         binding = FragmentTreeMapBinding.inflate(inflater, container, false)
 
         binding.addTreeButton.setOnClickListener {
-            lifecycleScope.launch {
-                disableSelectedCircle()
-                treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnAddTreeLaunched)
+            when (treeMapViewModel.currentState) {
+                is TreeMapContract.MapViewState.MapState -> {
+                    disableSelectedCircle()
+                    treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnAddTreeLaunched)
+                }
+                is TreeMapContract.MapViewState.MapPickTreeLocationState -> {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        sharedViewModel.addNewTree(map.cameraPosition.target)
+                    }
+                }
+                else -> {
+                }
             }
         }
 
@@ -120,48 +130,54 @@ class TreeMapFragment : Fragment() {
     /**
      * Выводит на экран View объекты состояния добавления дерева
      * */
-    private fun showViews() {
+    private fun showPickTreeLocationViews() {
         binding.treeMarker.visibility = View.VISIBLE
-        binding.editTreeButton.show()
         binding.cancelButton.show()
     }
 
     /**
      * Скарывает View объекты состояния добавления дерева
      * */
-    private fun hideViews() {
+    private fun hidePickTreeLocationViews() {
         binding.treeMarker.visibility = View.GONE
-        binding.editTreeButton.hide()
         binding.cancelButton.hide()
     }
 
     private fun observeViewModel() {
-        lifecycleScope.launchWhenStarted {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             treeMapViewModel.uiState.collect { mapViewState ->
                 when (mapViewState) {
                     is TreeMapContract.MapViewState.Idle -> {
                     }
                     is TreeMapContract.MapViewState.MapState -> {
-                        hideViews()
+                        hidePickTreeLocationViews()
                         binding.addTreeButton.show()
                         map.setOnCircleClickListener { treeCircle ->
                             disableSelectedCircle()
                             enableSelectedCircle(treeCircle)
-
                             val tag = treeCircle.tag as String
                             val treeEntity = treeMapViewModel.getTreeBy(id = tag)
                             binding.previewTreeSpeciesText.text = treeEntity.species.name
                             binding.treePreview.visibility = View.VISIBLE
                         }
+                        binding.addTreeButton.setImageDrawable(
+                            AppCompatResources.getDrawable(requireContext(), R.drawable.ic_add_24)
+                        )
+                        binding.addTreeButton.imageTintList =
+                            AppCompatResources.getColorStateList(requireContext(), R.color.black)
                     }
                     is TreeMapContract.MapViewState.MapErrorState -> {
-                        hideViews()
+                        hidePickTreeLocationViews()
                         binding.addTreeButton.hide()
                         // show error text or picture
                     }
                     is TreeMapContract.MapViewState.MapPickTreeLocationState -> {
-                        showViews()
-                        binding.addTreeButton.hide()
+                        showPickTreeLocationViews()
+                        binding.addTreeButton.setImageDrawable(
+                            AppCompatResources.getDrawable(requireContext(), R.drawable.ic_check_24)
+                        )
+                        binding.addTreeButton.imageTintList =
+                            AppCompatResources.getColorStateList(requireContext(), R.color.green)
                         binding.treePreview.visibility = View.GONE
                         map.setOnCircleClickListener { }
                         val cameraUpdateFactory =
@@ -172,7 +188,7 @@ class TreeMapFragment : Fragment() {
             }
         }
 
-        lifecycleScope.launchWhenStarted {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             treeMapViewModel.treeDataState.collect { treeDataViewState ->
                 when (treeDataViewState) {
                     is TreesViewState.Idle -> {
@@ -200,14 +216,8 @@ class TreeMapFragment : Fragment() {
 
         setUpMap()
 
-        binding.editTreeButton.setOnClickListener {
-            lifecycleScope.launch {
-                sharedViewModel.addNewTree(map.cameraPosition.target)
-            }
-        }
-
         binding.cancelButton.setOnClickListener {
-            lifecycleScope.launch {
+            viewLifecycleOwner.lifecycleScope.launch {
                 treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnAddTreeCanceled)
             }
         }
