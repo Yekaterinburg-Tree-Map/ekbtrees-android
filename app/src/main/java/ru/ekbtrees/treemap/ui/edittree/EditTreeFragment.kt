@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter
 import android.widget.SeekBar
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
@@ -51,6 +52,8 @@ class EditTreeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val args: EditTreeFragmentArgs by navArgs()
+        viewModel.provideInstanceValue(args.instanceValue)
         observeViewStates()
 
         binding.conditionAssessmentValue.setOnSeekBarChangeListener(object :
