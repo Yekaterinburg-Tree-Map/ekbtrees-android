@@ -1,11 +1,8 @@
 package ru.ekbtrees.treemap.ui.map
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -22,11 +18,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -45,18 +38,6 @@ class TreeMapFragment : Fragment() {
     private lateinit var binding: FragmentTreeMapBinding
 
     private lateinit var map: GoogleMap
-    private lateinit var addTreeButton: FloatingActionButton
-
-    // pick tree location state
-    private lateinit var treeMarker: ImageView
-    private lateinit var treeEditButton: FloatingActionButton
-    private lateinit var cancelButton: FloatingActionButton
-
-    // tree preview
-    private lateinit var treePreview: CardView
-    private lateinit var previewTreeSpeciesText: TextView
-    private lateinit var previewCloseButton: ImageButton
-    private lateinit var previewShowDescriptionButton: MaterialButton
 
     private val treeMapViewModel: TreeMapViewModel by viewModels()
     private val sharedViewModel: SharedViewModel by activityViewModels()
@@ -97,6 +78,12 @@ class TreeMapFragment : Fragment() {
                 is TreeMapContract.MapViewState.MapPickTreeLocationState -> {
                     viewLifecycleOwner.lifecycleScope.launch {
                         sharedViewModel.addNewTree(map.cameraPosition.target)
+                        val navController = findNavController()
+                        val action =
+                            TreeMapFragmentDirections.actionTreeMapFragmentToEditTreeFragment(
+                                EditTreeInstanceValue.TreeLocation(map.cameraPosition.target)
+                            )
+                        navController.navigate(action)
                     }
                 }
                 else -> {
@@ -290,9 +277,5 @@ class TreeMapFragment : Fragment() {
             LatLng(56.901152, 60.675740) // NE bounds
         )
         private const val MIN_ZOOM_LEVEL = 11f
-
-        fun newInstance(): TreeMapFragment {
-            return TreeMapFragment()
-        }
     }
 }
