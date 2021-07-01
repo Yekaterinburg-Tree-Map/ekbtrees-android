@@ -9,8 +9,8 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.collect
 import dagger.hilt.android.AndroidEntryPoint
 import ru.ekbtrees.treemap.R
+import ru.ekbtrees.treemap.domain.entity.TreeEntity
 import ru.ekbtrees.treemap.ui.edittree.EditTreeFragment
-import ru.ekbtrees.treemap.ui.map.TreeMapFragment
 import ru.ekbtrees.treemap.ui.treedetail.TreeDetailFragment
 
 @AndroidEntryPoint
@@ -59,8 +59,8 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun onTreeSelected(treeId: String) {
-        val fragment = TreeDetailFragment.newInstance(treeId)
+    private fun onTreeSelected(treeEntity: TreeEntity) {
+        val fragment = TreeDetailFragment.newInstance(treeEntity)
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)

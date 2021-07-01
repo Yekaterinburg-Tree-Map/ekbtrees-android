@@ -2,29 +2,24 @@ package ru.ekbtrees.treemap.ui.treedetail
 
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.beust.klaxon.Klaxon
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentTreeDetailBinding
+import ru.ekbtrees.treemap.domain.entity.TreeDetailEntity
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
 import ru.ekbtrees.treemap.ui.mvi.contract.TreeDetailContract
-import java.util.*
 
 private const val TAG = "TreeDetailFragment"
 private const val ARG_PARAM1 = "TreeId"
@@ -35,7 +30,6 @@ private const val ARG_PARAM1 = "TreeId"
 @AndroidEntryPoint
 class TreeDetailFragment : Fragment() {
     private lateinit var treeLocation: LatLng
-    private lateinit var stringifiedTree: String
     private lateinit var parsedTree: TreeEntity
     private lateinit var map: GoogleMap
 
@@ -46,7 +40,7 @@ class TreeDetailFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            stringifiedTree = it.getString(ARG_PARAM1)!!
+            parsedTree = it.getParcelable(ARG_PARAM1)!!
         }
     }
 
@@ -54,20 +48,27 @@ class TreeDetailFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        parsedTree = Klaxon().parse<TreeEntity>(stringifiedTree)!!
         binding = FragmentTreeDetailBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        treeDetailViewModel.provideInstanceValue(
+            TreeDetailEntity(
+                parsedTree.id, parsedTree.coord, parsedTree.species,
+                0.0, 0, 0.0,
+                parsedTree.diameter.toInt(), 0.0, 0, 0, "", "", "", 0, "",
+                List(0, { index -> index })
+            )
+        )
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync { googleMap ->
             map = googleMap
             treeLocation = LatLng(parsedTree.coord.lat, parsedTree.coord.lon)
             val circleOptions = CircleOptions().apply {
                 center(treeLocation)
-                radius(parsedTree.diameter/2.0)
+                radius(parsedTree.diameter / 2.0)
                 fillColor(parsedTree.species.color)
                 strokeColor(Color.BLACK)
                 strokeWidth(2f)
@@ -76,30 +77,35 @@ class TreeDetailFragment : Fragment() {
             val zoomLevel = 19f
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(treeLocation, zoomLevel))
         }
-    }
-
-    override fun onResume() {
         observeViewModel()
-        super.onResume()
     }
 
     private fun observeViewModel() {
-        lifecycleScope.launchWhenStarted {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             treeDetailViewModel.uiState.collect { viewState ->
                 when (viewState) {
-                    is TreeDetailContract.TreeDetailViewState.Idle -> {
-                        binding.latitudeValue.text = parsedTree.coord.lat.toString()
-                        binding.longitudeValue.text = parsedTree.coord.lon.toString()
-                        binding.treeSpeciesValue.text = parsedTree.species.name
-                        binding.diameterValue.text = parsedTree.diameter.toString()
+                    is TreeDetailContract.TreeDetailState.Idle -> {
                     }
-                    is TreeDetailContract.TreeDetailViewState.TreeDetailLoadingState -> {
+                    is TreeDetailContract.TreeDetailState.Loading -> {
                         // Show progress bar
                     }
-                    is TreeDetailContract.TreeDetailViewState.TreeDetailLoadedState -> {
-                        // Show tree detail data
+                    is TreeDetailContract.TreeDetailState.Loaded -> {
+                        binding.latitudeValue.text = viewState.treeDetailEntity.coord.lat.toString()
+                        binding.longitudeValue.text =
+                            viewState.treeDetailEntity.coord.lon.toString()
+                        binding.treeSpeciesValue.text = viewState.treeDetailEntity.species.name
+                        binding.diameterValue.text =
+                            viewState.treeDetailEntity.diameterOfCrown.toString()
+                        binding.numberOfTrunks.text =
+                            viewState.treeDetailEntity.numberOfTrunks.toString()
+                        binding.trunkGirthValue.text =
+                            viewState.treeDetailEntity.trunkGirth.toString()
+                        binding.ageValue.text = viewState.treeDetailEntity.age.toString()
+                        binding.heightOfTheFirstBranchValue.text =
+                            viewState.treeDetailEntity.heightOfTheFirstBranch.toString()
+                        binding.plantingTypeValue.text = viewState.treeDetailEntity.treePlantingType
                     }
-                    is TreeDetailContract.TreeDetailViewState.TreeDetailErrorState -> {
+                    is TreeDetailContract.TreeDetailState.Error -> {
                         // Show error
                     }
                 }
@@ -109,10 +115,10 @@ class TreeDetailFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(treeId: String) =
+        fun newInstance(treeEntity: TreeEntity) =
             TreeDetailFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, treeId)
+                    putParcelable(ARG_PARAM1, treeEntity)
                 }
             }
     }
