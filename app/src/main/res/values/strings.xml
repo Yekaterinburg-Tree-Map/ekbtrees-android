@@ -31,6 +31,7 @@
     <string name="condition_assessment_holder">%1$s/5</string>
     <string name="create_time">Create time</string>
     <string name="update_time">Update time</string>
+    <string name="user_location">User location</string>
     <string-array name="status_types">
         <item>Select status…</item>
         <item>Alive</item>
