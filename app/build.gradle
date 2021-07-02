@@ -63,8 +63,9 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
-    //Google Map Sdk
+    //Google Play services
     implementation 'com.google.android.gms:play-services-maps:17.0.1'
+    implementation 'com.google.android.gms:play-services-location:18.0.0'
 
     //Lifecycle
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'

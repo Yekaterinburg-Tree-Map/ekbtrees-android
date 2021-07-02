@@ -38,6 +38,7 @@ class TreeMapFragment : Fragment() {
     private lateinit var binding: FragmentTreeMapBinding
 
     private lateinit var map: GoogleMap
+    private lateinit var locationProvider: LocationProvider
 
     private val treeMapViewModel: TreeMapViewModel by viewModels()
     private val sharedViewModel: SharedViewModel by activityViewModels()
@@ -47,6 +48,8 @@ class TreeMapFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        locationProvider = LocationProvider(requireContext())
 
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
@@ -100,6 +103,13 @@ class TreeMapFragment : Fragment() {
             Toast.makeText(requireContext(), "Show tree description.", Toast.LENGTH_SHORT).show()
         }
 
+        binding.userLocationButton.setOnClickListener {
+            if (!::map.isInitialized) return@setOnClickListener
+            val position = locationProvider.lastLocation
+            val cameraUpdate = CameraUpdateFactory.newLatLng(LatLng(position.latitude, position.longitude))
+            map.animateCamera(cameraUpdate)
+        }
+
         return binding.root
     }
 
@@ -112,6 +122,19 @@ class TreeMapFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnAddTreeCanceled)
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        locationProvider.startLocationUpdates()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        locationProvider.stopLocationUpdates()
+        if (::map.isInitialized) {
+            treeMapViewModel.cameraPosition = map.cameraPosition
         }
     }
 
@@ -148,6 +171,8 @@ class TreeMapFragment : Fragment() {
             map.setOnMyLocationButtonClickListener {
                 false
             }
+            map.uiSettings.isMyLocationButtonEnabled = false
+            map.setLocationSource(locationProvider)
 
             if (ContextCompat.checkSelfPermission(
                     requireContext(),
@@ -259,13 +284,6 @@ class TreeMapFragment : Fragment() {
                     }
                 }
             }
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (::map.isInitialized) {
-            treeMapViewModel.cameraPosition = map.cameraPosition
         }
     }
 
