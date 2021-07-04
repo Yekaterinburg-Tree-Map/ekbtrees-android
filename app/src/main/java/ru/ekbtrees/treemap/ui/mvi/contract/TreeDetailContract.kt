@@ -16,12 +16,12 @@ class TreeDetailContract {
     /**
      * Состояния экрана детализации дерева.
      * */
-    sealed class TreeDetailViewState : UiState {
-        object Idle : TreeDetailViewState()
-        object TreeDetailLoadingState : TreeDetailViewState()
-        object TreeDetailErrorState : TreeDetailViewState()
-        class TreeDetailLoadedState(private val treeDetailEntity: TreeDetailEntity) :
-            TreeDetailViewState()
+    sealed class TreeDetailState : UiState {
+        object Idle : TreeDetailState()
+        object Loading : TreeDetailState()
+        object Error : TreeDetailState()
+        class Loaded(val treeDetailEntity: TreeDetailEntity) :
+            TreeDetailState()
     }
 
     /**
