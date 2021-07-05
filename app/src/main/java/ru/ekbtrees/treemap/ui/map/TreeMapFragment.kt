@@ -105,9 +105,15 @@ class TreeMapFragment : Fragment() {
 
         binding.userLocationButton.setOnClickListener {
             if (!::map.isInitialized) return@setOnClickListener
-            val position = locationProvider.lastLocation
-            val cameraUpdate = CameraUpdateFactory.newLatLng(LatLng(position.latitude, position.longitude))
-            map.animateCamera(cameraUpdate)
+            if (isUserLocationGranted) {
+                val position = locationProvider.lastLocation
+                val cameraUpdate =
+                    CameraUpdateFactory.newLatLng(position)
+                map.animateCamera(cameraUpdate)
+            } else {
+                // launch location permission request
+                return@setOnClickListener
+            }
         }
 
         return binding.root
@@ -122,6 +128,12 @@ class TreeMapFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnAddTreeCanceled)
             }
+        }
+
+        if (!isUserLocationGranted) {
+            binding.userLocationButton.setImageResource(R.drawable.ic_location_disabled_24)
+            binding.userLocationButton.imageTintList =
+                AppCompatResources.getColorStateList(requireContext(), R.color.red)
         }
     }
 
@@ -190,6 +202,7 @@ class TreeMapFragment : Fragment() {
     }
 
     private fun setUpCamera() {
+        map.setLatLngBoundsForCameraTarget(EKATERINBURG_CAMERA_BOUNDS)
         map.setMinZoomPreference(MIN_ZOOM_LEVEL)
         if (treeMapViewModel.cameraPosition != null) {
             map.moveCamera(CameraUpdateFactory.newCameraPosition(treeMapViewModel.cameraPosition))
@@ -201,7 +214,6 @@ class TreeMapFragment : Fragment() {
                 )
             )
         }
-        map.setLatLngBoundsForCameraTarget(EKATERINBURG_CAMERA_BOUNDS)
     }
 
     /**

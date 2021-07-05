@@ -11,14 +11,15 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.LocationSource
+import com.google.android.gms.maps.model.LatLng
 
 /**
  * Класс для предостовления местоположения.
  * */
 class LocationProvider(private val context: Context) : LocationSource {
 
-    val lastLocation: Location
-        get() = _lastLocation
+    val lastLocation: LatLng
+        get() = LatLng(_lastLocation.latitude, _lastLocation.longitude)
     private lateinit var _lastLocation: Location
 
     private var locationListener: LocationSource.OnLocationChangedListener? = null
@@ -27,8 +28,7 @@ class LocationProvider(private val context: Context) : LocationSource {
 
     private var locationRequest = LocationRequest.create().apply {
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        interval = 500
-        fastestInterval = 100
+        interval = 100
     }
 
     private val locationCallback = object : LocationCallback() {
