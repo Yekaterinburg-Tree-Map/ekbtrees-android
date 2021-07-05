@@ -15,6 +15,10 @@ class TreeDetailViewModel @Inject constructor(
         return TreeDetailContract.TreeDetailState.Idle
     }
 
+    fun provideInstanceValue(treeId: String) {
+        TODO("Not yet implemented")
+    }
+
     override fun handleEvent(event: UiEvent) {
     }
 }
