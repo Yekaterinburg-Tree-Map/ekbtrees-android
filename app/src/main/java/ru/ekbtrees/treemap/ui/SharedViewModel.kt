@@ -4,13 +4,12 @@ import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
-import ru.ekbtrees.treemap.domain.entity.TreeEntity
 
 class SharedViewModel: ViewModel() {
-    private val _treeSelected = Channel<TreeEntity>()
+    private val _treeSelected = Channel<String>()
     val treeSelected = _treeSelected.receiveAsFlow()
 
-    suspend fun onTreeSelected(treeId: TreeEntity) {
+    suspend fun onTreeSelected(treeId: String) {
         _treeSelected.send(treeId)
     }
 

@@ -139,7 +139,7 @@ class TreeMapFragment : Fragment() {
         previewShowDescriptionButton.setOnClickListener {
             lifecycleScope.launch {
                 val treeEntity = treeMapViewModel.getTreeBy(id = selectedCircle?.tag.toString())
-                sharedViewModel.onTreeSelected(treeEntity)
+                sharedViewModel.onTreeSelected(treeEntity.id)
             }
         }
 
