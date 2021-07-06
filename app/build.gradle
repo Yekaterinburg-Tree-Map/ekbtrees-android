@@ -65,6 +65,7 @@ dependencies {
 
     //Google Map Sdk
     implementation 'com.google.android.gms:play-services-maps:17.0.1'
+    implementation 'com.google.maps.android:maps-ktx:3.1.0'
 
     //Lifecycle
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'

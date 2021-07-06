@@ -12,12 +12,11 @@ import java.lang.Exception
 import java.nio.charset.Charset
 
 class TreesRepositoryImpl(private val context: Context) : TreesRepository {
-
-    override fun getAllClusteringTrees(): Collection<ClusterTreesEntity> {
+    override fun getTreeClusters(regionBoundsEntity: RegionBoundsEntity): Collection<ClusterTreesEntity> {
         TODO("Not yet implemented")
     }
 
-    override fun getTreesInClusteringBy(): Collection<TreeEntity> {
+    override fun getTrees(): Collection<TreeEntity> {
         // asset location: app/src/main/assets
         var id = 0
         val json = loadJSON(context = context)
