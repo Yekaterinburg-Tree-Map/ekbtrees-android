@@ -59,8 +59,8 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun onTreeSelected(treeEntity: TreeEntity) {
-        val fragment = TreeDetailFragment.newInstance(treeEntity)
+    private fun onTreeSelected(treeId: String) {
+        val fragment = TreeDetailFragment.newInstance(treeId)
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)

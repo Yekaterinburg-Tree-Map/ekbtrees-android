@@ -30,7 +30,7 @@ private const val ARG_PARAM1 = "TreeId"
 @AndroidEntryPoint
 class TreeDetailFragment : Fragment() {
     private lateinit var treeLocation: LatLng
-    private lateinit var parsedTree: TreeEntity
+    private lateinit var treeId: String
     private lateinit var map: GoogleMap
 
     private val treeDetailViewModel: TreeDetailViewModel by viewModels()
@@ -40,7 +40,7 @@ class TreeDetailFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            parsedTree = it.getParcelable(ARG_PARAM1)!!
+            treeId = it.getString(ARG_PARAM1)!!
         }
     }
 
@@ -54,29 +54,7 @@ class TreeDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        treeDetailViewModel.provideInstanceValue(
-            TreeDetailEntity(
-                parsedTree.id, parsedTree.coord, parsedTree.species,
-                0.0, 0, 0.0,
-                parsedTree.diameter.toInt(), 0.0, 0, 0, "", "", "", 0, "",
-                List(0, { index -> index })
-            )
-        )
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
-        mapFragment?.getMapAsync { googleMap ->
-            map = googleMap
-            treeLocation = LatLng(parsedTree.coord.lat, parsedTree.coord.lon)
-            val circleOptions = CircleOptions().apply {
-                center(treeLocation)
-                radius(parsedTree.diameter / 2.0)
-                fillColor(parsedTree.species.color)
-                strokeColor(Color.BLACK)
-                strokeWidth(2f)
-            }
-            map.addCircle(circleOptions)
-            val zoomLevel = 19f
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(treeLocation, zoomLevel))
-        }
+        treeDetailViewModel.provideInstanceValue(treeId)
         observeViewModel()
     }
 
@@ -90,6 +68,21 @@ class TreeDetailFragment : Fragment() {
                         // Show progress bar
                     }
                     is TreeDetailContract.TreeDetailState.Loaded -> {
+                        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+                        mapFragment?.getMapAsync { googleMap ->
+                            map = googleMap
+                            treeLocation = LatLng(viewState.treeDetailEntity.coord.lat, viewState.treeDetailEntity.coord.lon)
+                            val circleOptions = CircleOptions().apply {
+                                center(treeLocation)
+                                radius(viewState.treeDetailEntity.diameterOfCrown / 2.0)
+                                fillColor(viewState.treeDetailEntity.species.color)
+                                strokeColor(Color.BLACK)
+                                strokeWidth(2f)
+                            }
+                            map.addCircle(circleOptions)
+                            val zoomLevel = 19f
+                            map.moveCamera(CameraUpdateFactory.newLatLngZoom(treeLocation, zoomLevel))
+                        }
                         binding.latitudeValue.text = viewState.treeDetailEntity.coord.lat.toString()
                         binding.longitudeValue.text =
                             viewState.treeDetailEntity.coord.lon.toString()
@@ -115,10 +108,10 @@ class TreeDetailFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(treeEntity: TreeEntity) =
+        fun newInstance(treeId: String) =
             TreeDetailFragment().apply {
                 arguments = Bundle().apply {
-                    putParcelable(ARG_PARAM1, treeEntity)
+                    putString(ARG_PARAM1, treeId)
                 }
             }
     }
