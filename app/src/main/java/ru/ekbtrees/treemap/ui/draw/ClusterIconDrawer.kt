@@ -1,52 +1,41 @@
 package ru.ekbtrees.treemap.ui.draw
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 
 /**
- * @param radius
  * @param circleColor
- * @param canvasColor
  * */
 class ClusterIconDrawer(
-    private val radius: Float,
     private val circleColor: Int,
-    private val canvasColor: Int
+    private val width: Int = 100,
+    private val height: Int = 100
 ) {
-    fun draw(textToDraw: String): Bitmap? {
-        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap).apply {
-            drawColor(canvasColor)
+    fun draw(textToDraw: String): Bitmap {
+        val radius = if (width > height) {
+            height / 4f
+        } else {
+            width / 4f
         }
+        val centerX = width / 2f
+        val centerY = height / 2f
+        val bitmap =
+            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
         val paint = Paint().apply {
             color = circleColor
         }
-        val textPaint = Paint().apply {
+        paint.apply {
+            isAntiAlias = true
+            color = circleColor
+        }
+        canvas.drawCircle(centerX, centerY, radius, paint)
+
+        paint.apply {
             color = Color.BLACK
-            textAlign = Paint.Align.CENTER
-            textSize = 12f
+            textSize = 100f
         }
-        val textHeight = textPaint.descent() - textPaint.ascent()
-        val textOffset = (textHeight / 2) - textPaint.descent()
-        val cx = canvas.width / 2F + 250
-        val cy = canvas.height / 2F + 35
-        canvas.drawCircle(
-            cx, cy, radius, paint
-        )
-        val margin = 20f
-        var text = textToDraw
-        val numOfChairs = textPaint.breakText(
-            text,
-            true,
-            radius * 2 - margin,
-            null
-        )
-        if (text.length > numOfChairs) {
-            text = text.substring(0, numOfChairs) + "..."
-        }
-        canvas.drawText(text, cx, cy + textOffset, textPaint)
+        paint.getTextBounds(textToDraw, 0, textToDraw.length, Rect())
+        canvas.drawText(textToDraw, centerX - 20, centerY + 20, paint)
 
         return bitmap
     }

@@ -17,6 +17,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.ktx.addCircle
+import com.google.maps.android.ktx.addMarker
 import com.google.maps.android.ktx.awaitMap
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
@@ -25,6 +26,7 @@ import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentTreeMapBinding
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
 import ru.ekbtrees.treemap.ui.SharedViewModel
+import ru.ekbtrees.treemap.ui.draw.ClusterIconDrawer
 import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
 import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
@@ -132,7 +134,11 @@ class TreeMapFragment : Fragment() {
                 val region = getRegionBounds(cameraPosition = map.cameraPosition)
                 Log.d(TAG, "topLeft: ${region.topLeft}, bottomRight: ${region.bottomRight}")
             }
-
+            val iconDrawer = ClusterIconDrawer(Color.BLUE, 500, 500)
+            map.addMarker {
+                position(EKATERINBURG_CENTER_POSITION)
+                icon(BitmapDescriptorFactory.fromBitmap(iconDrawer.draw("1")))
+            }
             observeViewModel()
 
             treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnMapViewReady)
