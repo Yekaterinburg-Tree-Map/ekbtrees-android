@@ -38,4 +38,5 @@
         <item>Danger</item>
         <item>Dead</item>
     </string-array>
+    <string name="tree_detail">Tree detail</string>
 </resources>

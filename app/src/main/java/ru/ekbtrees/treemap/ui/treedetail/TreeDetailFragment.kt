@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
@@ -17,12 +18,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentTreeDetailBinding
-import ru.ekbtrees.treemap.domain.entity.TreeDetailEntity
-import ru.ekbtrees.treemap.domain.entity.TreeEntity
 import ru.ekbtrees.treemap.ui.mvi.contract.TreeDetailContract
 
 private const val TAG = "TreeDetailFragment"
-private const val ARG_PARAM1 = "TreeId"
 
 /**
  * Фрагмент детализауии дерева.
@@ -37,13 +35,6 @@ class TreeDetailFragment : Fragment() {
 
     private lateinit var binding: FragmentTreeDetailBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            treeId = it.getString(ARG_PARAM1)!!
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -54,7 +45,9 @@ class TreeDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        treeDetailViewModel.provideInstanceValue(treeId)
+        val args: TreeDetailFragmentArgs by navArgs()
+        treeId = args.treeId
+        treeDetailViewModel.provideTreeId(treeId)
         observeViewModel()
     }
 
@@ -104,15 +97,5 @@ class TreeDetailFragment : Fragment() {
                 }
             }
         }
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(treeId: String) =
-            TreeDetailFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, treeId)
-                }
-            }
     }
 }

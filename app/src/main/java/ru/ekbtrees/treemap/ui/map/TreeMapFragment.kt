@@ -138,6 +138,11 @@ class TreeMapFragment : Fragment() {
 
         previewShowDescriptionButton.setOnClickListener {
             lifecycleScope.launch {
+                val navController = findNavController()
+                val action = TreeMapFragmentDirections.actionTreeMapFragmentToTreeDetailFragment(
+                    selectedCircle?.id.toString()
+                )
+                navController.navigate(action)
                 sharedViewModel.onTreeSelected(selectedCircle?.tag.toString())
             }
         }

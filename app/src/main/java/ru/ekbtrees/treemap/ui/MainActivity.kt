@@ -29,16 +29,22 @@ class MainActivity : AppCompatActivity() {
                     title = getString(R.string.new_tree)
                 }
             }
+            is TreeDetailFragment -> {
+                supportActionBar?.apply {
+                    setDisplayHomeAsUpEnabled(true)
+                    title = getString(R.string.tree_detail)
+                }
+            }
         }
 
         lifecycleScope.launchWhenStarted {
-            sharedViewModel.treeSelected.collect { treeId ->
-                onTreeSelected(treeId)
+            sharedViewModel.treeSelected.collect {
+                onTreeSelected()
             }
         }
         lifecycleScope.launchWhenStarted {
-            sharedViewModel.addNewTree.collect { location ->
-                addNewTree(location)
+            sharedViewModel.addNewTree.collect {
+                addNewTree()
             }
         }
     }
@@ -59,15 +65,14 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun onTreeSelected(treeId: String) {
-        val fragment = TreeDetailFragment.newInstance(treeId)
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
+    private fun onTreeSelected() {
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            title = getString(R.string.tree_detail)
+        }
     }
 
-    private fun addNewTree(location: LatLng) {
+    private fun addNewTree() {
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
             title = getString(R.string.new_tree)
