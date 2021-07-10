@@ -8,6 +8,8 @@ import ru.ekbtrees.treemap.domain.entity.*
 interface TreesInteractor {
     suspend fun getTreeClusters(regionBoundsEntity: RegionBoundsEntity): Collection<ClusterTreesEntity>
 
+    suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity): Collection<TreeEntity>
+
     fun getTrees(): Collection<TreeEntity>
 
     suspend fun getTreeDetailBy(id: String): TreeDetailEntity

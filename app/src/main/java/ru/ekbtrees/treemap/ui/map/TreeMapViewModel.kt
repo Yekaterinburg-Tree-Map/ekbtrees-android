@@ -5,6 +5,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
 import ru.ekbtrees.treemap.domain.interactors.TreesInteractor
+import ru.ekbtrees.treemap.ui.mappers.RegionBoundsUIModelMapper
+import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
 import javax.inject.Inject
 import ru.ekbtrees.treemap.ui.mvi.base.BaseViewModel
 import ru.ekbtrees.treemap.ui.mvi.base.UiEvent
@@ -23,6 +25,10 @@ class TreeMapViewModel @Inject constructor(
 
     private val _treeDataState = MutableStateFlow<TreesViewState>(TreesViewState.Idle)
     val treeDataState: StateFlow<TreesViewState> = _treeDataState.asStateFlow()
+
+    suspend fun getTreesInRegion(regionBoundsUIModel: RegionBoundsUIModel) {
+        interactor.getMapTreesInRegion(RegionBoundsUIModelMapper().map(regionBoundsUIModel))
+    }
 
     fun getTreeBy(id: String): TreeEntity {
         if (treeDataState.value is TreesViewState.TreesLoadedState) {

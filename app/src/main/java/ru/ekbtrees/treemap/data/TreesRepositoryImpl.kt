@@ -6,15 +6,34 @@ import android.util.Log
 import org.json.JSONException
 import org.json.JSONObject
 import ru.ekbtrees.treemap.data.api.TreesApiService
+import ru.ekbtrees.treemap.data.mappers.TreeDtoMapper
 import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
 import java.io.IOException
 import java.lang.Exception
 import java.nio.charset.Charset
 
-class TreesRepositoryImpl(private val context: Context, private val treesApiService: TreesApiService) : TreesRepository {
-    override fun getTreeClusters(regionBoundsEntity: RegionBoundsEntity): Collection<ClusterTreesEntity> {
+class TreesRepositoryImpl(
+    private val context: Context,
+    private val treesApiService: TreesApiService
+) : TreesRepository {
+    override suspend fun getTreeClusters(regionBoundsEntity: RegionBoundsEntity): Collection<ClusterTreesEntity> {
         TODO("Not yet implemented")
+    }
+
+    override suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity): Collection<TreeEntity> {
+        val treesList = treesApiService.getTreesInRegion(
+            regionBoundsEntity.topLeft.lon,
+            regionBoundsEntity.topLeft.lat,
+            regionBoundsEntity.bottomRight.lon,
+            regionBoundsEntity.bottomRight.lat
+        )
+        if (treesList.isEmpty()) return emptyList()
+        val treesEntityList = mutableListOf<TreeEntity>()
+        treesList.forEach { mapTreeDto ->
+            treesEntityList.add(TreeDtoMapper().map(mapTreeDto))
+        }
+        return treesEntityList
     }
 
     override fun getTrees(): Collection<TreeEntity> {

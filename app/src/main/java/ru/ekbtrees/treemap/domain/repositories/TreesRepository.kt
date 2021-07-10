@@ -5,7 +5,9 @@ import ru.ekbtrees.treemap.domain.entity.*
 
 interface TreesRepository {
 
-    fun getTreeClusters(regionBoundsEntity: RegionBoundsEntity): Collection<ClusterTreesEntity>
+    suspend fun getTreeClusters(regionBoundsEntity: RegionBoundsEntity): Collection<ClusterTreesEntity>
+
+    suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity): Collection<TreeEntity>
 
     fun getTrees(): Collection<TreeEntity>
 

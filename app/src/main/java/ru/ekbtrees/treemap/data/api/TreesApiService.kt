@@ -1,6 +1,5 @@
 package ru.ekbtrees.treemap.data.api
 
-import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 import ru.ekbtrees.treemap.data.dto.ClusterTreesDto
@@ -8,19 +7,19 @@ import ru.ekbtrees.treemap.data.dto.MapTreeDto
 
 interface TreesApiService {
 
-    @GET("/api/trees-cluster/get-in-region")
+    @GET("api/trees-cluster/get-in-region")
     suspend fun getClusterTreesInRegion(
         @Query("x1") topLeftX: Double,
         @Query("y1") topLeftY: Double,
         @Query("x2") BotRightX: Double,
         @Query("y2") BotRightY: Double
-    ): Response<ClusterTreesDto>
+    ): List<ClusterTreesDto>
 
-    @GET("/api/tree-map-info/get-in-region")
+    @GET("api/tree-map-info/get-in-region")
     suspend fun getTreesInRegion(
         @Query("x1") topLeftX: Double,
         @Query("y1") topLeftY: Double,
         @Query("x2") BotRightX: Double,
         @Query("y2") BotRightY: Double
-    ): Response<MapTreeDto>
+    ): List<MapTreeDto>
 }

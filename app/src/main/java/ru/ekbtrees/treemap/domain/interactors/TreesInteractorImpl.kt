@@ -8,6 +8,9 @@ class TreesInteractorImpl(private val treesRepository: TreesRepository) : TreesI
         return treesRepository.getTreeClusters(regionBoundsEntity = regionBoundsEntity)
     }
 
+    override suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity): Collection<TreeEntity> =
+        treesRepository.getMapTreesInRegion(regionBoundsEntity)
+
     override fun getTrees(): Collection<TreeEntity> {
         return treesRepository.getTrees()
     }
