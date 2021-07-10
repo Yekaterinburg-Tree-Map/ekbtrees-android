@@ -76,14 +76,12 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        if (requestCode == TreeMapFragment.LOCATION_REQUEST_CODE) {
-            lifecycleScope.launch {
-                if (grantResults.isNotEmpty()) {
-                    sharedViewModel.sendPermissionResult(
-                        TreeMapFragment.LOCATION_REQUEST_CODE,
-                        grantResults[0] == PackageManager.PERMISSION_GRANTED
-                    )
-                }
+        lifecycleScope.launch {
+            if (grantResults.isNotEmpty()) {
+                sharedViewModel.sendPermissionResult(
+                    TreeMapFragment.LOCATION_REQUEST_CODE,
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED
+                )
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
