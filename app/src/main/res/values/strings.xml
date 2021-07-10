@@ -38,4 +38,5 @@
         <item>Danger</item>
         <item>Dead</item>
     </string-array>
+    <string name="location_access_denied">Location access denied</string>
 </resources>

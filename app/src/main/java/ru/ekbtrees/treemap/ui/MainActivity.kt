@@ -1,5 +1,6 @@
 package ru.ekbtrees.treemap.ui
 
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
@@ -8,8 +9,10 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.collect
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.ui.edittree.EditTreeFragment
+import ru.ekbtrees.treemap.ui.map.TreeMapFragment
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -66,5 +69,23 @@ class MainActivity : AppCompatActivity() {
             setDisplayHomeAsUpEnabled(true)
             title = getString(R.string.new_tree)
         }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == TreeMapFragment.LOCATION_REQUEST_CODE) {
+            lifecycleScope.launch {
+                if (grantResults.isNotEmpty()) {
+                    sharedViewModel.sendPermissionResult(
+                        TreeMapFragment.LOCATION_REQUEST_CODE,
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED
+                    )
+                }
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 }

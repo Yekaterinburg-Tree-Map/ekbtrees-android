@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -59,7 +60,7 @@ class TreeMapFragment : Fragment() {
             isUserLocationGranted = true
         } else {
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                isUserLocationGranted = isGranted
+                handleLocationPermissionResponse(isGranted)
             }.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
@@ -71,6 +72,14 @@ class TreeMapFragment : Fragment() {
     ): View {
 
         binding = FragmentTreeMapBinding.inflate(inflater, container, false)
+
+        viewLifecycleOwner.lifecycleScope.launchWhenCreated {
+            sharedViewModel.permissionResultReceiver.collect { (requestCode, isGranted) ->
+                if (requestCode == LOCATION_REQUEST_CODE) {
+                    handleLocationPermissionResponse(isGranted)
+                }
+            }
+        }
 
         binding.addTreeButton.setOnClickListener {
             when (treeMapViewModel.currentState) {
@@ -111,8 +120,11 @@ class TreeMapFragment : Fragment() {
                     CameraUpdateFactory.newLatLng(position)
                 map.animateCamera(cameraUpdate)
             } else {
-                // launch location permission request
-                return@setOnClickListener
+                ActivityCompat.requestPermissions(
+                    this.requireActivity(),
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    LOCATION_REQUEST_CODE
+                )
             }
         }
 
@@ -130,11 +142,7 @@ class TreeMapFragment : Fragment() {
             }
         }
 
-        if (!isUserLocationGranted) {
-            binding.userLocationButton.setImageResource(R.drawable.ic_location_disabled_24)
-            binding.userLocationButton.imageTintList =
-                AppCompatResources.getColorStateList(requireContext(), R.color.red)
-        }
+        handleLocationPermissionResponse(isUserLocationGranted)
     }
 
     override fun onResume() {
@@ -147,6 +155,26 @@ class TreeMapFragment : Fragment() {
         locationProvider.stopLocationUpdates()
         if (::map.isInitialized) {
             treeMapViewModel.cameraPosition = map.cameraPosition
+        }
+    }
+
+    private fun handleLocationPermissionResponse(isGranted: Boolean) {
+        isUserLocationGranted = isGranted
+        if (isGranted) {
+            binding.userLocationButton.setImageResource(R.drawable.ic_location_24)
+            binding.userLocationButton.imageTintList =
+                AppCompatResources.getColorStateList(requireContext(), R.color.black)
+        } else {
+            binding.userLocationButton.setImageResource(R.drawable.ic_location_disabled_24)
+            binding.userLocationButton.imageTintList =
+                AppCompatResources.getColorStateList(requireContext(), R.color.red)
+        }
+        if (::map.isInitialized && ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            map.isMyLocationEnabled = true
         }
     }
 
@@ -301,6 +329,7 @@ class TreeMapFragment : Fragment() {
 
     companion object {
         private const val TAG = "TreeMapFragment"
+        const val LOCATION_REQUEST_CODE = 0
         private val EKATERINBURG_CENTER_POSITION = LatLng(56.835378, 60.611970)
         private val EKATERINBURG_CAMERA_BOUNDS = LatLngBounds(
             LatLng(56.777584, 60.492406), // SW bounds
