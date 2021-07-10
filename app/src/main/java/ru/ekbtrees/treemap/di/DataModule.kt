@@ -7,6 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import ru.ekbtrees.treemap.data.TreesRepositoryImpl
+import ru.ekbtrees.treemap.data.api.TreesApiService
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
 
 /**
@@ -17,7 +18,7 @@ import ru.ekbtrees.treemap.domain.repositories.TreesRepository
 object DataModule {
 
     @Provides
-    fun provideTreesRepository(@ApplicationContext context: Context): TreesRepository {
-        return TreesRepositoryImpl(context)
+    fun provideTreesRepository(@ApplicationContext context: Context, treesApiService: TreesApiService): TreesRepository {
+        return TreesRepositoryImpl(context, treesApiService)
     }
 }
