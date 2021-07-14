@@ -19,14 +19,12 @@ import javax.inject.Singleton
 object NetworkModule {
     private const val BASE_URL = "https://ekb-trees-help.ru/"
 
-    @Singleton
     @Provides
     fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor = HttpLoggingInterceptor()
         .apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
 
-    @Singleton
     @Provides
     fun provideOkHttpClient(httpLoggingInterceptor: HttpLoggingInterceptor): OkHttpClient =
         OkHttpClient

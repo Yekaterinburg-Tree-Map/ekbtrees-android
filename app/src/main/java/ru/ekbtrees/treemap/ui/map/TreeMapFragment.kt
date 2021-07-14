@@ -169,7 +169,6 @@ class TreeMapFragment : Fragment() {
         map.setLatLngBoundsForCameraTarget(EKATERINBURG_CAMERA_BOUNDS)
     }
 
-
     /**
      * Выводит на экран View объекты состояния добавления дерева
      * */
