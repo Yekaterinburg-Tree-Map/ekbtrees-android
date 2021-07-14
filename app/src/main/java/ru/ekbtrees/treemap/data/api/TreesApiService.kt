@@ -4,6 +4,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import ru.ekbtrees.treemap.data.dto.ClusterTreesDto
 import ru.ekbtrees.treemap.data.dto.MapTreeDto
+import ru.ekbtrees.treemap.data.dto.SpeciesDto
 
 interface TreesApiService {
 
@@ -22,4 +23,7 @@ interface TreesApiService {
         @Query("x2") BotRightX: Double,
         @Query("y2") BotRightY: Double
     ): List<MapTreeDto>
+
+    @GET("api/species/get-all")
+    suspend fun getAllSpecies(): List<SpeciesDto>
 }

@@ -9,9 +9,9 @@ interface TreesRepository {
 
     suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity): Collection<TreeEntity>
 
-    fun getTrees(): Collection<TreeEntity>
+    suspend fun getSpecies(): Collection<SpeciesEntity>
 
-    fun getTreeBy(id: String): TreeEntity
+    fun getTrees(): Collection<TreeEntity>
 
     fun getAllSpecies(): Collection<SpeciesEntity>
 

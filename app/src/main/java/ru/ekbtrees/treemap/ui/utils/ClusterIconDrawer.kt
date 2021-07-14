@@ -1,14 +1,17 @@
-package ru.ekbtrees.treemap.ui.draw
+package ru.ekbtrees.treemap.ui.utils
 
 import android.graphics.*
 
 /**
- * @param circleColor
+ * Класс для рисования круга
+ * @param circleColor Цвет
+ * @param width Ширина
+ * @param height Высота
  * */
 class ClusterIconDrawer(
     private val circleColor: Int,
     private val width: Int = 100,
-    private val height: Int = 100
+    private val height: Int = width
 ) {
     fun draw(textToDraw: String): Bitmap {
         val radius = if (width > height) {
@@ -18,12 +21,9 @@ class ClusterIconDrawer(
         }
         val centerX = width / 2f
         val centerY = height / 2f
-        val bitmap =
-            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        val paint = Paint().apply {
-            color = circleColor
-        }
+        val paint = Paint()
         paint.apply {
             isAntiAlias = true
             color = circleColor
@@ -31,7 +31,7 @@ class ClusterIconDrawer(
         canvas.drawCircle(centerX, centerY, radius, paint)
 
         paint.apply {
-            color = Color.BLACK
+            color = Color.WHITE
             textSize = 100f
         }
         paint.getTextBounds(textToDraw, 0, textToDraw.length, Rect())

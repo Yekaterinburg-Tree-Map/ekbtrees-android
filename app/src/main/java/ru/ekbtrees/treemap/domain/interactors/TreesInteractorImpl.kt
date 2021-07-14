@@ -4,12 +4,21 @@ import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
 
 class TreesInteractorImpl(private val treesRepository: TreesRepository) : TreesInteractor {
+
     override suspend fun getTreeClusters(regionBoundsEntity: RegionBoundsEntity): Collection<ClusterTreesEntity> {
-        return treesRepository.getTreeClusters(regionBoundsEntity = regionBoundsEntity)
+        return try {
+            treesRepository.getTreeClusters(regionBoundsEntity = regionBoundsEntity)
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
     override suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity): Collection<TreeEntity> =
-        treesRepository.getMapTreesInRegion(regionBoundsEntity)
+        try {
+            treesRepository.getMapTreesInRegion(regionBoundsEntity)
+        }  catch (e: Exception) {
+            emptyList()
+        }
 
     override fun getTrees(): Collection<TreeEntity> {
         return treesRepository.getTrees()
@@ -26,5 +35,4 @@ class TreesInteractorImpl(private val treesRepository: TreesRepository) : TreesI
     override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity) {
         return treesRepository.uploadTreeDetail(treeDetail)
     }
-
 }
