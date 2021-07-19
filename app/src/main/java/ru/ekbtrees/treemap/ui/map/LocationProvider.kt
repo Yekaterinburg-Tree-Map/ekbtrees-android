@@ -12,6 +12,7 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.tasks.Task
 
 /**
  * Класс для предостовления местоположения.
@@ -28,7 +29,8 @@ class LocationProvider(private val context: Context) : LocationSource {
 
     private var locationRequest = LocationRequest.create().apply {
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        interval = 100
+        interval = 5000
+        fastestInterval = 16 //16 ms = 60 fps
     }
 
     private val locationCallback = object : LocationCallback() {
@@ -38,6 +40,17 @@ class LocationProvider(private val context: Context) : LocationSource {
                 locationListener?.onLocationChanged(location)
             }
         }
+    }
+
+    /**
+     * Предоставляет местоположение пользователя
+     * @throws IllegalAccessException Пользователь не предоставил разрешение на отслеживание местоположения
+     * */
+    fun fetchUserLocation(): Task<Location> {
+        if (checkLocationPermission()) {
+            return fusedLocationProviderClient.lastLocation
+        }
+        throw IllegalAccessException("You have to request location permission!")
     }
 
     fun startLocationUpdates() {
