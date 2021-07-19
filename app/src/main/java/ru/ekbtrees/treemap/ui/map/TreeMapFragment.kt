@@ -31,7 +31,6 @@ import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
 import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.TreeMapContract
-import kotlin.math.pow
 
 @AndroidEntryPoint
 class TreeMapFragment : Fragment() {
@@ -187,20 +186,16 @@ class TreeMapFragment : Fragment() {
         binding.cancelButton.hide()
     }
 
-    private fun getRegionBounds(cameraPosition: CameraPosition): RegionBoundsUIModel {
-        val position = cameraPosition.target
-        val alpha = 0.000125 * 2.0.pow(21 - cameraPosition.zoom.toDouble())
-        val topLeft = LatLng(position.latitude + alpha, position.longitude - alpha)
-        val bottomRight = LatLng(position.latitude - alpha, position.longitude + alpha)
-        return RegionBoundsUIModel(topLeft, bottomRight)
-    }
-
     private fun updateMapData() {
+        val visibleRegion = map.projection.visibleRegion.latLngBounds
+        val topLeft = LatLng(visibleRegion.southwest.latitude, visibleRegion.northeast.longitude)
+        val botRight = LatLng(visibleRegion.northeast.latitude, visibleRegion.southwest.longitude)
+        val regionBounds = RegionBoundsUIModel(topLeft, botRight)
         lifecycleScope.launch {
             if (map.cameraPosition.zoom < 16) {
-                treeMapViewModel.getClusterTreesInRegion(getRegionBounds(map.cameraPosition))
+                treeMapViewModel.getClusterTreesInRegion(regionBounds)
             } else {
-                treeMapViewModel.uploadTreesInRegion(getRegionBounds(map.cameraPosition))
+                treeMapViewModel.uploadTreesInRegion(regionBounds)
             }
         }
     }
