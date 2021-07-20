@@ -147,7 +147,25 @@ class TreesRepositoryImpl(
     }
 
     override suspend fun getTreeDetailBy(id: String): TreeDetailEntity {
-        TODO("Not yet implemented")
+        // Заглушка пока не готов HTTP клиент.
+        return TreeDetailEntity(
+            id = "",
+            coord = LatLonEntity(0.0, 0.0),
+            species = SpeciesEntity("", Color.parseColor("#000000"), ""),
+            height = 0.0,
+            numberOfTrunks = 0,
+            trunkGirth = 0.0,
+            diameterOfCrown = 0,
+            heightOfTheFirstBranch = 0.0,
+            conditionAssessment = 0,
+            age = 0,
+            treePlantingType = "",
+            createTime = "",
+            updateTime = "",
+            authorId = 0,
+            status = "",
+            fileIds = emptyList()
+        )
     }
 
     override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity) {

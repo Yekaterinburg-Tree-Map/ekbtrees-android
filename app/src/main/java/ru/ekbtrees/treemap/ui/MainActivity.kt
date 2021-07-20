@@ -9,7 +9,9 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.collect
 import dagger.hilt.android.AndroidEntryPoint
 import ru.ekbtrees.treemap.R
+import ru.ekbtrees.treemap.domain.entity.TreeEntity
 import ru.ekbtrees.treemap.ui.edittree.EditTreeFragment
+import ru.ekbtrees.treemap.ui.treedetail.TreeDetailFragment
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -27,16 +29,22 @@ class MainActivity : AppCompatActivity() {
                     title = getString(R.string.new_tree)
                 }
             }
+            is TreeDetailFragment -> {
+                supportActionBar?.apply {
+                    setDisplayHomeAsUpEnabled(true)
+                    title = getString(R.string.tree_detail)
+                }
+            }
         }
 
         lifecycleScope.launchWhenStarted {
-            sharedViewModel.treeSelected.collect { treeId ->
-                onTreeSelected(treeId)
+            sharedViewModel.treeSelected.collect {
+                onTreeSelected()
             }
         }
         lifecycleScope.launchWhenStarted {
-            sharedViewModel.addNewTree.collect { location ->
-                addNewTree(location)
+            sharedViewModel.addNewTree.collect {
+                addNewTree()
             }
         }
     }
@@ -57,11 +65,14 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun onTreeSelected(treeId: String) {
-        // Выводим фрагмент описания дерева по его id.
+    private fun onTreeSelected() {
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            title = getString(R.string.tree_detail)
+        }
     }
 
-    private fun addNewTree(location: LatLng) {
+    private fun addNewTree() {
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
             title = getString(R.string.new_tree)

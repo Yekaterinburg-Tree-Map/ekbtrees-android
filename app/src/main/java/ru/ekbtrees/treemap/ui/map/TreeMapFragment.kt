@@ -31,6 +31,8 @@ import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
 import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.TreeMapContract
+import ru.ekbtrees.treemap.ui.viewstates.TreesViewState
+import java.util.*
 
 @AndroidEntryPoint
 class TreeMapFragment : Fragment() {
@@ -217,6 +219,16 @@ class TreeMapFragment : Fragment() {
                             val treeEntity = treeMapViewModel.getTreeBy(id = tag)
                             binding.previewTreeSpeciesText.text = treeEntity.species.name
                             binding.treePreview.visibility = View.VISIBLE
+                            previewTreeSpeciesText.text = treeEntity.species.name.replaceFirstChar {
+                                if (it.isLowerCase()) it.titlecase(
+                                    Locale.getDefault()
+                                ) else it.toString()
+                            }
+                            previewTreePosition.text =
+                                getString(R.string.tree_location).plus(" ${treeEntity.coord.lat} ${treeEntity.coord.lon}")
+                            previewTreeDiameter.text =
+                                getString(R.string.diameter_of_crown).plus(" ${treeEntity.diameter}")
+                            treePreview.visibility = View.VISIBLE
                         }
                     }
                     is TreeMapContract.MapViewState.MapErrorState -> {
