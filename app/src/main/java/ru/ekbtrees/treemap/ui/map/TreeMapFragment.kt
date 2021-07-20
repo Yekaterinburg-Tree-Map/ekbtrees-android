@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -31,8 +30,6 @@ import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
 import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.TreeMapContract
-import ru.ekbtrees.treemap.ui.viewstates.TreesViewState
-import java.util.*
 
 @AndroidEntryPoint
 class TreeMapFragment : Fragment() {
@@ -65,7 +62,13 @@ class TreeMapFragment : Fragment() {
         }
 
         binding.previewTreeDescriptionButton.setOnClickListener {
-            Toast.makeText(requireContext(), "Show tree description.", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                sharedViewModel.onTreeSelected(selectedCircle?.tag.toString())
+            }
+            val navController = findNavController()
+            val action =
+                TreeMapFragmentDirections.actionTreeMapFragmentToTreeDetailFragment(selectedCircle?.tag.toString())
+            navController.navigate(action)
         }
 
         return binding.root
@@ -219,16 +222,18 @@ class TreeMapFragment : Fragment() {
                             val treeEntity = treeMapViewModel.getTreeBy(id = tag)
                             binding.previewTreeSpeciesText.text = treeEntity.species.name
                             binding.treePreview.visibility = View.VISIBLE
-                            previewTreeSpeciesText.text = treeEntity.species.name.replaceFirstChar {
-                                if (it.isLowerCase()) it.titlecase(
-                                    Locale.getDefault()
-                                ) else it.toString()
-                            }
-                            previewTreePosition.text =
-                                getString(R.string.tree_location).plus(" ${treeEntity.coord.lat} ${treeEntity.coord.lon}")
-                            previewTreeDiameter.text =
-                                getString(R.string.diameter_of_crown).plus(" ${treeEntity.diameter}")
-                            treePreview.visibility = View.VISIBLE
+                            binding.previewTreeSpeciesText.text =
+                                treeEntity.species.name.replaceFirstChar {
+                                    if (it.isLowerCase()) it.titlecase() else it.toString()
+                                }
+                            binding.previewTreeLocationValue.text = getString(
+                                R.string.tree_location_holder,
+                                treeEntity.coord.lat.toString(),
+                                treeEntity.coord.lon.toString()
+                            )
+                            binding.previewTreeDiameter.text =
+                                getString(R.string.diameter_of_crown).plus(": ${treeEntity.diameter}")
+                            binding.treePreview.visibility = View.VISIBLE
                         }
                     }
                     is TreeMapContract.MapViewState.MapErrorState -> {
