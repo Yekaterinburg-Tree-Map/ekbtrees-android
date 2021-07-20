@@ -34,7 +34,7 @@
         android:label="fragment_tree_detail"
         tools:layout="@layout/fragment_tree_detail">
         <action
-            android:id="@+id/action_placeholder_to_editTreeFragment"
+            android:id="@+id/action_treeDetailFragment_to_editTreeFragment"
             app:destination="@id/editTreeFragment"
             app:popUpTo="@id/treeDetailFragment" />
         <argument
