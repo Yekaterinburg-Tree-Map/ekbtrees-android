@@ -10,7 +10,7 @@ import android.graphics.*
  * */
 class ClusterIconDrawer(
     private val circleColor: Int,
-    private val width: Int = 100,
+    private val width: Int,
     private val height: Int = width
 ) {
     fun draw(textToDraw: String): Bitmap {

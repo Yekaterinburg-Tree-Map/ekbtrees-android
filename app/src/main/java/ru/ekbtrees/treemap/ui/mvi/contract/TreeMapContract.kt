@@ -58,7 +58,7 @@ class TreeMapContract {
      * */
     sealed class LoadedData {
         data class Trees(val trees: Collection<TreeEntity>) : LoadedData()
-        data class TreeClusters(val clusterTrees: Collection<ClusterTreesEntity>) : LoadedData()
+        data class TreeClusters(val clusterTrees: Collection<TreeEntity>) : LoadedData()
     }
 
     class TreeMapEffect : UiEffect

@@ -28,8 +28,8 @@ class TreeMapViewModel @Inject constructor(
     suspend fun getClusterTreesInRegion(regionBoundsUIModel: RegionBoundsUIModel) {
         _treeMapDataState.value = TreeMapContract.DataState.Loading
         try {
-            val clusters = interactor.getTreeClusters(RegionBoundsUIModelMapper().map(regionBoundsUIModel))
-            val data = TreeMapContract.LoadedData.TreeClusters(clusters)
+            val trees = interactor.getMapTreesInRegion(RegionBoundsUIModelMapper().map(regionBoundsUIModel))
+            val data = TreeMapContract.LoadedData.TreeClusters(trees)
             _treeMapDataState.value = TreeMapContract.DataState.Loaded(data = data)
         } catch (e: Exception) {
             _treeMapDataState.value = TreeMapContract.DataState.Error

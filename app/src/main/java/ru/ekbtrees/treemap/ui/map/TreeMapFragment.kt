@@ -14,18 +14,16 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.ktx.addCircle
-import com.google.maps.android.ktx.addGroundOverlay
 import com.google.maps.android.ktx.awaitMap
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentTreeMapBinding
-import ru.ekbtrees.treemap.domain.entity.ClusterTreesEntity
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
 import ru.ekbtrees.treemap.ui.SharedViewModel
-import ru.ekbtrees.treemap.ui.utils.ClusterIconDrawer
 import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
 import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
@@ -34,12 +32,13 @@ import ru.ekbtrees.treemap.ui.mvi.contract.TreeMapContract
 @AndroidEntryPoint
 class TreeMapFragment : Fragment() {
 
-    lateinit var binding: FragmentTreeMapBinding
+    private lateinit var binding: FragmentTreeMapBinding
 
     private val treeMapViewModel: TreeMapViewModel by viewModels()
     private val sharedViewModel: SharedViewModel by activityViewModels()
 
     private lateinit var map: GoogleMap
+    private lateinit var clusterManager: ClusterManager<TreeMapClusterManagerBuilder.TreeClusterItem>
     private var selectedCircle: Circle? = null
 
     override fun onCreateView(
@@ -127,15 +126,13 @@ class TreeMapFragment : Fragment() {
         }
     }
 
-    private fun loadClustersAtMap(items: Collection<ClusterTreesEntity>) {
-        items.forEach { cluster ->
-            map.addGroundOverlay {
-                val iconDrawer = ClusterIconDrawer(Color.BLUE, 500, 500)
-                val icon = iconDrawer.draw(cluster.count.toString())
-                image(BitmapDescriptorFactory.fromBitmap(icon))
-                position(LatLonMapper().map(cluster.coord), 500f)
-            }
+    private fun loadClustersAtMap(items: Collection<TreeEntity>) {
+        items.forEach { tree ->
+            val clusterItem =
+                TreeMapClusterManagerBuilder.TreeClusterItem(LatLonMapper().map(tree.coord))
+            clusterManager.addItem(clusterItem)
         }
+        clusterManager.cluster()
     }
 
     private fun setUpMap() {
@@ -144,9 +141,11 @@ class TreeMapFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launchWhenCreated {
             map = mapFragment.awaitMap()
             setUpCamera()
+            clusterManager = TreeMapClusterManagerBuilder.buildClusterManager(requireContext(), map)
 
             map.setOnCameraIdleListener {
                 updateMapData()
+                clusterManager
             }
             observeViewModel()
 
@@ -261,6 +260,7 @@ class TreeMapFragment : Fragment() {
                     }
                     is TreeMapContract.DataState.Loading -> {
                         map.clear()
+                        clusterManager.clearItems()
                         binding.progressHorizontal.visibility = View.VISIBLE
                     }
                     is TreeMapContract.DataState.Loaded -> {
