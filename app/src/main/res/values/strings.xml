@@ -39,4 +39,5 @@
         <item>Dead</item>
     </string-array>
     <string name="tree_detail">Tree detail</string>
+    <string name="tree_location_holder">%1$s, %2$s</string>
 </resources>

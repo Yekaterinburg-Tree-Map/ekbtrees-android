@@ -1,15 +1,27 @@
 package ru.ekbtrees.treemap.domain.interactors
 
-import android.util.Log
-import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
-import ru.ekbtrees.treemap.domain.entity.TreeDetailEntity
-import ru.ekbtrees.treemap.domain.entity.TreeEntity
+import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
 
 class TreesInteractorImpl(private val treesRepository: TreesRepository) : TreesInteractor {
 
+    override suspend fun getTreeClusters(regionBoundsEntity: RegionBoundsEntity): Collection<ClusterTreesEntity> {
+        return try {
+            treesRepository.getTreeClusters(regionBoundsEntity = regionBoundsEntity)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    override suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity): Collection<TreeEntity> =
+        try {
+            treesRepository.getMapTreesInRegion(regionBoundsEntity)
+        }  catch (e: Exception) {
+            emptyList()
+        }
+
     override fun getTrees(): Collection<TreeEntity> {
-        return treesRepository.getTreesInClusteringBy()
+        return treesRepository.getTrees()
     }
 
     override fun getTreeSpecies(): Collection<SpeciesEntity> {
@@ -23,5 +35,4 @@ class TreesInteractorImpl(private val treesRepository: TreesRepository) : TreesI
     override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity) {
         return treesRepository.uploadTreeDetail(treeDetail)
     }
-
 }

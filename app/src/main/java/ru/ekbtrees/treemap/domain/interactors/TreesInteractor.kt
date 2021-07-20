@@ -1,13 +1,15 @@
 package ru.ekbtrees.treemap.domain.interactors
 
-import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
-import ru.ekbtrees.treemap.domain.entity.TreeDetailEntity
-import ru.ekbtrees.treemap.domain.entity.TreeEntity
+import ru.ekbtrees.treemap.domain.entity.*
 
 /**
  * Класс для бизнес логики связанной с деревьями
  */
 interface TreesInteractor {
+    suspend fun getTreeClusters(regionBoundsEntity: RegionBoundsEntity): Collection<ClusterTreesEntity>
+
+    suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity): Collection<TreeEntity>
+
     fun getTrees(): Collection<TreeEntity>
 
     suspend fun getTreeDetailBy(id: String): TreeDetailEntity

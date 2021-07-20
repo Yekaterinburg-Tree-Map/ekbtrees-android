@@ -5,19 +5,79 @@ import android.graphics.Color
 import android.util.Log
 import org.json.JSONException
 import org.json.JSONObject
+import ru.ekbtrees.treemap.data.api.TreesApiService
+import ru.ekbtrees.treemap.data.dto.ClusterTreesDto
+import ru.ekbtrees.treemap.data.dto.MapTreeDto
+import ru.ekbtrees.treemap.data.mappers.ClusterTreeDtoMapper
+import ru.ekbtrees.treemap.data.mappers.TreeDtoMapper
 import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
 import java.io.IOException
 import java.lang.Exception
 import java.nio.charset.Charset
 
-class TreesRepositoryImpl(private val context: Context) : TreesRepository {
+class TreesRepositoryImpl(
+    private val context: Context,
+    private val treesApiService: TreesApiService
+) : TreesRepository {
 
-    override fun getAllClusteringTrees(): Collection<ClusterTreesEntity> {
-        TODO("Not yet implemented")
+    private var colorList: List<Int>
+    private lateinit var species: List<SpeciesEntity>
+
+    init {
+        colorList = generateColors()
     }
 
-    override fun getTreesInClusteringBy(): Collection<TreeEntity> {
+    override suspend fun getTreeClusters(regionBoundsEntity: RegionBoundsEntity): Collection<ClusterTreesEntity> {
+        val clustersList: List<ClusterTreesDto> = treesApiService.getClusterTreesInRegion(
+            regionBoundsEntity.topLeft.lat,
+            regionBoundsEntity.topLeft.lon,
+            regionBoundsEntity.bottomRight.lat,
+            regionBoundsEntity.bottomRight.lon
+        )
+        if (clustersList.isEmpty()) return emptyList()
+        val clusterTreesEntityList = mutableListOf<ClusterTreesEntity>()
+        clustersList.forEach { clusterTreesDto ->
+            clusterTreesEntityList.add(ClusterTreeDtoMapper().map(clusterTreesDto))
+        }
+        return clusterTreesEntityList
+    }
+
+    override suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity): Collection<TreeEntity> {
+        TreesRepositoryImpl::class.simpleName
+        val treesList: List<MapTreeDto> = treesApiService.getTreesInRegion(
+            regionBoundsEntity.topLeft.lat,
+            regionBoundsEntity.topLeft.lon,
+            regionBoundsEntity.bottomRight.lat,
+            regionBoundsEntity.bottomRight.lon
+        )
+        if (treesList.isEmpty()) {
+            TreesRepositoryImpl::class.simpleName
+            return emptyList()
+        }
+        return treesList.map { mapTreeDto ->
+            TreeDtoMapper(getSpeciesBy(mapTreeDto.species.name)).map(mapTreeDto)
+        }
+    }
+
+    override suspend fun getSpecies(): Collection<SpeciesEntity> {
+        if (!::species.isInitialized) {
+            val speciesDtoList = treesApiService.getAllSpecies()
+            if (speciesDtoList.isEmpty()) return emptyList()
+            var i = 0
+            val speciesEntityList = mutableListOf<SpeciesEntity>()
+            speciesDtoList.forEach { speciesDto ->
+                val speciesEntity =
+                    SpeciesEntity(speciesDto.id.toString(), colorList[i], speciesDto.name)
+                speciesEntityList.add(speciesEntity)
+                i++
+            }
+            species = speciesEntityList
+        }
+        return species
+    }
+
+    override fun getTrees(): Collection<TreeEntity> {
         // asset location: app/src/main/assets
         var id = 0
         val json = loadJSON(context = context)
@@ -74,10 +134,6 @@ class TreesRepositoryImpl(private val context: Context) : TreesRepository {
         return JSONObject(jsonString)
     }
 
-    override fun getTreeBy(id: String): TreeEntity {
-        TODO("Not yet implemented")
-    }
-
     override fun getAllSpecies(): Collection<SpeciesEntity> {
         return arrayListOf(
             SpeciesEntity("1", Color.parseColor("#C8BEEB5A"), "клен"),
@@ -123,4 +179,41 @@ class TreesRepositoryImpl(private val context: Context) : TreesRepository {
         throw Exception("$name не был определён")
     }
 
+    private suspend fun getSpeciesBy(name: String): SpeciesEntity {
+        for (species in getSpecies()) {
+            if (species.name.lowercase() == name.lowercase()) {
+                return species
+            }
+        }
+        throw IllegalArgumentException("Порода $name не была найдена.")
+    }
+
+    private fun generateColors(): List<Int> {
+        val colors = mutableListOf<Int>()
+        var greenColor = 7
+        while (greenColor < 256) {
+            val hexColor = Integer.toHexString(greenColor).uppercase()
+            val color =
+                if (hexColor.length > 1) {
+                    hexColor
+                } else {
+                    "0$hexColor"
+                }
+            colors.add(Color.parseColor("#00${color}00"))
+            greenColor += 8
+        }
+        var blueColor = 7
+        while (blueColor < 256) {
+            val hexColor = Integer.toHexString(blueColor).uppercase()
+            val color =
+                if (hexColor.length > 1) {
+                    hexColor
+                } else {
+                    "0$hexColor"
+                }
+            colors.add(Color.parseColor("#00${color}00"))
+            blueColor += 8
+        }
+        return colors
+    }
 }
