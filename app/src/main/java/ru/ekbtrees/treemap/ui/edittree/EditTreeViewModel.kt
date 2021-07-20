@@ -29,9 +29,16 @@ class EditTreeViewModel @Inject constructor(
                 setState(EditTreeContract.EditTreeViewState.EmptyData(instanceValue.treeLocation))
             }
             is EditTreeInstanceValue.TreeId -> {
-                /**
-                 *  На этом этапе делаем запрос к интерактору для получения подробной инфррмации о дереве
-                 */
+                viewModelScope.launch {
+                    setState(EditTreeContract.EditTreeViewState.DataLoading)
+                    try {
+                        val treeDetail = interactor.getTreeDetailBy(instanceValue.treeId)
+                        setState(EditTreeContract.EditTreeViewState.DataLoaded(treeDetail))
+                    } catch (e: Exception) {
+                        setState(EditTreeContract.EditTreeViewState.Error)
+                    }
+                }
+
             }
         }
     }

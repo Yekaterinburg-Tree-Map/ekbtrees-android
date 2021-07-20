@@ -1,10 +1,10 @@
 package ru.ekbtrees.treemap.data.api
 
-import retrofit2.http.GET
-import retrofit2.http.Query
+import retrofit2.http.*
 import ru.ekbtrees.treemap.data.dto.ClusterTreesDto
 import ru.ekbtrees.treemap.data.dto.MapTreeDto
 import ru.ekbtrees.treemap.data.dto.SpeciesDto
+import ru.ekbtrees.treemap.data.dto.TreeDetailDto
 
 interface TreesApiService {
 
@@ -26,4 +26,14 @@ interface TreesApiService {
 
     @GET("api/species/get-all")
     suspend fun getAllSpecies(): List<SpeciesDto>
+
+    @GET("api/tree/get/{id}")
+    suspend fun getTreeDetailBy(
+        @Path("id") treeId: Int
+    ): TreeDetailDto
+
+    @POST("api/tree/save")
+    suspend fun uploadTreeDetail(
+        @Body treeDetailDto: TreeDetailDto
+    )
 }

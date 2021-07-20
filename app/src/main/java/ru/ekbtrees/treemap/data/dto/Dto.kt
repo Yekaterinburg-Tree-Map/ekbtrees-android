@@ -33,3 +33,38 @@ data class LatLonDto(
     @SerializedName("longitude")
     val lon: Double
 )
+
+data class TreeDetailDto(
+    @SerializedName("id")
+    val id: Int,
+    @SerializedName("geographicalPoint")
+    val coord: LatLonDto,
+    @SerializedName("species")
+    val species: SpeciesDto,
+    @SerializedName("treeHeight")
+    val height: Double?,
+    @SerializedName("numberOfTreeTrunks")
+    val numberOfTrunks: Int?,
+    @SerializedName("trunkGirth")
+    val trunkGirth: Double?,
+    @SerializedName("diameterOfCrown")
+    val diameterOfCrown: Double?,
+    @SerializedName("heightOfTheFirstBranch")
+    val heightOfTheFirstBranch: Double?,
+    @SerializedName("conditionAssessment")
+    val conditionAssessment: Int?,
+    @SerializedName("age")
+    val age: Int?,
+    @SerializedName("treePlantingType")
+    val treePlantingType: String?,
+    @SerializedName("created")
+    val createTime: String?,
+    @SerializedName("updated")
+    val updateTime: String?,
+    @SerializedName("authorId")
+    val authorId: Int?,
+    @SerializedName("status")
+    val status: String?,
+    @SerializedName("fileIds")
+    val fileIds: List<Int>?
+)

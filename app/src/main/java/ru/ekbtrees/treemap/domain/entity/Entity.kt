@@ -16,7 +16,7 @@ data class TreeDetailEntity(
     val height: Double,
     val numberOfTrunks: Int,
     val trunkGirth: Double,
-    val diameterOfCrown: Int,
+    val diameterOfCrown: Double,
     val heightOfTheFirstBranch: Double,
     val conditionAssessment: Int,
     val age: Int,

@@ -9,6 +9,7 @@ import ru.ekbtrees.treemap.data.api.TreesApiService
 import ru.ekbtrees.treemap.data.dto.ClusterTreesDto
 import ru.ekbtrees.treemap.data.dto.MapTreeDto
 import ru.ekbtrees.treemap.data.mappers.ClusterTreeDtoMapper
+import ru.ekbtrees.treemap.data.mappers.TreeDetailDtoMapper
 import ru.ekbtrees.treemap.data.mappers.TreeDtoMapper
 import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
@@ -147,25 +148,8 @@ class TreesRepositoryImpl(
     }
 
     override suspend fun getTreeDetailBy(id: String): TreeDetailEntity {
-        // Заглушка пока не готов HTTP клиент.
-        return TreeDetailEntity(
-            id = "",
-            coord = LatLonEntity(0.0, 0.0),
-            species = SpeciesEntity("", Color.parseColor("#000000"), ""),
-            height = 0.0,
-            numberOfTrunks = 0,
-            trunkGirth = 0.0,
-            diameterOfCrown = 0,
-            heightOfTheFirstBranch = 0.0,
-            conditionAssessment = 0,
-            age = 0,
-            treePlantingType = "",
-            createTime = "",
-            updateTime = "",
-            authorId = 0,
-            status = "",
-            fileIds = emptyList()
-        )
+        val treeDetailDto = treesApiService.getTreeDetailBy(treeId = id.toInt())
+        return TreeDetailDtoMapper().map(treeDetailDto)
     }
 
     override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity) {

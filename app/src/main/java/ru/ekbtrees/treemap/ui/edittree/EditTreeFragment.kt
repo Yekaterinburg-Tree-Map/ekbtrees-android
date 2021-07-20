@@ -30,6 +30,9 @@ import java.util.*
 
 private const val TAG = "EditTreeFragment"
 
+/**
+ * Фрагмент добавления или редактирования детализации дерева.
+ * */
 @AndroidEntryPoint
 class EditTreeFragment : Fragment() {
 
@@ -94,8 +97,8 @@ class EditTreeFragment : Fragment() {
                             binding.trunkGirthValue.text.toString().toDouble()
                         else 0.0,
                         diameterOfCrown = if (!binding.diameterOfCrownValue.text.isNullOrBlank())
-                            binding.diameterOfCrownValue.text.toString().toInt()
-                        else 0,
+                            binding.diameterOfCrownValue.text.toString().toDouble()
+                        else 0.0,
                         heightOfTheFirstBranch = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
                             binding.heightOfTheFirstBranchValue.text.toString().toDouble()
                         else 0.0,
@@ -178,7 +181,7 @@ class EditTreeFragment : Fragment() {
         setupTreeLocation(treeLocation = LatLonMapper().map(treeDetail.coord))
         setupSpinners()
 
-        binding.numberOfTrunksValue.setText(treeDetail.numberOfTrunks)
+        binding.numberOfTrunksValue.setText(treeDetail.numberOfTrunks.toString())
         binding.trunkGirthValue.setText(treeDetail.trunkGirth.toString())
         binding.diameterOfCrownValue.setText(treeDetail.diameterOfCrown.toString())
         binding.ageValue.setText(treeDetail.age.toString())
@@ -197,7 +200,7 @@ class EditTreeFragment : Fragment() {
     }
 
     /**
-     * Заполняет только спинеры и выставляет загушки.
+     * Заполняет только спинеры и выставляет заглушки.
      * */
     private fun setupEmptyTreeData() {
         setupSpinners()
