@@ -233,14 +233,4 @@ class EditTreeFragment : Fragment() {
             }
         }
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(instanceValue: EditTreeInstanceValue) =
-            EditTreeFragment().apply {
-                arguments = Bundle().apply {
-                    putParcelable(EditTreeViewModel.INSTANCE_VALUE_KEY, instanceValue)
-                }
-            }
-    }
 }

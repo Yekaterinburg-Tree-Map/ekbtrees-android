@@ -1,10 +1,17 @@
 package ru.ekbtrees.treemap.ui.map
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.*
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -28,6 +35,7 @@ import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
 import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.TreeMapContract
+import java.util.*
 
 /**
  * Фрагмент карты деревьев
@@ -40,21 +48,60 @@ class TreeMapFragment : Fragment() {
     private val treeMapViewModel: TreeMapViewModel by viewModels()
     private val sharedViewModel: SharedViewModel by activityViewModels()
 
+    private lateinit var locationProvider: LocationProvider
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+
     private lateinit var map: GoogleMap
     private lateinit var clusterManager: ClusterManager<TreeMapClusterManagerBuilder.TreeClusterItem>
     private var selectedCircle: Circle? = null
+    private var isUserLocationGranted = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        locationProvider = LocationProvider(requireContext())
+
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            isUserLocationGranted = true
+        } else {
+            requestPermissionLauncher =
+                registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                    handleLocationPermissionResponse(isGranted)
+                }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         binding = FragmentTreeMapBinding.inflate(inflater, container, false)
 
         binding.addTreeButton.setOnClickListener {
-            lifecycleScope.launch {
-                disableSelectedCircle()
-                treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnAddTreeButtonClicked)
+            when (treeMapViewModel.currentState) {
+                is TreeMapContract.MapViewState.MapState -> {
+                    disableSelectedCircle()
+                    treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnAddTreeButtonClicked)
+                }
+                is TreeMapContract.MapViewState.MapPickTreeLocationState -> {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        sharedViewModel.addNewTree(map.cameraPosition.target)
+                        val navController = findNavController()
+                        val action =
+                            TreeMapFragmentDirections.actionTreeMapFragmentToEditTreeFragment(
+                                EditTreeInstanceValue.TreeLocation(map.cameraPosition.target)
+                            )
+                        navController.navigate(action)
+                    }
+                }
+                else -> {
+                }
             }
         }
 
@@ -64,13 +111,24 @@ class TreeMapFragment : Fragment() {
         }
 
         binding.previewTreeDescriptionButton.setOnClickListener {
-            lifecycleScope.launch {
-                sharedViewModel.onTreeSelected(selectedCircle?.tag.toString())
-            }
             val navController = findNavController()
             val action =
                 TreeMapFragmentDirections.actionTreeMapFragmentToTreeDetailFragment(selectedCircle?.tag.toString())
             navController.navigate(action)
+            lifecycleScope.launch {
+                sharedViewModel.onTreeSelected(selectedCircle?.tag.toString())
+            }
+        }
+
+        binding.userLocationButton.setOnClickListener {
+            if (!::map.isInitialized) return@setOnClickListener
+            if (isUserLocationGranted) {
+                val position = locationProvider.lastLocation
+                val cameraUpdate = CameraUpdateFactory.newLatLng(position)
+                map.animateCamera(cameraUpdate)
+            } else {
+                requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
         }
 
         return binding.root
@@ -81,27 +139,52 @@ class TreeMapFragment : Fragment() {
 
         setUpMap()
 
-        binding.editTreeButton.setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch {
-                sharedViewModel.addNewTree(map.cameraPosition.target)
-                val navController = findNavController()
-                val action = TreeMapFragmentDirections.actionTreeMapFragmentToEditTreeFragment(
-                    EditTreeInstanceValue.TreeLocation(map.cameraPosition.target)
-                )
-                navController.navigate(action)
-            }
-        }
-
         binding.cancelButton.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
                 treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnAddTreeCanceled)
             }
         }
+
+        handleLocationPermissionResponse(isUserLocationGranted)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        locationProvider.startLocationUpdates()
     }
 
     override fun onPause() {
         super.onPause()
-        treeMapViewModel.cameraPosition = map.cameraPosition
+        locationProvider.stopLocationUpdates()
+        if (::map.isInitialized) {
+            treeMapViewModel.cameraPosition = map.cameraPosition
+        }
+    }
+
+    private fun handleLocationPermissionResponse(isGranted: Boolean) {
+        isUserLocationGranted = isGranted
+        if (isGranted) {
+            binding.userLocationButton.setImageResource(R.drawable.ic_location_24)
+            binding.userLocationButton.imageTintList =
+                AppCompatResources.getColorStateList(requireContext(), R.color.black)
+        } else {
+            binding.userLocationButton.setImageResource(R.drawable.ic_location_disabled_24)
+            binding.userLocationButton.imageTintList =
+                AppCompatResources.getColorStateList(requireContext(), R.color.red)
+        }
+        if (::map.isInitialized && ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            map.isMyLocationEnabled = true
+            val userLocation = locationProvider.fetchUserLocation()
+            userLocation.addOnSuccessListener { location ->
+                val latLng = LatLng(location.latitude, location.longitude)
+                val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 16f)
+                map.animateCamera(cameraUpdate)
+            }
+        }
     }
 
     private fun disableSelectedCircle() {
@@ -141,22 +224,40 @@ class TreeMapFragment : Fragment() {
     private fun setUpMap() {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 
-        viewLifecycleOwner.lifecycleScope.launchWhenCreated {
-            map = mapFragment.awaitMap()
-            setUpCamera()
-            clusterManager = TreeMapClusterManagerBuilder.buildClusterManager(requireContext(), map)
-
-            map.setOnCameraIdleListener {
-                updateMapData()
-                clusterManager
+        mapFragment.getMapAsync { googleMap ->
+            map = googleMap
+            map.setOnMyLocationButtonClickListener {
+                false
             }
-            observeViewModel()
+            map.uiSettings.isMyLocationButtonEnabled = false
+            map.setLocationSource(locationProvider)
 
-            treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnMapViewReady)
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                map.isMyLocationEnabled = true
+            }
+            viewLifecycleOwner.lifecycleScope.launchWhenCreated {
+                map = mapFragment.awaitMap()
+                setUpCamera()
+                clusterManager =
+                    TreeMapClusterManagerBuilder.buildClusterManager(requireContext(), map)
+
+                map.setOnCameraIdleListener {
+                    updateMapData()
+                    clusterManager
+                }
+                observeViewModel()
+
+                treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnMapViewReady)
+            }
         }
     }
 
     private fun setUpCamera() {
+        map.setLatLngBoundsForCameraTarget(EKATERINBURG_CAMERA_BOUNDS)
         map.setMinZoomPreference(MIN_ZOOM_LEVEL)
         if (treeMapViewModel.cameraPosition != null) {
             map.moveCamera(
@@ -164,32 +265,36 @@ class TreeMapFragment : Fragment() {
                     treeMapViewModel.cameraPosition ?: throw Exception()
                 )
             )
-        } else {// if you have location permission, move camera at user location
-            map.moveCamera(
-                CameraUpdateFactory.newLatLngZoom(
-                    EKATERINBURG_CENTER_POSITION,
-                    MIN_ZOOM_LEVEL
+        } else {
+            if (isUserLocationGranted) {
+                locationProvider.fetchUserLocation().addOnSuccessListener { location ->
+                    val latLng = LatLng(location.latitude, location.longitude)
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f))
+                }
+            } else {
+                map.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        EKATERINBURG_CENTER_POSITION,
+                        MIN_ZOOM_LEVEL
+                    )
                 )
-            )
+            }
         }
-        map.setLatLngBoundsForCameraTarget(EKATERINBURG_CAMERA_BOUNDS)
     }
 
     /**
      * Выводит на экран View объекты состояния добавления дерева
      * */
-    private fun showViews() {
+    private fun showPickTreeLocationViews() {
         binding.treeMarker.visibility = View.VISIBLE
-        binding.editTreeButton.show()
         binding.cancelButton.show()
     }
 
     /**
      * Скарывает View объекты состояния добавления дерева
      * */
-    private fun hideViews() {
+    private fun hidePickTreeLocationViews() {
         binding.treeMarker.visibility = View.GONE
-        binding.editTreeButton.hide()
         binding.cancelButton.hide()
     }
 
@@ -214,38 +319,54 @@ class TreeMapFragment : Fragment() {
                     is TreeMapContract.MapViewState.Idle -> {
                     }
                     is TreeMapContract.MapViewState.MapState -> {
-                        hideViews()
-                        binding.addTreeButton.show()
+                        hidePickTreeLocationViews()
                         map.setOnCircleClickListener { treeCircle ->
                             disableSelectedCircle()
                             enableSelectedCircle(treeCircle)
-
                             val tag = treeCircle.tag as String
                             val treeEntity = treeMapViewModel.getTreeBy(id = tag)
-                            binding.previewTreeSpeciesText.text = treeEntity.species.name
-                            binding.treePreview.visibility = View.VISIBLE
                             binding.previewTreeSpeciesText.text =
                                 treeEntity.species.name.replaceFirstChar {
-                                    if (it.isLowerCase()) it.titlecase() else it.toString()
+                                    if (it.isLowerCase()) it.titlecase(
+                                        Locale.getDefault()
+                                    ) else it.toString()
                                 }
-                            binding.previewTreeLocationValue.text = getString(
-                                R.string.tree_location_holder,
-                                treeEntity.coord.lat.toString(),
-                                treeEntity.coord.lon.toString()
-                            )
+                            binding.previewTreePosition.text =
+                                getString(R.string.tree_location).plus(" ${treeEntity.coord.lat} ${treeEntity.coord.lon}")
                             binding.previewTreeDiameter.text =
-                                getString(R.string.diameter_of_crown).plus(": ${treeEntity.diameter}")
+                                getString(R.string.diameter_of_crown).plus(" ${treeEntity.diameter}")
                             binding.treePreview.visibility = View.VISIBLE
                         }
+                        binding.addTreeButton.setImageDrawable(
+                            AppCompatResources.getDrawable(
+                                requireContext(),
+                                R.drawable.ic_add_24
+                            )
+                        )
+                        binding.addTreeButton.imageTintList =
+                            AppCompatResources.getColorStateList(
+                                requireContext(),
+                                R.color.black
+                            )
                     }
                     is TreeMapContract.MapViewState.MapErrorState -> {
-                        hideViews()
+                        hidePickTreeLocationViews()
                         binding.addTreeButton.hide()
                         // show error text or picture
                     }
                     is TreeMapContract.MapViewState.MapPickTreeLocationState -> {
-                        showViews()
-                        binding.addTreeButton.hide()
+                        showPickTreeLocationViews()
+                        binding.addTreeButton.setImageDrawable(
+                            AppCompatResources.getDrawable(
+                                requireContext(),
+                                R.drawable.ic_check_24
+                            )
+                        )
+                        binding.addTreeButton.imageTintList =
+                            AppCompatResources.getColorStateList(
+                                requireContext(),
+                                R.color.green
+                            )
                         binding.treePreview.visibility = View.GONE
                         map.setOnCircleClickListener { }
                         val cameraUpdateFactory =
