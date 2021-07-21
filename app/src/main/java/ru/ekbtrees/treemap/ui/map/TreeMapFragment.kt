@@ -331,7 +331,7 @@ class TreeMapFragment : Fragment() {
                                         Locale.getDefault()
                                     ) else it.toString()
                                 }
-                            binding.previewTreePosition.text =
+                            binding.previewTreeLocationValue.text =
                                 getString(R.string.tree_location).plus(" ${treeEntity.coord.lat} ${treeEntity.coord.lon}")
                             binding.previewTreeDiameter.text =
                                 getString(R.string.diameter_of_crown).plus(" ${treeEntity.diameter}")
