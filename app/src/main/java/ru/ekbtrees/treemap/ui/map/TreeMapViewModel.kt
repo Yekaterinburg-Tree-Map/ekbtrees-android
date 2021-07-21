@@ -15,6 +15,9 @@ import kotlin.Exception
 
 private const val TAG = "TreeMapViewModel"
 
+/**
+ * ViewModel для [TreeMapFragment].
+ * */
 @HiltViewModel
 class TreeMapViewModel @Inject constructor(
     private val interactor: TreesInteractor
@@ -25,6 +28,9 @@ class TreeMapViewModel @Inject constructor(
     private val _treeMapDataState = MutableStateFlow<TreeMapContract.DataState>(TreeMapContract.DataState.Idle)
     val treeDataState: StateFlow<TreeMapContract.DataState> = _treeMapDataState.asStateFlow()
 
+    /**
+     * Выгружает в [treeDataState] кластера деревьев.
+     * */
     suspend fun getClusterTreesInRegion(regionBoundsUIModel: RegionBoundsUIModel) {
         _treeMapDataState.value = TreeMapContract.DataState.Loading
         try {
@@ -36,7 +42,10 @@ class TreeMapViewModel @Inject constructor(
         }
     }
 
-    suspend fun uploadTreesInRegion(regionBoundsUIModel: RegionBoundsUIModel) {
+    /**
+     * Выгружает в [treeDataState] список деревьев.
+     * */
+    suspend fun getTreesInRegion(regionBoundsUIModel: RegionBoundsUIModel) {
         _treeMapDataState.value = TreeMapContract.DataState.Loading
         try {
             val trees = interactor.getMapTreesInRegion(RegionBoundsUIModelMapper().map(regionBoundsUIModel))
@@ -47,6 +56,9 @@ class TreeMapViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Предоставляет [TreeEntity] по id.
+     * */
     fun getTreeBy(id: String): TreeEntity {
         if (treeDataState.value is TreeMapContract.DataState.Loaded) {
             val data = (treeDataState.value as TreeMapContract.DataState.Loaded).data

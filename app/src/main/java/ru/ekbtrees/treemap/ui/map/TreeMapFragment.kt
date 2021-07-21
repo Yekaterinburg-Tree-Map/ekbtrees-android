@@ -29,6 +29,9 @@ import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.TreeMapContract
 
+/**
+ * Фрагмент карты деревьев
+ * */
 @AndroidEntryPoint
 class TreeMapFragment : Fragment() {
 
@@ -199,7 +202,7 @@ class TreeMapFragment : Fragment() {
             if (map.cameraPosition.zoom < 16) {
                 treeMapViewModel.getClusterTreesInRegion(regionBounds)
             } else {
-                treeMapViewModel.uploadTreesInRegion(regionBounds)
+                treeMapViewModel.getTreesInRegion(regionBounds)
             }
         }
     }
