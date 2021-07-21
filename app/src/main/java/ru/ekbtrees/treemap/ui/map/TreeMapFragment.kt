@@ -2,8 +2,6 @@ package ru.ekbtrees.treemap.ui.map
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.Manifest
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -37,6 +35,7 @@ import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
 import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.TreeMapContract
+import java.util.*
 
 @AndroidEntryPoint
 class TreeMapFragment : Fragment() {
@@ -137,17 +136,6 @@ class TreeMapFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setUpMap()
-
-        binding.editTreeButton.setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch {
-                sharedViewModel.addNewTree(map.cameraPosition.target)
-                val navController = findNavController()
-                val action = TreeMapFragmentDirections.actionTreeMapFragmentToEditTreeFragment(
-                    EditTreeInstanceValue.TreeLocation(map.cameraPosition.target)
-                )
-                navController.navigate(action)
-            }
-        }
 
         binding.cancelButton.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
@@ -337,7 +325,7 @@ class TreeMapFragment : Fragment() {
                                         Locale.getDefault()
                                     ) else it.toString()
                                 }
-                            binding.previewTreePosition.text =
+                            binding.previewTreeLocationValue.text =
                                 getString(R.string.tree_location).plus(" ${treeEntity.coord.lat} ${treeEntity.coord.lon}")
                             binding.previewTreeDiameter.text =
                                 getString(R.string.diameter_of_crown).plus(" ${treeEntity.diameter}")
