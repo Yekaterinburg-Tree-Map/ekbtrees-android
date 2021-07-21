@@ -52,8 +52,4 @@ class EditTreeViewModel @Inject constructor(
             }
         }
     }
-
-    companion object {
-        const val INSTANCE_VALUE_KEY = "InstanceValue"
-    }
 }

@@ -5,11 +5,9 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.collect
 import dagger.hilt.android.AndroidEntryPoint
 import ru.ekbtrees.treemap.R
-import ru.ekbtrees.treemap.domain.entity.TreeEntity
 import ru.ekbtrees.treemap.ui.edittree.EditTreeFragment
 import ru.ekbtrees.treemap.ui.treedetail.TreeDetailFragment
 
