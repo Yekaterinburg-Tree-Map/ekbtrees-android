@@ -58,7 +58,7 @@ data class TreeDetailDto(
     @SerializedName("treePlantingType")
     val treePlantingType: String?,
     @SerializedName("created")
-    val createTime: String?,
+    val createTime: String,
     @SerializedName("updated")
     val updateTime: String?,
     @SerializedName("authorId")

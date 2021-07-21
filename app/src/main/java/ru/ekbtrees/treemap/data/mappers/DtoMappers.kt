@@ -7,6 +7,8 @@ import ru.ekbtrees.treemap.data.dto.MapTreeDto
 import ru.ekbtrees.treemap.data.dto.TreeDetailDto
 import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.mapper.Mapper
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
 class TreeDtoMapper(private val speciesEntity: SpeciesEntity) : Mapper<MapTreeDto, TreeEntity> {
     override fun map(from: MapTreeDto): TreeEntity {
@@ -46,7 +48,7 @@ class TreeDetailDtoMapper : Mapper<TreeDetailDto, TreeDetailEntity> {
             conditionAssessment = from.conditionAssessment ?: 0,
             age = from.age ?: 0,
             treePlantingType = from.treePlantingType ?: "",
-            createTime = from.createTime ?: "",
+            createTime = from.createTime,
             updateTime = from.updateTime ?: "",
             authorId = from.authorId ?: 0,
             status = from.status ?: "",
