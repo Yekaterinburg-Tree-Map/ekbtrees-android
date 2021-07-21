@@ -35,4 +35,8 @@ class TreesInteractorImpl(private val treesRepository: TreesRepository) : TreesI
     override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity) {
         return treesRepository.uploadTreeDetail(treeDetail)
     }
+
+    override suspend fun getAllSpecies(): Collection<SpeciesEntity> {
+        return treesRepository.getSpecies()
+    }
 }

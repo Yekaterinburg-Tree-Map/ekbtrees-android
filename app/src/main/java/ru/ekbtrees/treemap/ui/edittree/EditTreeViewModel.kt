@@ -19,8 +19,8 @@ class EditTreeViewModel @Inject constructor(
     private val interactor: TreesInteractor
 ) : BaseViewModel<EditTreeContract.EditTreeEvent, EditTreeContract.EditTreeViewState, EditTreeContract.TreeMapEffect>() {
 
-    fun getTreeSpecies(): Array<SpeciesEntity> {
-        return interactor.getTreeSpecies().toTypedArray()
+    suspend fun getTreeSpecies(): Collection<SpeciesEntity> {
+        return interactor.getAllSpecies()
     }
 
     fun provideInstanceValue(instanceValue: EditTreeInstanceValue) {

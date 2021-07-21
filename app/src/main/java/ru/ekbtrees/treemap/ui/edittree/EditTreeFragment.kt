@@ -17,8 +17,10 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentEditTreeBinding
 import ru.ekbtrees.treemap.domain.entity.LatLonEntity
@@ -63,8 +65,7 @@ class EditTreeFragment : Fragment() {
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 binding.conditionAssessmentTextValue.text = getString(
-                    R.string.condition_assessment_holder,
-                    if (progress != 0) progress.toString() else "-"
+                    R.string.condition_assessment_holder, progress.toString()
                 )
             }
 
@@ -156,11 +157,18 @@ class EditTreeFragment : Fragment() {
     /**
      * Заполняет все спиннеры.
      * */
-    private fun setupSpinners() {
-        val treeSpecies = viewModel.getTreeSpecies().map { it.name }.toMutableList()
-        treeSpecies.add(0, getString(R.string.select_tree_species))
-        val speciesSpinnerAdapter = createSpinnerAdapter(treeSpecies.toTypedArray())
-        binding.treeSpeciesValue.adapter = speciesSpinnerAdapter
+    private fun setupSpinners(speciesName: String? = null) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val treeSpecies = viewModel.getTreeSpecies().map { it.name }.toMutableList()
+            treeSpecies.add(0, getString(R.string.select_tree_species))
+            val speciesSpinnerAdapter = createSpinnerAdapter(treeSpecies.toTypedArray())
+            binding.treeSpeciesValue.adapter = speciesSpinnerAdapter
+
+            if (speciesName != null) {
+                val speciesId = treeSpecies.indexOf(speciesName)
+                binding.treeSpeciesValue.setSelection(speciesId)
+            }
+        }
 
         val statusArray = resources.getStringArray(R.array.status_types)
         val statusSpinnerAdapter = createSpinnerAdapter(statusArray)
@@ -179,24 +187,35 @@ class EditTreeFragment : Fragment() {
      * */
     private fun setupTreeData(treeDetail: TreeDetailEntity) {
         setupTreeLocation(treeLocation = LatLonMapper().map(treeDetail.coord))
-        setupSpinners()
+        setupSpinners(treeDetail.species.name)
 
-        binding.numberOfTrunksValue.setText(treeDetail.numberOfTrunks.toString())
-        binding.trunkGirthValue.setText(treeDetail.trunkGirth.toString())
-        binding.diameterOfCrownValue.setText(treeDetail.diameterOfCrown.toString())
-        binding.ageValue.setText(treeDetail.age.toString())
-        binding.heightOfTheFirstBranchValue.setText(treeDetail.heightOfTheFirstBranch.toString())
-        binding.conditionAssessmentValue.progress = treeDetail.conditionAssessment
+        showTextInEditText(binding.numberOfTrunksValue, treeDetail.numberOfTrunks.toString())
+        showTextInEditText(binding.trunkGirthValue, treeDetail.trunkGirth.toString())
+        showTextInEditText(binding.diameterOfCrownValue, treeDetail.diameterOfCrown.toString())
+        showTextInEditText(binding.ageValue, treeDetail.age.toString())
+        showTextInEditText(
+            binding.heightOfTheFirstBranchValue,
+            treeDetail.heightOfTheFirstBranch.toString()
+        )
+        if (binding.conditionAssessmentTextValue.text.toString().isEmpty()) {
+            binding.conditionAssessmentValue.progress = treeDetail.conditionAssessment
+        }
         binding.conditionAssessmentTextValue.text = getString(
             R.string.condition_assessment_holder,
-            treeDetail.conditionAssessment.toString()
+            binding.conditionAssessmentValue.progress.toString()
         )
         // tree planting type
 
         binding.treeIdValue.text = treeDetail.id
-        // Author
+        binding.authorValue.text = treeDetail.authorId.toString()
         binding.createTimeValue.text = treeDetail.createTime
         binding.updateTimeValue.text = treeDetail.updateTime
+    }
+
+    private fun showTextInEditText(editText: TextInputEditText, text: String) {
+        if (editText.text.toString().isEmpty()) {
+            editText.setText(text)
+        }
     }
 
     /**
@@ -206,7 +225,10 @@ class EditTreeFragment : Fragment() {
         setupSpinners()
 
         binding.conditionAssessmentTextValue.text =
-            getString(R.string.condition_assessment_holder, "-")
+            getString(
+                R.string.condition_assessment_holder,
+                binding.conditionAssessmentValue.progress.toString()
+            )
 
         binding.treeIdValue.text = UUID.randomUUID().toString()
         binding.createTimeValue.text = Calendar.getInstance(Locale.ROOT).time.toString()
