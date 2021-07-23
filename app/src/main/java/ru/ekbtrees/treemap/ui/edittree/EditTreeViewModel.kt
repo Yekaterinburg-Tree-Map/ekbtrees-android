@@ -38,7 +38,21 @@ class EditTreeViewModel @Inject constructor(
                         setState(EditTreeContract.EditTreeViewState.Error)
                     }
                 }
-
+            }
+            is EditTreeInstanceValue.NewTreeLocation -> {
+                viewModelScope.launch {
+                    if (instanceValue.treeId == "") {
+                        setState(EditTreeContract.EditTreeViewState.EmptyData(instanceValue.newLocation))
+                    } else {
+                        setState(EditTreeContract.EditTreeViewState.DataLoading)
+                        try {
+                            val treeDetail = interactor.getTreeDetailBy(instanceValue.treeId)
+                            setState(EditTreeContract.EditTreeViewState.NewLocationData(treeDetail, instanceValue.newLocation))
+                        } catch (e: Exception) {
+                            setState(EditTreeContract.EditTreeViewState.Error)
+                        }
+                    }
+                }
             }
         }
     }

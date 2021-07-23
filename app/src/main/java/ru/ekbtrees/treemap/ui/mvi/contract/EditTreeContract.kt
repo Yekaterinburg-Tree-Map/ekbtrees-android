@@ -21,6 +21,8 @@ class EditTreeContract {
         object Error : EditTreeViewState()
         class EmptyData(val treeLocation: LatLng) : EditTreeViewState()
         class DataLoaded(val treeData: TreeDetailEntity) : EditTreeViewState()
+        class NewLocationData(val treeData: TreeDetailEntity, val newLocation: LatLng) :
+            EditTreeViewState()
     }
 
     /**

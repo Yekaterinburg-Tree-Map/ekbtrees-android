@@ -10,4 +10,7 @@ sealed class EditTreeInstanceValue: Parcelable {
 
     @Parcelize
     class TreeId(val treeId: String): EditTreeInstanceValue()
+
+    @Parcelize
+    class NewTreeLocation(val treeId: String, val newLocation: LatLng): EditTreeInstanceValue()
 }

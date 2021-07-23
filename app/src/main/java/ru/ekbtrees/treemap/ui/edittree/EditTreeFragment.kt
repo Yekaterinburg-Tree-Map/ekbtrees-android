@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter
 import android.widget.SeekBar
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -44,6 +45,7 @@ class EditTreeFragment : Fragment() {
 
     private lateinit var map: GoogleMap
     private lateinit var location: LatLng
+    private lateinit var treeId: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -76,6 +78,13 @@ class EditTreeFragment : Fragment() {
             }
 
         })
+
+        binding.changeLocationButton.setOnClickListener {
+            val navController = findNavController()
+            val action = EditTreeFragmentDirections
+                .actionEditTreeFragmentToChangeLocationFragment(location, treeId)
+            navController.navigate(action)
+        }
 
         binding.saveData.setOnClickListener {
             viewModel.setEvent(
@@ -186,6 +195,7 @@ class EditTreeFragment : Fragment() {
      * Выводит всю полученную информацию.
      * */
     private fun setupTreeData(treeDetail: TreeDetailEntity) {
+        treeId = treeDetail.id
         setupTreeLocation(treeLocation = LatLonMapper().map(treeDetail.coord))
         setupSpinners(treeDetail.species.name)
 
@@ -222,6 +232,7 @@ class EditTreeFragment : Fragment() {
      * Заполняет только спинеры и выставляет заглушки.
      * */
     private fun setupEmptyTreeData() {
+        treeId = ""
         setupSpinners()
 
         binding.conditionAssessmentTextValue.text =
@@ -230,7 +241,7 @@ class EditTreeFragment : Fragment() {
                 binding.conditionAssessmentValue.progress.toString()
             )
 
-        binding.treeIdValue.text = UUID.randomUUID().toString()
+        binding.treeIdValue.text = getString(R.string.tree_id_plug)
         binding.createTimeValue.text = Calendar.getInstance(Locale.ROOT).time.toString()
         binding.updateTimeValue.text = Calendar.getInstance(Locale.ROOT).time.toString()
     }
@@ -250,6 +261,10 @@ class EditTreeFragment : Fragment() {
                     }
                     is EditTreeContract.EditTreeViewState.DataLoaded -> {
                         setupTreeData(treeDetail = editTreeViewState.treeData)
+                    }
+                    is EditTreeContract.EditTreeViewState.NewLocationData -> {
+                        setupTreeData(treeDetail = editTreeViewState.treeData)
+                        setupTreeLocation(treeLocation = editTreeViewState.newLocation)
                     }
                     is EditTreeContract.EditTreeViewState.Error -> {
                         // Show error message and show reload data button

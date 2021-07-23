@@ -27,6 +27,10 @@
         <argument
             android:name="instanceValue"
             app:argType="ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue" />
+        <action
+            android:id="@+id/action_editTreeFragment_to_changeLocationFragment"
+            app:destination="@id/changeLocationFragment"
+            app:popUpTo="@id/editTreeFragment" />
     </fragment>
     <fragment
         android:id="@+id/treeDetailFragment"
@@ -37,6 +41,21 @@
             android:id="@+id/action_treeDetailFragment_to_editTreeFragment"
             app:destination="@id/editTreeFragment"
             app:popUpTo="@id/treeDetailFragment" />
+        <argument
+            android:name="treeId"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/changeLocationFragment"
+        android:name="ru.ekbtrees.treemap.ui.changeLocation.ChangeLocationFragment"
+        android:label="ChangeLocationFragment" >
+        <action
+            android:id="@+id/action_changeLocationFragment_to_editTreeFragment"
+            app:destination="@id/editTreeFragment"
+            app:popUpTo="@id/treeMapFragment" />
+        <argument
+            android:name="treeLocation"
+            app:argType="com.google.android.gms.maps.model.LatLng" />
         <argument
             android:name="treeId"
             app:argType="string" />
