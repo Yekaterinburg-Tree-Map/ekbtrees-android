@@ -24,10 +24,9 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentEditTreeBinding
-import ru.ekbtrees.treemap.domain.entity.LatLonEntity
-import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
-import ru.ekbtrees.treemap.domain.entity.TreeDetailEntity
-import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
+import ru.ekbtrees.treemap.ui.model.NewTreeDetailUIModel
+import ru.ekbtrees.treemap.ui.model.SpeciesUIModel
+import ru.ekbtrees.treemap.ui.model.TreeDetailUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.EditTreeContract
 import java.util.*
 
@@ -45,7 +44,6 @@ class EditTreeFragment : Fragment() {
 
     private lateinit var map: GoogleMap
     private lateinit var location: LatLng
-    private lateinit var treeId: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -82,49 +80,12 @@ class EditTreeFragment : Fragment() {
         binding.changeLocationButton.setOnClickListener {
             val navController = findNavController()
             val action = EditTreeFragmentDirections
-                .actionEditTreeFragmentToChangeLocationFragment(location, treeId)
+                .actionEditTreeFragmentToChangeLocationFragment(getTreeDetail())
             navController.navigate(action)
         }
 
         binding.saveData.setOnClickListener {
-            viewModel.setEvent(
-                EditTreeContract.EditTreeEvent.OnSaveButtonClicked(
-                    TreeDetailEntity(
-                        id = binding.treeIdValue.text.toString(),
-                        coord = LatLonEntity(lat = location.latitude, lon = location.longitude),
-                        species = SpeciesEntity(
-                            id = "0",
-                            color = Color.parseColor("#000000"),
-                            name = binding.treeSpeciesValue.selectedItem.toString()
-                        ),
-                        height = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
-                            binding.heightOfTheFirstBranchValue.text.toString().toDouble()
-                        else 0.0,
-                        numberOfTrunks = if (!binding.numberOfTrunksValue.text.isNullOrBlank())
-                            binding.numberOfTrunksValue.text.toString().toInt()
-                        else 0,
-                        trunkGirth = if (!binding.trunkGirthValue.text.isNullOrBlank())
-                            binding.trunkGirthValue.text.toString().toDouble()
-                        else 0.0,
-                        diameterOfCrown = if (!binding.diameterOfCrownValue.text.isNullOrBlank())
-                            binding.diameterOfCrownValue.text.toString().toDouble()
-                        else 0.0,
-                        heightOfTheFirstBranch = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
-                            binding.heightOfTheFirstBranchValue.text.toString().toDouble()
-                        else 0.0,
-                        conditionAssessment = binding.conditionAssessmentValue.progress,
-                        age = if (!binding.ageValue.text.isNullOrBlank())
-                            binding.ageValue.text.toString().toInt()
-                        else 0,
-                        treePlantingType = "",
-                        createTime = binding.createTimeValue.text.toString(),
-                        updateTime = binding.updateTimeValue.text.toString(),
-                        authorId = 0,
-                        status = binding.treeStatusValue.selectedItem.toString(),
-                        fileIds = emptyList()
-                    )
-                )
-            )
+            viewModel.setEvent(EditTreeContract.EditTreeEvent.OnSaveButtonClicked(getTreeDetail()))
         }
     }
 
@@ -194,9 +155,8 @@ class EditTreeFragment : Fragment() {
     /**
      * Выводит всю полученную информацию.
      * */
-    private fun setupTreeData(treeDetail: TreeDetailEntity) {
-        treeId = treeDetail.id
-        setupTreeLocation(treeLocation = LatLonMapper().map(treeDetail.coord))
+    private fun showTreeDetailData(treeDetail: TreeDetailUIModel) {
+        setupTreeLocation(treeLocation = treeDetail.coord)
         setupSpinners(treeDetail.species.name)
 
         showTextInEditText(binding.numberOfTrunksValue, treeDetail.numberOfTrunks.toString())
@@ -216,23 +176,103 @@ class EditTreeFragment : Fragment() {
         )
         // tree planting type
 
-        binding.treeIdValue.text = treeDetail.id
+        val treeId = if (treeDetail.id == "") getString(R.string.tree_id_plug) else treeDetail.id
+        binding.treeIdValue.text = treeId
         binding.authorValue.text = treeDetail.authorId.toString()
         binding.createTimeValue.text = treeDetail.createTime
         binding.updateTimeValue.text = treeDetail.updateTime
     }
 
+    /**
+     * Выводит текст в TextInputEditText, если поле ранее не было заполнено.
+     * */
     private fun showTextInEditText(editText: TextInputEditText, text: String) {
         if (editText.text.toString().isEmpty()) {
             editText.setText(text)
         }
     }
 
+    private fun getNewTreeDetail(): NewTreeDetailUIModel =
+        NewTreeDetailUIModel(
+            coord = LatLng(location.latitude, location.longitude),
+            species = SpeciesUIModel(
+                id = "0",
+                color = Color.parseColor("#000000"),
+                name = binding.treeSpeciesValue.selectedItem.toString()
+            ),
+            height = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
+                binding.heightOfTheFirstBranchValue.text.toString().toDouble()
+            else 0.0,
+            numberOfTrunks = if (!binding.numberOfTrunksValue.text.isNullOrBlank())
+                binding.numberOfTrunksValue.text.toString().toInt()
+            else 0,
+            trunkGirth = if (!binding.trunkGirthValue.text.isNullOrBlank())
+                binding.trunkGirthValue.text.toString().toDouble()
+            else 0.0,
+            diameterOfCrown = if (!binding.diameterOfCrownValue.text.isNullOrBlank())
+                binding.diameterOfCrownValue.text.toString().toDouble()
+            else 0.0,
+            heightOfTheFirstBranch = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
+                binding.heightOfTheFirstBranchValue.text.toString().toDouble()
+            else 0.0,
+            conditionAssessment = binding.conditionAssessmentValue.progress,
+            age = if (!binding.ageValue.text.isNullOrBlank())
+                binding.ageValue.text.toString().toInt()
+            else 0,
+            treePlantingType = "",
+            createTime = binding.createTimeValue.text.toString(),
+            updateTime = binding.updateTimeValue.text.toString(),
+            authorId = 0,
+            status = binding.treeStatusValue.selectedItem.toString(),
+            fileIds = emptyList()
+        )
+
+    private fun getTreeDetail(): TreeDetailUIModel {
+        val treeId = if (binding.treeIdValue.text.toString() == getString(R.string.tree_id_plug)) {
+            ""
+        } else {
+            binding.treeIdValue.text.toString()
+        }
+        return TreeDetailUIModel(
+            id = treeId,
+            coord = LatLng(location.latitude, location.longitude),
+            species = SpeciesUIModel(
+                id = "0",
+                color = Color.parseColor("#000000"),
+                name = binding.treeSpeciesValue.selectedItem.toString()
+            ),
+            height = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
+                binding.heightOfTheFirstBranchValue.text.toString().toDouble()
+            else 0.0,
+            numberOfTrunks = if (!binding.numberOfTrunksValue.text.isNullOrBlank())
+                binding.numberOfTrunksValue.text.toString().toInt()
+            else 0,
+            trunkGirth = if (!binding.trunkGirthValue.text.isNullOrBlank())
+                binding.trunkGirthValue.text.toString().toDouble()
+            else 0.0,
+            diameterOfCrown = if (!binding.diameterOfCrownValue.text.isNullOrBlank())
+                binding.diameterOfCrownValue.text.toString().toDouble()
+            else 0.0,
+            heightOfTheFirstBranch = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
+                binding.heightOfTheFirstBranchValue.text.toString().toDouble()
+            else 0.0,
+            conditionAssessment = binding.conditionAssessmentValue.progress,
+            age = if (!binding.ageValue.text.isNullOrBlank())
+                binding.ageValue.text.toString().toInt()
+            else 0,
+            treePlantingType = "",
+            createTime = binding.createTimeValue.text.toString(),
+            updateTime = binding.updateTimeValue.text.toString(),
+            authorId = 0,
+            status = binding.treeStatusValue.selectedItem.toString(),
+            fileIds = emptyList()
+        )
+    }
+
     /**
      * Заполняет только спинеры и выставляет заглушки.
      * */
     private fun setupEmptyTreeData() {
-        treeId = ""
         setupSpinners()
 
         binding.conditionAssessmentTextValue.text =
@@ -260,11 +300,10 @@ class EditTreeFragment : Fragment() {
                         // Show progressBar
                     }
                     is EditTreeContract.EditTreeViewState.DataLoaded -> {
-                        setupTreeData(treeDetail = editTreeViewState.treeData)
+                        showTreeDetailData(treeDetail = editTreeViewState.treeData)
                     }
                     is EditTreeContract.EditTreeViewState.NewLocationData -> {
-                        setupTreeData(treeDetail = editTreeViewState.treeData)
-                        setupTreeLocation(treeLocation = editTreeViewState.newLocation)
+                        showTreeDetailData(treeDetail = editTreeViewState.treeData)
                     }
                     is EditTreeContract.EditTreeViewState.Error -> {
                         // Show error message and show reload data button

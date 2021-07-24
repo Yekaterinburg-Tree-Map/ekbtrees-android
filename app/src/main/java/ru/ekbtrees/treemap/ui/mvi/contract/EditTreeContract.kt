@@ -7,6 +7,7 @@ import ru.ekbtrees.treemap.ui.mvi.base.UiEvent
 import ru.ekbtrees.treemap.ui.mvi.base.UiState
 import ru.ekbtrees.treemap.ui.edittree.EditTreeFragment
 import ru.ekbtrees.treemap.ui.edittree.EditTreeViewModel
+import ru.ekbtrees.treemap.ui.model.TreeDetailUIModel
 
 /**
  * Соглашение между [EditTreeFragment] и [EditTreeViewModel]
@@ -20,8 +21,8 @@ class EditTreeContract {
         object DataLoading : EditTreeViewState()
         object Error : EditTreeViewState()
         class EmptyData(val treeLocation: LatLng) : EditTreeViewState()
-        class DataLoaded(val treeData: TreeDetailEntity) : EditTreeViewState()
-        class NewLocationData(val treeData: TreeDetailEntity, val newLocation: LatLng) :
+        class DataLoaded(val treeData: TreeDetailUIModel) : EditTreeViewState()
+        class NewLocationData(val treeData: TreeDetailUIModel) :
             EditTreeViewState()
     }
 
@@ -37,7 +38,7 @@ class EditTreeContract {
         /**
          * Инициируем сохранение введённых данных.
          */
-        class OnSaveButtonClicked(val treeDetail: TreeDetailEntity) : EditTreeEvent()
+        class OnSaveButtonClicked(val treeDetail: TreeDetailUIModel) : EditTreeEvent()
     }
 
     class TreeMapEffect : UiEffect

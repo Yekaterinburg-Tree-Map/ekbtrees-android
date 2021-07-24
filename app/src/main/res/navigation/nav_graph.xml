@@ -54,10 +54,7 @@
             app:destination="@id/editTreeFragment"
             app:popUpTo="@id/treeMapFragment" />
         <argument
-            android:name="treeLocation"
-            app:argType="com.google.android.gms.maps.model.LatLng" />
-        <argument
-            android:name="treeId"
-            app:argType="string" />
+            android:name="treeDetail"
+            app:argType="ru.ekbtrees.treemap.ui.model.TreeDetailUIModel" />
     </fragment>
 </navigation>

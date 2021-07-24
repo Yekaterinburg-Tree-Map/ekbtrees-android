@@ -28,6 +28,24 @@ data class TreeDetailEntity(
     val fileIds: Collection<Int>
 )
 
+data class NewTreeDetailEntity(
+    val coord: LatLonEntity,
+    val species: SpeciesEntity,
+    val height: Double,
+    val numberOfTrunks: Int,
+    val trunkGirth: Double,
+    val diameterOfCrown: Double,
+    val heightOfTheFirstBranch: Double,
+    val conditionAssessment: Int,
+    val age: Int,
+    val treePlantingType: String,
+    val createTime: String,
+    val updateTime: String,
+    val authorId: Int,
+    val status: String,
+    val fileIds: Collection<Int>
+)
+
 data class SpeciesEntity(val id: String, val color: Int, val name: String)
 
 data class LatLonEntity(val lat: Double, val lon: Double)

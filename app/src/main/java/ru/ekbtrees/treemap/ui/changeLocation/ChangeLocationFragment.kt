@@ -19,6 +19,7 @@ import com.google.maps.android.ktx.awaitMap
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentChangeLocationBinding
 import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
+import ru.ekbtrees.treemap.ui.model.TreeDetailUIModel
 
 private const val CAMERA_POSITION_KEY = "camera_position_key"
 private val EKATERINBURG_CAMERA_BOUNDS = LatLngBounds(
@@ -27,6 +28,9 @@ private val EKATERINBURG_CAMERA_BOUNDS = LatLngBounds(
 )
 private const val MIN_ZOOM_LEVEL = 11f
 
+/**
+ * Фрагмент изменения местоположения дерева.
+ * */
 class ChangeLocationFragment : Fragment() {
 
     private lateinit var binding: FragmentChangeLocationBinding
@@ -34,8 +38,7 @@ class ChangeLocationFragment : Fragment() {
     private val navController: NavController by lazy { findNavController() }
 
     private lateinit var map: GoogleMap
-    private lateinit var treeId: String
-    private lateinit var treeLocation: LatLng
+    private lateinit var treeDetail: TreeDetailUIModel
 
     private lateinit var cameraPosition: CameraPosition
 
@@ -48,9 +51,27 @@ class ChangeLocationFragment : Fragment() {
 
         binding.confirmButton.setOnClickListener {
             val newTreeLocation = map.cameraPosition.target
+            val changedTreeDetail = TreeDetailUIModel(
+                id = treeDetail.id,
+                coord = newTreeLocation,
+                species = treeDetail.species,
+                height = treeDetail.height,
+                numberOfTrunks = treeDetail.numberOfTrunks,
+                trunkGirth = treeDetail.trunkGirth,
+                diameterOfCrown = treeDetail.diameterOfCrown,
+                heightOfTheFirstBranch = treeDetail.heightOfTheFirstBranch,
+                conditionAssessment = treeDetail.conditionAssessment,
+                age = treeDetail.age,
+                treePlantingType = treeDetail.treePlantingType,
+                createTime = treeDetail.createTime,
+                updateTime = treeDetail.updateTime,
+                authorId = treeDetail.authorId,
+                status = treeDetail.status,
+                fileIds = treeDetail.fileIds
+            )
             val action =
                 ChangeLocationFragmentDirections.actionChangeLocationFragmentToEditTreeFragment(
-                    EditTreeInstanceValue.NewTreeLocation(treeId, newTreeLocation)
+                    EditTreeInstanceValue.NewTreeLocation(changedTreeDetail)
                 )
             navController.navigate(action)
         }
@@ -66,11 +87,10 @@ class ChangeLocationFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val args: ChangeLocationFragmentArgs by navArgs()
-        treeLocation = args.treeLocation
-        treeId = args.treeId
+        treeDetail = args.treeDetail
 
         cameraPosition = savedInstanceState?.getParcelable(CAMERA_POSITION_KEY)
-            ?: CameraPosition.fromLatLngZoom(treeLocation, 18f)
+            ?: CameraPosition.fromLatLngZoom(treeDetail.coord, 18f)
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 

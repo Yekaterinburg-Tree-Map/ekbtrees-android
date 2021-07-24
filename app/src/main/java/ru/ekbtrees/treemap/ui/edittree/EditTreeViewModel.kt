@@ -5,6 +5,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
 import ru.ekbtrees.treemap.domain.interactors.TreesInteractor
+import ru.ekbtrees.treemap.ui.mappers.toTreeDetailEntity
+import ru.ekbtrees.treemap.ui.mappers.toTreeDetailUIModel
 import ru.ekbtrees.treemap.ui.mvi.base.BaseViewModel
 import ru.ekbtrees.treemap.ui.mvi.base.UiEvent
 import ru.ekbtrees.treemap.ui.mvi.contract.EditTreeContract
@@ -33,7 +35,7 @@ class EditTreeViewModel @Inject constructor(
                     setState(EditTreeContract.EditTreeViewState.DataLoading)
                     try {
                         val treeDetail = interactor.getTreeDetailBy(instanceValue.treeId)
-                        setState(EditTreeContract.EditTreeViewState.DataLoaded(treeDetail))
+                        setState(EditTreeContract.EditTreeViewState.DataLoaded(treeDetail.toTreeDetailUIModel()))
                     } catch (e: Exception) {
                         setState(EditTreeContract.EditTreeViewState.Error)
                     }
@@ -41,17 +43,9 @@ class EditTreeViewModel @Inject constructor(
             }
             is EditTreeInstanceValue.NewTreeLocation -> {
                 viewModelScope.launch {
-                    if (instanceValue.treeId == "") {
-                        setState(EditTreeContract.EditTreeViewState.EmptyData(instanceValue.newLocation))
-                    } else {
-                        setState(EditTreeContract.EditTreeViewState.DataLoading)
-                        try {
-                            val treeDetail = interactor.getTreeDetailBy(instanceValue.treeId)
-                            setState(EditTreeContract.EditTreeViewState.NewLocationData(treeDetail, instanceValue.newLocation))
-                        } catch (e: Exception) {
-                            setState(EditTreeContract.EditTreeViewState.Error)
-                        }
-                    }
+                    setState(
+                        EditTreeContract.EditTreeViewState.NewLocationData(instanceValue.treeDetail)
+                    )
                 }
             }
         }
@@ -68,7 +62,7 @@ class EditTreeViewModel @Inject constructor(
             }
             is EditTreeContract.EditTreeEvent.OnSaveButtonClicked -> {
                 viewModelScope.launch {
-                    interactor.uploadTreeDetail(event.treeDetail)
+                    interactor.uploadTreeDetail(event.treeDetail.toTreeDetailEntity())
                 }
             }
         }
