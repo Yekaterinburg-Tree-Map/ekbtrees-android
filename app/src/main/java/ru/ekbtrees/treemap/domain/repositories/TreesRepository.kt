@@ -18,4 +18,6 @@ interface TreesRepository {
     suspend fun getTreeDetailBy(id: String): TreeDetailEntity
 
     suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity)
+
+    suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity)
 }

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.SeekBar
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -28,7 +29,7 @@ import ru.ekbtrees.treemap.ui.model.NewTreeDetailUIModel
 import ru.ekbtrees.treemap.ui.model.SpeciesUIModel
 import ru.ekbtrees.treemap.ui.model.TreeDetailUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.EditTreeContract
-import java.util.*
+import java.sql.Timestamp
 
 private const val TAG = "EditTreeFragment"
 
@@ -86,6 +87,15 @@ class EditTreeFragment : Fragment() {
 
         binding.saveData.setOnClickListener {
             viewModel.setEvent(EditTreeContract.EditTreeEvent.OnSaveButtonClicked(getTreeDetail()))
+        }
+
+        binding.trunkGirthValue.addTextChangedListener {
+            if (!binding.trunkGirthValue.text.isNullOrBlank()) {
+                val diameter = binding.trunkGirthValue.text.toString().toDouble() / Math.PI
+                binding.diameterOfCrownValue.setText(String.format("%.2f", diameter))
+            } else {
+                binding.diameterOfCrownValue.text?.clear()
+            }
         }
     }
 
@@ -187,7 +197,7 @@ class EditTreeFragment : Fragment() {
      * Выводит текст в TextInputEditText, если поле ранее не было заполнено.
      * */
     private fun showTextInEditText(editText: TextInputEditText, text: String) {
-        if (editText.text.toString().isEmpty()) {
+        if (editText.text.toString().isEmpty() && text !in listOf("0", "0.0")) {
             editText.setText(text)
         }
     }
@@ -282,8 +292,9 @@ class EditTreeFragment : Fragment() {
             )
 
         binding.treeIdValue.text = getString(R.string.tree_id_plug)
-        binding.createTimeValue.text = Calendar.getInstance(Locale.ROOT).time.toString()
-        binding.updateTimeValue.text = Calendar.getInstance(Locale.ROOT).time.toString()
+        val date = Timestamp(System.currentTimeMillis())
+        binding.createTimeValue.text = date.toString()
+        binding.updateTimeValue.text = System.currentTimeMillis().toString()
     }
 
     private fun observeViewStates() {

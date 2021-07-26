@@ -1,14 +1,9 @@
 package ru.ekbtrees.treemap.data.mappers
 
 import android.graphics.Color
-import ru.ekbtrees.treemap.data.dto.ClusterTreesDto
-import ru.ekbtrees.treemap.data.dto.LatLonDto
-import ru.ekbtrees.treemap.data.dto.MapTreeDto
-import ru.ekbtrees.treemap.data.dto.TreeDetailDto
+import ru.ekbtrees.treemap.data.dto.*
 import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.mapper.Mapper
-import java.time.Instant
-import java.time.format.DateTimeFormatter
 
 class TreeDtoMapper(private val speciesEntity: SpeciesEntity) : Mapper<MapTreeDto, TreeEntity> {
     override fun map(from: MapTreeDto): TreeEntity {
@@ -53,6 +48,31 @@ class TreeDetailDtoMapper : Mapper<TreeDetailDto, TreeDetailEntity> {
             authorId = from.authorId ?: 0,
             status = from.status ?: "",
             fileIds = from.fileIds ?: emptyList()
+        )
+    }
+}
+
+class TreeDetailEntityMapper : Mapper<TreeDetailEntity, TreeDetailDto> {
+    override fun map(from: TreeDetailEntity): TreeDetailDto {
+        val latLon = LatLonDto(from.coord.lat, from.coord.lon)
+        val species = SpeciesDto(from.species.id.toInt(), from.species.name)
+        return TreeDetailDto(
+            id = from.id.toInt(),
+            coord = latLon,
+            species = species,
+            height = from.height,
+            numberOfTrunks = from.numberOfTrunks,
+            trunkGirth = from.trunkGirth,
+            diameterOfCrown = from.diameterOfCrown,
+            heightOfTheFirstBranch = from.heightOfTheFirstBranch,
+            conditionAssessment = from.conditionAssessment,
+            age = from.age,
+            treePlantingType = from.treePlantingType,
+            createTime = from.createTime,
+            updateTime = from.updateTime,
+            authorId = from.authorId,
+            status = from.status,
+            fileIds = from.fileIds as List<Int>
         )
     }
 }

@@ -10,6 +10,7 @@ import ru.ekbtrees.treemap.data.dto.ClusterTreesDto
 import ru.ekbtrees.treemap.data.dto.MapTreeDto
 import ru.ekbtrees.treemap.data.mappers.ClusterTreeDtoMapper
 import ru.ekbtrees.treemap.data.mappers.TreeDetailDtoMapper
+import ru.ekbtrees.treemap.data.mappers.TreeDetailEntityMapper
 import ru.ekbtrees.treemap.data.mappers.TreeDtoMapper
 import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
@@ -153,6 +154,11 @@ class TreesRepositoryImpl(
     }
 
     override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity) {
+        val treeDetailDto = TreeDetailEntityMapper().map(treeDetail)
+        treesApiService.saveTreeDetail(treeDetailDto)
+    }
+
+    override suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity) {
         TODO("Not yet implemented")
     }
 

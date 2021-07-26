@@ -16,6 +16,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.ktx.awaitMap
+import dagger.hilt.android.AndroidEntryPoint
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentChangeLocationBinding
 import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
@@ -31,6 +32,7 @@ private const val MIN_ZOOM_LEVEL = 11f
 /**
  * Фрагмент изменения местоположения дерева.
  * */
+@AndroidEntryPoint
 class ChangeLocationFragment : Fragment() {
 
     private lateinit var binding: FragmentChangeLocationBinding
@@ -49,6 +51,7 @@ class ChangeLocationFragment : Fragment() {
     ): View {
         binding = FragmentChangeLocationBinding.inflate(inflater, container, false)
 
+        // Пересоздаём TreeDetailUIModel с изменённым местоположением.
         binding.confirmButton.setOnClickListener {
             val newTreeLocation = map.cameraPosition.target
             val changedTreeDetail = TreeDetailUIModel(

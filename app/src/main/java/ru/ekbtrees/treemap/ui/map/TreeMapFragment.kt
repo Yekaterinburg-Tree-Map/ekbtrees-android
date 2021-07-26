@@ -68,6 +68,13 @@ class TreeMapFragment : Fragment() {
         } else {
             requestPermissionLauncher =
                 registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                    if (!isGranted) {
+                        Toast.makeText(
+                            requireContext(),
+                            getText(R.string.location_access_denied),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                     handleLocationPermissionResponse(isGranted)
                 }
         }
@@ -143,7 +150,7 @@ class TreeMapFragment : Fragment() {
             }
         }
 
-        handleLocationPermissionResponse(isUserLocationGranted)
+        handleLocationPermissionResponse(isUserLocationGranted, false)
     }
 
     override fun onResume() {
@@ -159,7 +166,10 @@ class TreeMapFragment : Fragment() {
         }
     }
 
-    private fun handleLocationPermissionResponse(isGranted: Boolean) {
+    private fun handleLocationPermissionResponse(
+        isGranted: Boolean,
+        moveCameraToUser: Boolean = true
+    ) {
         isUserLocationGranted = isGranted
         if (isGranted) {
             binding.userLocationButton.setImageResource(R.drawable.ic_location_24)
@@ -170,7 +180,7 @@ class TreeMapFragment : Fragment() {
             binding.userLocationButton.imageTintList =
                 AppCompatResources.getColorStateList(requireContext(), R.color.red)
         }
-        if (::map.isInitialized && ContextCompat.checkSelfPermission(
+        if (::map.isInitialized && moveCameraToUser && ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
@@ -326,7 +336,11 @@ class TreeMapFragment : Fragment() {
                                     ) else it.toString()
                                 }
                             binding.previewTreeLocationValue.text =
-                                getString(R.string.tree_location).plus(" ${treeEntity.coord.lat} ${treeEntity.coord.lon}")
+                                getString(
+                                    R.string.tree_location_holder,
+                                    treeEntity.coord.lat.toString(),
+                                    treeEntity.coord.lon.toString()
+                                )
                             binding.previewTreeDiameter.text =
                                 getString(R.string.diameter_of_crown).plus(" ${treeEntity.diameter}")
                             binding.treePreview.visibility = View.VISIBLE
