@@ -1,12 +1,13 @@
 package ru.ekbtrees.treemap.ui.mvi.contract
 
-import com.google.android.gms.maps.model.LatLng
-import ru.ekbtrees.treemap.domain.entity.TreeDetailEntity
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import ru.ekbtrees.treemap.ui.mvi.base.UiEffect
 import ru.ekbtrees.treemap.ui.mvi.base.UiEvent
 import ru.ekbtrees.treemap.ui.mvi.base.UiState
 import ru.ekbtrees.treemap.ui.edittree.EditTreeFragment
 import ru.ekbtrees.treemap.ui.edittree.EditTreeViewModel
+import ru.ekbtrees.treemap.ui.model.NewTreeDetailUIModel
 import ru.ekbtrees.treemap.ui.model.TreeDetailUIModel
 
 /**
@@ -20,10 +21,8 @@ class EditTreeContract {
         object Idle : EditTreeViewState()
         object DataLoading : EditTreeViewState()
         object Error : EditTreeViewState()
-        class EmptyData(val treeLocation: LatLng) : EditTreeViewState()
+        class NewTreeData(val treeDetail: NewTreeDetailUIModel) : EditTreeViewState()
         class DataLoaded(val treeData: TreeDetailUIModel) : EditTreeViewState()
-        class NewLocationData(val treeData: TreeDetailUIModel) :
-            EditTreeViewState()
     }
 
     /**
@@ -38,8 +37,17 @@ class EditTreeContract {
         /**
          * Инициируем сохранение введённых данных.
          */
-        class OnSaveButtonClicked(val treeDetail: TreeDetailUIModel) : EditTreeEvent()
+        class OnSaveButtonClicked(val treeDetail: TreeDetailFragmentModel) : EditTreeEvent()
     }
 
     class TreeMapEffect : UiEffect
+
+    sealed class TreeDetailFragmentModel : Parcelable {
+        @Parcelize
+        data class TreeDetail(val treeDetail: TreeDetailUIModel) : TreeDetailFragmentModel()
+
+        @Parcelize
+        data class NewTreeDetail(val newTreeDetailUIModel: NewTreeDetailUIModel) :
+            TreeDetailFragmentModel()
+    }
 }

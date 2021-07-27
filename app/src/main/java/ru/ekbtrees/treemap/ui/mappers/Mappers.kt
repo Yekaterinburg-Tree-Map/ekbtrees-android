@@ -42,8 +42,11 @@ fun TreeDetailUIModel.toTreeDetailEntity(): TreeDetailEntity =
         fileIds = fileIds
     )
 
-fun NewTreeDetailUIModel.toTreeDetailEntity(): NewTreeDetailEntity =
-    NewTreeDetailEntity(
+fun NewTreeDetailUIModel.toNewTreeDetailEntity(): NewTreeDetailEntity {
+    if (species == null) {
+        throw Exception()
+    }
+    return NewTreeDetailEntity(
         coord = LatLonEntity(coord.latitude, coord.longitude),
         species = SpeciesEntity(species.id, species.color, species.name),
         height = height,
@@ -60,6 +63,7 @@ fun NewTreeDetailUIModel.toTreeDetailEntity(): NewTreeDetailEntity =
         status = status,
         fileIds = fileIds
     )
+}
 
 fun TreeDetailEntity.toTreeDetailUIModel(): TreeDetailUIModel =
     TreeDetailUIModel(
@@ -70,8 +74,8 @@ fun TreeDetailEntity.toTreeDetailUIModel(): TreeDetailUIModel =
         numberOfTrunks = numberOfTrunks,
         trunkGirth = trunkGirth,
         diameterOfCrown = diameterOfCrown,
-        heightOfTheFirstBranch =heightOfTheFirstBranch,
-        conditionAssessment =conditionAssessment,
+        heightOfTheFirstBranch = heightOfTheFirstBranch,
+        conditionAssessment = conditionAssessment,
         age = age,
         treePlantingType = treePlantingType,
         createTime = createTime,

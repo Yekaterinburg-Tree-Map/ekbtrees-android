@@ -9,7 +9,7 @@ data class RegionBoundsUIModel(val topLeft: LatLng, val bottomRight: LatLng)
 @Parcelize
 data class NewTreeDetailUIModel(
     val coord: LatLng,
-    val species: SpeciesUIModel,
+    val species: SpeciesUIModel?,
     val height: Double,
     val numberOfTrunks: Int,
     val trunkGirth: Double,

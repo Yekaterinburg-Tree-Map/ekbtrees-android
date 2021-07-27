@@ -44,7 +44,6 @@ class EditTreeFragment : Fragment() {
     private lateinit var binding: FragmentEditTreeBinding
 
     private lateinit var map: GoogleMap
-    private lateinit var location: LatLng
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -79,14 +78,21 @@ class EditTreeFragment : Fragment() {
         })
 
         binding.changeLocationButton.setOnClickListener {
-            val navController = findNavController()
-            val action = EditTreeFragmentDirections
-                .actionEditTreeFragmentToChangeLocationFragment(getTreeDetail())
-            navController.navigate(action)
+            onChangeLocation()
         }
 
         binding.saveData.setOnClickListener {
-            viewModel.setEvent(EditTreeContract.EditTreeEvent.OnSaveButtonClicked(getTreeDetail()))
+            val treeDetail: EditTreeContract.TreeDetailFragmentModel =
+                when (viewModel.currentState) {
+                    is EditTreeContract.EditTreeViewState.DataLoaded -> {
+                        EditTreeContract.TreeDetailFragmentModel.TreeDetail(getTreeDetail())
+                    }
+                    is EditTreeContract.EditTreeViewState.NewTreeData -> {
+                        EditTreeContract.TreeDetailFragmentModel.NewTreeDetail(getNewTreeDetail())
+                    }
+                    else -> return@setOnClickListener
+                }
+            viewModel.setEvent(EditTreeContract.EditTreeEvent.OnSaveButtonClicked(treeDetail))
         }
 
         binding.trunkGirthValue.addTextChangedListener {
@@ -100,10 +106,78 @@ class EditTreeFragment : Fragment() {
     }
 
     /**
+     * Собирает данные с полей ввода и переходит к фрагменту смены местоположения.
+     * Работает независимо от состояния view.
+     * */
+    private fun onChangeLocation() {
+        val treeId = if (binding.treeIdValue.text != getString(R.string.tree_id_plug))
+            binding.treeIdValue.text.toString()
+        else ""
+        val treeLocation: LatLng
+        val createTime: String
+        val updateTime: String
+        val authorId: Int
+        when (val state = viewModel.currentState) {
+            is EditTreeContract.EditTreeViewState.NewTreeData -> {
+                treeLocation = state.treeDetail.coord
+                createTime = state.treeDetail.createTime
+                updateTime = state.treeDetail.updateTime
+                authorId = state.treeDetail.authorId
+            }
+            is EditTreeContract.EditTreeViewState.DataLoaded -> {
+                treeLocation = state.treeData.coord
+                createTime = state.treeData.createTime
+                updateTime = state.treeData.updateTime
+                authorId = state.treeData.authorId
+            }
+            else -> {
+                return
+            }
+        }
+        val treeDetail = TreeDetailUIModel(
+            id = treeId,
+            coord = treeLocation,
+            species = SpeciesUIModel(
+                id = "0",
+                color = Color.parseColor("#000000"),
+                name = binding.treeSpeciesValue.selectedItem.toString()
+            ),
+            height = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
+                binding.heightOfTheFirstBranchValue.text.toString().toDouble()
+            else 0.0,
+            numberOfTrunks = if (!binding.numberOfTrunksValue.text.isNullOrBlank())
+                binding.numberOfTrunksValue.text.toString().toInt()
+            else 0,
+            trunkGirth = if (!binding.trunkGirthValue.text.isNullOrBlank())
+                binding.trunkGirthValue.text.toString().toDouble()
+            else 0.0,
+            diameterOfCrown = if (!binding.diameterOfCrownValue.text.isNullOrBlank())
+                binding.diameterOfCrownValue.text.toString().toDouble()
+            else 0.0,
+            heightOfTheFirstBranch = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
+                binding.heightOfTheFirstBranchValue.text.toString().toDouble()
+            else 0.0,
+            conditionAssessment = binding.conditionAssessmentValue.progress,
+            age = if (!binding.ageValue.text.isNullOrBlank())
+                binding.ageValue.text.toString().toInt()
+            else 0,
+            treePlantingType = "",
+            createTime = createTime,
+            updateTime = updateTime,
+            authorId = authorId,
+            status = binding.treeStatusValue.selectedItem.toString(),
+            fileIds = emptyList()
+        )
+        val navController = findNavController()
+        val action = EditTreeFragmentDirections
+            .actionEditTreeFragmentToChangeLocationFragment(treeDetail)
+        navController.navigate(action)
+    }
+
+    /**
      * Выводит карту с местоположением дерева и заполняет поля координат.
      * */
     private fun setupTreeLocation(treeLocation: LatLng) {
-        location = treeLocation
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 
         mapFragment.getMapAsync { googleMap ->
@@ -202,9 +276,17 @@ class EditTreeFragment : Fragment() {
         }
     }
 
-    private fun getNewTreeDetail(): NewTreeDetailUIModel =
-        NewTreeDetailUIModel(
-            coord = LatLng(location.latitude, location.longitude),
+    /**
+     * @return Объект класса [TreeDetailUIModel] с заполненными данными
+     * @throws IllegalStateException функция вызвана вне состояния NewTreeDetail
+     * */
+    private fun getNewTreeDetail(): NewTreeDetailUIModel {
+        val state = viewModel.currentState
+        if (state !is EditTreeContract.EditTreeViewState.NewTreeData) {
+            throw IllegalStateException()
+        }
+        return NewTreeDetailUIModel(
+            coord = state.treeDetail.coord,
             species = SpeciesUIModel(
                 id = "0",
                 color = Color.parseColor("#000000"),
@@ -230,22 +312,27 @@ class EditTreeFragment : Fragment() {
                 binding.ageValue.text.toString().toInt()
             else 0,
             treePlantingType = "",
-            createTime = binding.createTimeValue.text.toString(),
-            updateTime = binding.updateTimeValue.text.toString(),
-            authorId = 0,
+            createTime = state.treeDetail.createTime,
+            updateTime = state.treeDetail.updateTime,
+            authorId = state.treeDetail.authorId,
             status = binding.treeStatusValue.selectedItem.toString(),
             fileIds = emptyList()
         )
+    }
 
+    /**
+     * Забирает данные из всех полей
+     * @return Объект класса [TreeDetailUIModel] с заполненными данными
+     * @throws IllegalStateException функция вызвана вне состояния DataLoaded
+     * */
     private fun getTreeDetail(): TreeDetailUIModel {
-        val treeId = if (binding.treeIdValue.text.toString() == getString(R.string.tree_id_plug)) {
-            ""
-        } else {
-            binding.treeIdValue.text.toString()
+        val state = viewModel.currentState
+        if (state !is EditTreeContract.EditTreeViewState.DataLoaded) {
+            throw IllegalStateException("")
         }
         return TreeDetailUIModel(
-            id = treeId,
-            coord = LatLng(location.latitude, location.longitude),
+            id = state.treeData.id,
+            coord = state.treeData.coord,
             species = SpeciesUIModel(
                 id = "0",
                 color = Color.parseColor("#000000"),
@@ -271,9 +358,9 @@ class EditTreeFragment : Fragment() {
                 binding.ageValue.text.toString().toInt()
             else 0,
             treePlantingType = "",
-            createTime = binding.createTimeValue.text.toString(),
-            updateTime = binding.updateTimeValue.text.toString(),
-            authorId = 0,
+            createTime = state.treeData.createTime,
+            updateTime = System.currentTimeMillis().toString(),
+            authorId = state.treeData.authorId,
             status = binding.treeStatusValue.selectedItem.toString(),
             fileIds = emptyList()
         )
@@ -282,8 +369,9 @@ class EditTreeFragment : Fragment() {
     /**
      * Заполняет только спинеры и выставляет заглушки.
      * */
-    private fun setupEmptyTreeData() {
-        setupSpinners()
+    private fun showNewTreeDetailData(newTreeDetail: NewTreeDetailUIModel) {
+        setupTreeLocation(newTreeDetail.coord)
+        setupSpinners(newTreeDetail.species?.name)
 
         binding.conditionAssessmentTextValue.text =
             getString(
@@ -303,17 +391,13 @@ class EditTreeFragment : Fragment() {
                 when (editTreeViewState) {
                     is EditTreeContract.EditTreeViewState.Idle -> {
                     }
-                    is EditTreeContract.EditTreeViewState.EmptyData -> {
-                        setupTreeLocation(treeLocation = editTreeViewState.treeLocation)
-                        setupEmptyTreeData()
+                    is EditTreeContract.EditTreeViewState.NewTreeData -> {
+                        showNewTreeDetailData(editTreeViewState.treeDetail)
                     }
                     is EditTreeContract.EditTreeViewState.DataLoading -> {
                         // Show progressBar
                     }
                     is EditTreeContract.EditTreeViewState.DataLoaded -> {
-                        showTreeDetailData(treeDetail = editTreeViewState.treeData)
-                    }
-                    is EditTreeContract.EditTreeViewState.NewLocationData -> {
                         showTreeDetailData(treeDetail = editTreeViewState.treeData)
                     }
                     is EditTreeContract.EditTreeViewState.Error -> {
