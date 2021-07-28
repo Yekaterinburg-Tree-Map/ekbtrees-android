@@ -73,6 +73,10 @@ class EditTreeFragment : Fragment() {
 
         })
 
+        binding.topAppBar.setNavigationOnClickListener {
+            activity?.onBackPressed()
+        }
+
         binding.saveData.setOnClickListener {
             viewModel.setEvent(
                 EditTreeContract.EditTreeEvent.OnSaveButtonClicked(
@@ -217,6 +221,7 @@ class EditTreeFragment : Fragment() {
                     is EditTreeContract.EditTreeViewState.Idle -> {
                     }
                     is EditTreeContract.EditTreeViewState.EmptyData -> {
+                        binding.topAppBar.setTitle(R.string.new_tree)
                         setupTreeLocation(treeLocation = editTreeViewState.treeLocation)
                         setupEmptyTreeData()
                     }
@@ -224,6 +229,7 @@ class EditTreeFragment : Fragment() {
                         // Show progressBar
                     }
                     is EditTreeContract.EditTreeViewState.DataLoaded -> {
+                        binding.topAppBar.title = editTreeViewState.treeData.species.name
                         setupTreeData(treeDetail = editTreeViewState.treeData)
                     }
                     is EditTreeContract.EditTreeViewState.Error -> {
