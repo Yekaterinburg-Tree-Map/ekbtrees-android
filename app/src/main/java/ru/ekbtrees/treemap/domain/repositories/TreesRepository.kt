@@ -1,18 +1,17 @@
 package ru.ekbtrees.treemap.domain.repositories
 
-import ru.ekbtrees.treemap.domain.entity.ClusterTreesEntity
-import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
-import ru.ekbtrees.treemap.domain.entity.TreeDetailEntity
-import ru.ekbtrees.treemap.domain.entity.TreeEntity
+import ru.ekbtrees.treemap.domain.entity.*
 
 
 interface TreesRepository {
 
-    fun getAllClusteringTrees(): Collection<ClusterTreesEntity>
+    suspend fun getTreeClusters(regionBoundsEntity: RegionBoundsEntity): Collection<ClusterTreesEntity>
 
-    fun getTreesInClusteringBy(): Collection<TreeEntity>
+    suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity): Collection<TreeEntity>
 
-    fun getTreeBy(id: String): TreeEntity
+    suspend fun getSpecies(): Collection<SpeciesEntity>
+
+    fun getTrees(): Collection<TreeEntity>
 
     fun getAllSpecies(): Collection<SpeciesEntity>
 

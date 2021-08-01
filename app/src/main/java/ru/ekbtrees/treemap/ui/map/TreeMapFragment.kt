@@ -21,6 +21,9 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.maps.android.clustering.ClusterManager
+import com.google.maps.android.ktx.addCircle
+import com.google.maps.android.ktx.awaitMap
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -30,22 +33,26 @@ import ru.ekbtrees.treemap.domain.entity.TreeEntity
 import ru.ekbtrees.treemap.ui.SharedViewModel
 import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
 import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
+import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.TreeMapContract
-import ru.ekbtrees.treemap.ui.viewstates.TreesViewState
 import java.util.*
 
+/**
+ * Фрагмент карты деревьев
+ * */
 @AndroidEntryPoint
 class TreeMapFragment : Fragment() {
 
     private lateinit var binding: FragmentTreeMapBinding
 
-    private lateinit var map: GoogleMap
-    private lateinit var locationProvider: LocationProvider
-    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
-
     private val treeMapViewModel: TreeMapViewModel by viewModels()
     private val sharedViewModel: SharedViewModel by activityViewModels()
 
+    private lateinit var locationProvider: LocationProvider
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+
+    private lateinit var map: GoogleMap
+    private lateinit var clusterManager: ClusterManager<TreeMapClusterManagerBuilder.TreeClusterItem>
     private var selectedCircle: Circle? = null
     private var isUserLocationGranted = false
 
@@ -80,7 +87,7 @@ class TreeMapFragment : Fragment() {
             when (treeMapViewModel.currentState) {
                 is TreeMapContract.MapViewState.MapState -> {
                     disableSelectedCircle()
-                    treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnAddTreeLaunched)
+                    treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnAddTreeButtonClicked)
                 }
                 is TreeMapContract.MapViewState.MapPickTreeLocationState -> {
                     viewLifecycleOwner.lifecycleScope.launch {
@@ -191,18 +198,27 @@ class TreeMapFragment : Fragment() {
         selectedCircle?.strokeWidth = 5f
     }
 
-    private fun addTrees(items: Array<TreeEntity>) {
-        for (item in items) {
-            val circle = CircleOptions().apply {
+    private fun loadTreesAtMap(items: Collection<TreeEntity>) {
+        items.forEach { item ->
+            val added = map.addCircle {
                 center(LatLonMapper().map(item.coord))
-                radius(item.diameter.toDouble() / 2.0)
+                val radius = if (item.diameter != 0.0f) item.diameter.toDouble() / 2.0 else 3.0
+                radius(radius)
                 fillColor(item.species.color)
                 clickable(true)
                 strokeWidth(1f)
             }
-            val added = map.addCircle(circle)
             added.tag = item.id
         }
+    }
+
+    private fun loadClustersAtMap(items: Collection<TreeEntity>) {
+        items.forEach { tree ->
+            val clusterItem =
+                TreeMapClusterManagerBuilder.TreeClusterItem(LatLonMapper().map(tree.coord))
+            clusterManager.addItem(clusterItem)
+        }
+        clusterManager.cluster()
     }
 
     private fun setUpMap() {
@@ -223,11 +239,20 @@ class TreeMapFragment : Fragment() {
             ) {
                 map.isMyLocationEnabled = true
             }
-            setUpCamera()
+            viewLifecycleOwner.lifecycleScope.launchWhenCreated {
+                map = mapFragment.awaitMap()
+                setUpCamera()
+                clusterManager =
+                    TreeMapClusterManagerBuilder.buildClusterManager(requireContext(), map)
 
-            observeViewModel()
+                map.setOnCameraIdleListener {
+                    updateMapData()
+                    clusterManager
+                }
+                observeViewModel()
 
-            treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnMapViewReady)
+                treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnMapViewReady)
+            }
         }
     }
 
@@ -273,6 +298,20 @@ class TreeMapFragment : Fragment() {
         binding.cancelButton.hide()
     }
 
+    private fun updateMapData() {
+        val visibleRegion = map.projection.visibleRegion.latLngBounds
+        val topLeft = LatLng(visibleRegion.southwest.latitude, visibleRegion.northeast.longitude)
+        val botRight = LatLng(visibleRegion.northeast.latitude, visibleRegion.southwest.longitude)
+        val regionBounds = RegionBoundsUIModel(topLeft, botRight)
+        lifecycleScope.launch {
+            if (map.cameraPosition.zoom < 16) {
+                treeMapViewModel.getClusterTreesInRegion(regionBounds)
+            } else {
+                treeMapViewModel.getTreesInRegion(regionBounds)
+            }
+        }
+    }
+
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             treeMapViewModel.uiState.collect { mapViewState ->
@@ -292,17 +331,23 @@ class TreeMapFragment : Fragment() {
                                         Locale.getDefault()
                                     ) else it.toString()
                                 }
-                            binding.previewTreePosition.text =
+                            binding.previewTreeLocationValue.text =
                                 getString(R.string.tree_location).plus(" ${treeEntity.coord.lat} ${treeEntity.coord.lon}")
                             binding.previewTreeDiameter.text =
                                 getString(R.string.diameter_of_crown).plus(" ${treeEntity.diameter}")
                             binding.treePreview.visibility = View.VISIBLE
                         }
                         binding.addTreeButton.setImageDrawable(
-                            AppCompatResources.getDrawable(requireContext(), R.drawable.ic_add_24)
+                            AppCompatResources.getDrawable(
+                                requireContext(),
+                                R.drawable.ic_add_24
+                            )
                         )
                         binding.addTreeButton.imageTintList =
-                            AppCompatResources.getColorStateList(requireContext(), R.color.black)
+                            AppCompatResources.getColorStateList(
+                                requireContext(),
+                                R.color.black
+                            )
                     }
                     is TreeMapContract.MapViewState.MapErrorState -> {
                         hidePickTreeLocationViews()
@@ -312,10 +357,16 @@ class TreeMapFragment : Fragment() {
                     is TreeMapContract.MapViewState.MapPickTreeLocationState -> {
                         showPickTreeLocationViews()
                         binding.addTreeButton.setImageDrawable(
-                            AppCompatResources.getDrawable(requireContext(), R.drawable.ic_check_24)
+                            AppCompatResources.getDrawable(
+                                requireContext(),
+                                R.drawable.ic_check_24
+                            )
                         )
                         binding.addTreeButton.imageTintList =
-                            AppCompatResources.getColorStateList(requireContext(), R.color.green)
+                            AppCompatResources.getColorStateList(
+                                requireContext(),
+                                R.color.green
+                            )
                         binding.treePreview.visibility = View.GONE
                         map.setOnCircleClickListener { }
                         val cameraUpdateFactory =
@@ -327,22 +378,27 @@ class TreeMapFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            treeMapViewModel.treeDataState.collect { treeDataViewState ->
-                when (treeDataViewState) {
-                    is TreesViewState.Idle -> {
+            treeMapViewModel.treeDataState.collect { dataState ->
+                when (dataState) {
+                    is TreeMapContract.DataState.Idle -> {
                     }
-                    is TreesViewState.TreesLoadingState -> {
-                        // show progress bar over the map
+                    is TreeMapContract.DataState.Loading -> {
+                        map.clear()
+                        clusterManager.clearItems()
+                        binding.progressHorizontal.visibility = View.VISIBLE
                     }
-                    is TreesViewState.TreesLoadedState -> {
-                        addTrees(treeDataViewState.trees)
+                    is TreeMapContract.DataState.Loaded -> {
+                        binding.progressHorizontal.visibility = View.GONE
+                        when (dataState.data) {
+                            is TreeMapContract.LoadedData.Trees -> {
+                                loadTreesAtMap(dataState.data.trees)
+                            }
+                            is TreeMapContract.LoadedData.TreeClusters -> {
+                                loadClustersAtMap(dataState.data.clusterTrees)
+                            }
+                        }
                     }
-                    is TreesViewState.TreesLoadingErrorState -> {
-                        Toast.makeText(
-                            requireContext().applicationContext,
-                            treeDataViewState.message,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    is TreeMapContract.DataState.Error -> {
                     }
                 }
             }

@@ -5,15 +5,19 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
 import ru.ekbtrees.treemap.domain.interactors.TreesInteractor
+import ru.ekbtrees.treemap.ui.mappers.RegionBoundsUIModelMapper
+import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
 import javax.inject.Inject
 import ru.ekbtrees.treemap.ui.mvi.base.BaseViewModel
 import ru.ekbtrees.treemap.ui.mvi.base.UiEvent
 import ru.ekbtrees.treemap.ui.mvi.contract.TreeMapContract
-import ru.ekbtrees.treemap.ui.viewstates.TreesViewState
 import kotlin.Exception
 
 private const val TAG = "TreeMapViewModel"
 
+/**
+ * ViewModel для [TreeMapFragment].
+ * */
 @HiltViewModel
 class TreeMapViewModel @Inject constructor(
     private val interactor: TreesInteractor
@@ -21,12 +25,49 @@ class TreeMapViewModel @Inject constructor(
 
     var cameraPosition: CameraPosition? = null
 
-    private val _treeDataState = MutableStateFlow<TreesViewState>(TreesViewState.Idle)
-    val treeDataState: StateFlow<TreesViewState> = _treeDataState.asStateFlow()
+    private val _treeMapDataState = MutableStateFlow<TreeMapContract.DataState>(TreeMapContract.DataState.Idle)
+    val treeDataState: StateFlow<TreeMapContract.DataState> = _treeMapDataState.asStateFlow()
 
+    /**
+     * Выгружает в [treeDataState] кластера деревьев.
+     * */
+    suspend fun getClusterTreesInRegion(regionBoundsUIModel: RegionBoundsUIModel) {
+        _treeMapDataState.value = TreeMapContract.DataState.Loading
+        try {
+            val trees = interactor.getMapTreesInRegion(RegionBoundsUIModelMapper().map(regionBoundsUIModel))
+            val data = TreeMapContract.LoadedData.TreeClusters(trees)
+            _treeMapDataState.value = TreeMapContract.DataState.Loaded(data = data)
+        } catch (e: Exception) {
+            _treeMapDataState.value = TreeMapContract.DataState.Error
+        }
+    }
+
+    /**
+     * Выгружает в [treeDataState] список деревьев.
+     * */
+    suspend fun getTreesInRegion(regionBoundsUIModel: RegionBoundsUIModel) {
+        _treeMapDataState.value = TreeMapContract.DataState.Loading
+        try {
+            val trees = interactor.getMapTreesInRegion(RegionBoundsUIModelMapper().map(regionBoundsUIModel))
+            val data = TreeMapContract.LoadedData.Trees(trees = trees)
+            _treeMapDataState.value = TreeMapContract.DataState.Loaded(data = data)
+        } catch (e: Exception) {
+            _treeMapDataState.value = TreeMapContract.DataState.Error
+        }
+    }
+
+    /**
+     * Предоставляет [TreeEntity] по id.
+     * */
     fun getTreeBy(id: String): TreeEntity {
-        if (treeDataState.value is TreesViewState.TreesLoadedState) {
-            val treeData = (treeDataState.value as TreesViewState.TreesLoadedState).trees
+        if (treeDataState.value is TreeMapContract.DataState.Loaded) {
+            val data = (treeDataState.value as TreeMapContract.DataState.Loaded).data
+            val treeData: Collection<TreeEntity>
+            if (data is TreeMapContract.LoadedData.Trees) {
+                treeData = data.trees
+            } else {
+                throw IllegalAccessException()
+            }
             treeData.forEach { treeEntity ->
                 if (treeEntity.id == id)
                     return treeEntity
@@ -37,16 +78,6 @@ class TreeMapViewModel @Inject constructor(
         throw Exception("Unknown tree id: $id")
     }
 
-    private fun fetchTrees() {
-        _treeDataState.value = TreesViewState.TreesLoadingState
-        _treeDataState.value = try {
-            val trees = interactor.getTrees().toTypedArray()
-            TreesViewState.TreesLoadedState(trees)
-        } catch (e: Exception) {
-            TreesViewState.TreesLoadingErrorState("Failed to load trees.")
-        }
-    }
-
     override fun createInitialState(): TreeMapContract.MapViewState {
         return TreeMapContract.MapViewState.Idle
     }
@@ -55,9 +86,8 @@ class TreeMapViewModel @Inject constructor(
         when (event) {
             is TreeMapContract.TreeMapEvent.OnMapViewReady -> {
                 setState(TreeMapContract.MapViewState.MapState)
-                fetchTrees()
             }
-            is TreeMapContract.TreeMapEvent.OnAddTreeLaunched -> {
+            is TreeMapContract.TreeMapEvent.OnAddTreeButtonClicked -> {
                 setState(TreeMapContract.MapViewState.MapPickTreeLocationState)
             }
             is TreeMapContract.TreeMapEvent.OnAddTreeCanceled -> {
