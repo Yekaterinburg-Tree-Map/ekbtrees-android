@@ -40,6 +40,11 @@ class TreeDetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentTreeDetailBinding.inflate(inflater, container, false)
+
+        binding.topAppBar.setNavigationOnClickListener {
+            activity?.onBackPressed()
+        }
+
         return binding.root
     }
 
@@ -61,10 +66,14 @@ class TreeDetailFragment : Fragment() {
                         // Show progress bar
                     }
                     is TreeDetailContract.TreeDetailState.Loaded -> {
-                        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+                        val mapFragment =
+                            childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
                         mapFragment?.getMapAsync { googleMap ->
                             map = googleMap
-                            treeLocation = LatLng(viewState.treeDetailEntity.coord.lat, viewState.treeDetailEntity.coord.lon)
+                            treeLocation = LatLng(
+                                viewState.treeDetailEntity.coord.lat,
+                                viewState.treeDetailEntity.coord.lon
+                            )
                             val circleOptions = CircleOptions().apply {
                                 center(treeLocation)
                                 radius(viewState.treeDetailEntity.diameterOfCrown / 2.0)
@@ -74,8 +83,14 @@ class TreeDetailFragment : Fragment() {
                             }
                             map.addCircle(circleOptions)
                             val zoomLevel = 19f
-                            map.moveCamera(CameraUpdateFactory.newLatLngZoom(treeLocation, zoomLevel))
+                            map.moveCamera(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    treeLocation,
+                                    zoomLevel
+                                )
+                            )
                         }
+                        binding.topAppBar.title = viewState.treeDetailEntity.species.name
                         binding.latitudeValue.text = viewState.treeDetailEntity.coord.lat.toString()
                         binding.longitudeValue.text =
                             viewState.treeDetailEntity.coord.lon.toString()

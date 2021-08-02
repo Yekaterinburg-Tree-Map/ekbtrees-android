@@ -13,7 +13,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -30,7 +29,6 @@ import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentTreeMapBinding
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
-import ru.ekbtrees.treemap.ui.SharedViewModel
 import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
 import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
@@ -46,7 +44,6 @@ class TreeMapFragment : Fragment() {
     private lateinit var binding: FragmentTreeMapBinding
 
     private val treeMapViewModel: TreeMapViewModel by viewModels()
-    private val sharedViewModel: SharedViewModel by activityViewModels()
 
     private lateinit var locationProvider: LocationProvider
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
@@ -91,7 +88,6 @@ class TreeMapFragment : Fragment() {
                 }
                 is TreeMapContract.MapViewState.MapPickTreeLocationState -> {
                     viewLifecycleOwner.lifecycleScope.launch {
-                        sharedViewModel.addNewTree(map.cameraPosition.target)
                         val navController = findNavController()
                         val action =
                             TreeMapFragmentDirections.actionTreeMapFragmentToEditTreeFragment(
@@ -115,9 +111,6 @@ class TreeMapFragment : Fragment() {
             val action =
                 TreeMapFragmentDirections.actionTreeMapFragmentToTreeDetailFragment(selectedCircle?.tag.toString())
             navController.navigate(action)
-            lifecycleScope.launch {
-                sharedViewModel.onTreeSelected(selectedCircle?.tag.toString())
-            }
         }
 
         binding.userLocationButton.setOnClickListener {
