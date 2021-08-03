@@ -82,17 +82,22 @@ class EditTreeFragment : Fragment() {
         }
 
         binding.saveData.setOnClickListener {
-            val treeDetail: EditTreeContract.TreeDetailFragmentModel =
-                when (viewModel.currentState) {
-                    is EditTreeContract.EditTreeViewState.DataLoaded -> {
-                        EditTreeContract.TreeDetailFragmentModel.TreeDetail(getTreeDetail())
-                    }
-                    is EditTreeContract.EditTreeViewState.NewTreeData -> {
-                        EditTreeContract.TreeDetailFragmentModel.NewTreeDetail(getNewTreeDetail())
-                    }
-                    else -> return@setOnClickListener
+            lifecycleScope.launch {
+                if (!checkInputFields()) {
+                    return@launch
                 }
-            viewModel.setEvent(EditTreeContract.EditTreeEvent.OnSaveButtonClicked(treeDetail))
+                val treeDetail: EditTreeContract.TreeDetailFragmentModel =
+                    when (viewModel.currentState) {
+                        is EditTreeContract.EditTreeViewState.DataLoaded -> {
+                            EditTreeContract.TreeDetailFragmentModel.TreeDetail(getTreeDetail())
+                        }
+                        is EditTreeContract.EditTreeViewState.NewTreeData -> {
+                            EditTreeContract.TreeDetailFragmentModel.NewTreeDetail(getNewTreeDetail())
+                        }
+                        else -> return@launch
+                    }
+                viewModel.setEvent(EditTreeContract.EditTreeEvent.OnSaveButtonClicked(treeDetail))
+            }
         }
 
         binding.trunkGirthValue.addTextChangedListener {
@@ -116,7 +121,7 @@ class EditTreeFragment : Fragment() {
         val treeLocation: LatLng
         val createTime: String
         val updateTime: String
-        val authorId: Int
+        val authorId: Int?
         when (val state = viewModel.currentState) {
             is EditTreeContract.EditTreeViewState.NewTreeData -> {
                 treeLocation = state.treeDetail.coord
@@ -252,7 +257,7 @@ class EditTreeFragment : Fragment() {
             treeDetail.heightOfTheFirstBranch.toString()
         )
         if (binding.conditionAssessmentTextValue.text.toString().isEmpty()) {
-            binding.conditionAssessmentValue.progress = treeDetail.conditionAssessment
+            binding.conditionAssessmentValue.progress = treeDetail.conditionAssessment ?: 0
         }
         binding.conditionAssessmentTextValue.text = getString(
             R.string.condition_assessment_holder,
@@ -277,41 +282,39 @@ class EditTreeFragment : Fragment() {
     }
 
     /**
+     * Собирает введённые пользоваетелем данные и обёртывет их в класс.
      * @return Объект класса [TreeDetailUIModel] с заполненными данными
      * @throws IllegalStateException функция вызвана вне состояния NewTreeDetail
+     * @see [checkInputFields]
      * */
-    private fun getNewTreeDetail(): NewTreeDetailUIModel {
+    private suspend fun getNewTreeDetail(): NewTreeDetailUIModel {
         val state = viewModel.currentState
         if (state !is EditTreeContract.EditTreeViewState.NewTreeData) {
             throw IllegalStateException()
         }
         return NewTreeDetailUIModel(
             coord = state.treeDetail.coord,
-            species = SpeciesUIModel(
-                id = "0",
-                color = Color.parseColor("#000000"),
-                name = binding.treeSpeciesValue.selectedItem.toString()
-            ),
+            species = viewModel.getSpeciesByName(binding.treeSpeciesValue.selectedItem.toString()),
             height = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
                 binding.heightOfTheFirstBranchValue.text.toString().toDouble()
-            else 0.0,
+            else null,
             numberOfTrunks = if (!binding.numberOfTrunksValue.text.isNullOrBlank())
                 binding.numberOfTrunksValue.text.toString().toInt()
-            else 0,
+            else null,
             trunkGirth = if (!binding.trunkGirthValue.text.isNullOrBlank())
                 binding.trunkGirthValue.text.toString().toDouble()
-            else 0.0,
+            else null,
             diameterOfCrown = if (!binding.diameterOfCrownValue.text.isNullOrBlank())
                 binding.diameterOfCrownValue.text.toString().toDouble()
             else 0.0,
             heightOfTheFirstBranch = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
                 binding.heightOfTheFirstBranchValue.text.toString().toDouble()
-            else 0.0,
+            else null,
             conditionAssessment = binding.conditionAssessmentValue.progress,
             age = if (!binding.ageValue.text.isNullOrBlank())
                 binding.ageValue.text.toString().toInt()
-            else 0,
-            treePlantingType = "",
+            else null,
+            treePlantingType = null,
             createTime = state.treeDetail.createTime,
             updateTime = state.treeDetail.updateTime,
             authorId = state.treeDetail.authorId,
@@ -321,11 +324,12 @@ class EditTreeFragment : Fragment() {
     }
 
     /**
-     * Забирает данные из всех полей
+     * Собирает данные из всех полей ввода.
      * @return Объект класса [TreeDetailUIModel] с заполненными данными
      * @throws IllegalStateException функция вызвана вне состояния DataLoaded
+     * @see [checkInputFields]
      * */
-    private fun getTreeDetail(): TreeDetailUIModel {
+    private suspend fun getTreeDetail(): TreeDetailUIModel {
         val state = viewModel.currentState
         if (state !is EditTreeContract.EditTreeViewState.DataLoaded) {
             throw IllegalStateException("")
@@ -333,30 +337,26 @@ class EditTreeFragment : Fragment() {
         return TreeDetailUIModel(
             id = state.treeData.id,
             coord = state.treeData.coord,
-            species = SpeciesUIModel(
-                id = "0",
-                color = Color.parseColor("#000000"),
-                name = binding.treeSpeciesValue.selectedItem.toString()
-            ),
+            species = viewModel.getSpeciesByName(binding.treeSpeciesValue.selectedItem.toString())!!,
             height = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
                 binding.heightOfTheFirstBranchValue.text.toString().toDouble()
-            else 0.0,
+            else null,
             numberOfTrunks = if (!binding.numberOfTrunksValue.text.isNullOrBlank())
                 binding.numberOfTrunksValue.text.toString().toInt()
-            else 0,
+            else null,
             trunkGirth = if (!binding.trunkGirthValue.text.isNullOrBlank())
                 binding.trunkGirthValue.text.toString().toDouble()
-            else 0.0,
+            else null,
             diameterOfCrown = if (!binding.diameterOfCrownValue.text.isNullOrBlank())
                 binding.diameterOfCrownValue.text.toString().toDouble()
-            else 0.0,
+            else throw IllegalArgumentException("Поле ${binding.diameterOfCrownValue::class.simpleName} не должно быть пустым!"),
             heightOfTheFirstBranch = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
                 binding.heightOfTheFirstBranchValue.text.toString().toDouble()
-            else 0.0,
+            else null,
             conditionAssessment = binding.conditionAssessmentValue.progress,
             age = if (!binding.ageValue.text.isNullOrBlank())
                 binding.ageValue.text.toString().toInt()
-            else 0,
+            else null,
             treePlantingType = "",
             createTime = state.treeData.createTime,
             updateTime = System.currentTimeMillis().toString(),
@@ -367,17 +367,51 @@ class EditTreeFragment : Fragment() {
     }
 
     /**
+     * Проверка корректности введённых числовых данных (в полях, где должны быть целые числа).
+     * @return true, если поля корректны, иначе false.
+     * */
+    private fun checkInputFields(): Boolean {
+        // TODO - добавить проверку выбора породы дерева
+        return (binding.numberOfTrunksValue.text.isNullOrBlank() ||
+                tryConvertInputTextValueToNumber(binding.numberOfTrunksValue)) &&
+                (binding.ageValue.text.isNullOrBlank() || tryConvertInputTextValueToNumber(binding.ageValue))
+    }
+
+    /**
+     * Пытается привети значение в inputEditText к целому числу. В случае провала выставляет ошибку в поле.
+     * */
+    private fun tryConvertInputTextValueToNumber(inputEditText: TextInputEditText): Boolean {
+        return try {
+            inputEditText.text.toString().toInt()
+            true
+        } catch (e: NumberFormatException) {
+            inputEditText.error = "Введённое значение должно быть целым числом!"
+            false
+        }
+    }
+
+    /**
      * Заполняет только спинеры и выставляет заглушки.
      * */
     private fun showNewTreeDetailData(newTreeDetail: NewTreeDetailUIModel) {
         setupTreeLocation(newTreeDetail.coord)
         setupSpinners(newTreeDetail.species?.name)
 
-        binding.conditionAssessmentTextValue.text =
-            getString(
-                R.string.condition_assessment_holder,
-                binding.conditionAssessmentValue.progress.toString()
-            )
+        showTextInEditText(binding.numberOfTrunksValue, newTreeDetail.numberOfTrunks.toString())
+        showTextInEditText(binding.trunkGirthValue, newTreeDetail.trunkGirth.toString())
+        showTextInEditText(binding.diameterOfCrownValue, newTreeDetail.diameterOfCrown.toString())
+        showTextInEditText(binding.ageValue, newTreeDetail.age.toString())
+        showTextInEditText(
+            binding.heightOfTheFirstBranchValue,
+            newTreeDetail.heightOfTheFirstBranch.toString()
+        )
+        if (binding.conditionAssessmentTextValue.text.toString().isEmpty()) {
+            binding.conditionAssessmentValue.progress = newTreeDetail.conditionAssessment ?: 0
+        }
+        binding.conditionAssessmentTextValue.text = getString(
+            R.string.condition_assessment_holder,
+            binding.conditionAssessmentValue.progress.toString()
+        )
 
         binding.treeIdValue.text = getString(R.string.tree_id_plug)
         val date = Timestamp(System.currentTimeMillis())

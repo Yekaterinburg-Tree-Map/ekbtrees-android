@@ -76,3 +76,27 @@ class TreeDetailEntityMapper : Mapper<TreeDetailEntity, TreeDetailDto> {
         )
     }
 }
+
+class NewTreeDetailEntityMapper : Mapper<NewTreeDetailEntity, NewTreeDetailDto> {
+    override fun map(from: NewTreeDetailEntity): NewTreeDetailDto {
+        val latLonDto = LatLonDto(from.coord.lat, from.coord.lon)
+        val speciesDto = SpeciesDto(from.species.id.toInt(), from.species.name)
+        return NewTreeDetailDto(
+            coord = latLonDto,
+            species = speciesDto,
+            height = from.height,
+            numberOfTrunks = from.numberOfTrunks,
+            trunkGirth = from.trunkGirth,
+            diameterOfCrown = from.diameterOfCrown,
+            heightOfTheFirstBranch = from.heightOfTheFirstBranch,
+            conditionAssessment = from.conditionAssessment,
+            age = from.age,
+            treePlantingType = from.treePlantingType,
+            createTime = from.createTime,
+            updateTime = from.updateTime,
+            authorId = from.authorId,
+            status = from.status,
+            fileIds = from.fileIds as List<Int>
+        )
+    }
+}

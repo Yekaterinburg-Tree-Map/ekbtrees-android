@@ -47,7 +47,7 @@ class EditTreeContract {
         data class TreeDetail(val treeDetail: TreeDetailUIModel) : TreeDetailFragmentModel()
 
         @Parcelize
-        data class NewTreeDetail(val newTreeDetailUIModel: NewTreeDetailUIModel) :
+        data class NewTreeDetail(val newTreeDetail: NewTreeDetailUIModel) :
             TreeDetailFragmentModel()
     }
 }

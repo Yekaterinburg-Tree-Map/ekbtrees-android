@@ -8,10 +8,7 @@ import org.json.JSONObject
 import ru.ekbtrees.treemap.data.api.TreesApiService
 import ru.ekbtrees.treemap.data.dto.ClusterTreesDto
 import ru.ekbtrees.treemap.data.dto.MapTreeDto
-import ru.ekbtrees.treemap.data.mappers.ClusterTreeDtoMapper
-import ru.ekbtrees.treemap.data.mappers.TreeDetailDtoMapper
-import ru.ekbtrees.treemap.data.mappers.TreeDetailEntityMapper
-import ru.ekbtrees.treemap.data.mappers.TreeDtoMapper
+import ru.ekbtrees.treemap.data.mappers.*
 import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
 import java.io.IOException
@@ -159,7 +156,8 @@ class TreesRepositoryImpl(
     }
 
     override suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity) {
-        TODO("Not yet implemented")
+        val newTreeDetail = NewTreeDetailEntityMapper().map(treeDetail)
+        treesApiService.createNewTreeDetail(newTreeDetail)
     }
 
     private fun getSpeciesByName(name: String): SpeciesEntity {
