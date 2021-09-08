@@ -42,6 +42,11 @@ class TreeDetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentTreeDetailBinding.inflate(inflater, container, false)
+
+        binding.topAppBar.setNavigationOnClickListener {
+            activity?.onBackPressed()
+        }
+
         return binding.root
     }
 
@@ -95,6 +100,7 @@ class TreeDetailFragment : Fragment() {
                                 )
                             )
                         }
+                        binding.topAppBar.title = viewState.treeDetailEntity.species.name
                         binding.latitudeValue.text = viewState.treeDetailEntity.coord.lat.toString()
                         binding.longitudeValue.text =
                             viewState.treeDetailEntity.coord.lon.toString()

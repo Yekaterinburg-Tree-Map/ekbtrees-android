@@ -21,7 +21,7 @@ class TreesRepositoryImpl(
 ) : TreesRepository {
 
     private var colorList: List<Int>
-    private lateinit var species: List<SpeciesEntity>
+    private var species: List<SpeciesEntity>? = null
 
     init {
         colorList = generateColors()
@@ -36,14 +36,14 @@ class TreesRepositoryImpl(
         )
         if (clustersList.isEmpty()) return emptyList()
         val clusterTreesEntityList = mutableListOf<ClusterTreesEntity>()
+        val mapper = ClusterTreeDtoMapper()
         clustersList.forEach { clusterTreesDto ->
-            clusterTreesEntityList.add(ClusterTreeDtoMapper().map(clusterTreesDto))
+            clusterTreesEntityList.add(mapper.map(clusterTreesDto))
         }
         return clusterTreesEntityList
     }
 
     override suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity): Collection<TreeEntity> {
-        TreesRepositoryImpl::class.simpleName
         val treesList: List<MapTreeDto> = treesApiService.getTreesInRegion(
             regionBoundsEntity.topLeft.lat,
             regionBoundsEntity.topLeft.lon,
@@ -51,7 +51,6 @@ class TreesRepositoryImpl(
             regionBoundsEntity.bottomRight.lon
         )
         if (treesList.isEmpty()) {
-            TreesRepositoryImpl::class.simpleName
             return emptyList()
         }
         return treesList.map { mapTreeDto ->
@@ -60,20 +59,19 @@ class TreesRepositoryImpl(
     }
 
     override suspend fun getSpecies(): Collection<SpeciesEntity> {
-        if (!::species.isInitialized) {
+        if (species == null) {
             val speciesDtoList = treesApiService.getAllSpecies()
             if (speciesDtoList.isEmpty()) return emptyList()
-            var i = 0
             val speciesEntityList = mutableListOf<SpeciesEntity>()
-            speciesDtoList.forEach { speciesDto ->
+            speciesDtoList.forEachIndexed { index, speciesDto ->
                 val speciesEntity =
-                    SpeciesEntity(speciesDto.id.toString(), colorList[i], speciesDto.name)
+                    SpeciesEntity(speciesDto.id.toString(), colorList[index], speciesDto.name)
                 speciesEntityList.add(speciesEntity)
-                i++
             }
             species = speciesEntityList
+            return species as Collection<SpeciesEntity>
         }
-        return species
+        return species as Collection<SpeciesEntity>
     }
 
     override fun getTrees(): Collection<TreeEntity> {

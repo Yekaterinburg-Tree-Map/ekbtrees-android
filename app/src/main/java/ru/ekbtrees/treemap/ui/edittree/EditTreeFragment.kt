@@ -79,6 +79,10 @@ class EditTreeFragment : Fragment() {
 
         })
 
+        binding.topAppBar.setNavigationOnClickListener {
+            activity?.onBackPressed()
+        }
+
         binding.reloadTreeDetailButton.setOnClickListener {
             viewModel.setEvent(EditTreeContract.EditTreeEvent.OnReloadButtonClicked)
         }
@@ -478,12 +482,14 @@ class EditTreeFragment : Fragment() {
                     is EditTreeContract.EditTreeViewState.Idle -> {
                     }
                     is EditTreeContract.EditTreeViewState.NewTreeData -> {
+                        binding.topAppBar.setTitle(R.string.new_tree)
                         onNewTreeDataState(treeDetail = editTreeViewState.treeDetail)
                     }
                     is EditTreeContract.EditTreeViewState.DataLoading -> {
                         onDataLoadingState()
                     }
                     is EditTreeContract.EditTreeViewState.DataLoaded -> {
+                        binding.topAppBar.title = editTreeViewState.treeData.species.name
                         onDataLoadedState(treeDetail = editTreeViewState.treeData)
                     }
                     is EditTreeContract.EditTreeViewState.Error -> {

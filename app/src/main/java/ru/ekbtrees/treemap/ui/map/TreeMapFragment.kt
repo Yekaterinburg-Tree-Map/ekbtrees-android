@@ -13,7 +13,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -30,23 +29,24 @@ import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentTreeMapBinding
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
-import ru.ekbtrees.treemap.ui.SharedViewModel
 import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
 import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.TreeMapContract
 import java.util.*
 
+/**
+ * Фрагмент карты деревьев
+ * */
 @AndroidEntryPoint
 class TreeMapFragment : Fragment() {
 
     private lateinit var binding: FragmentTreeMapBinding
 
+    private val treeMapViewModel: TreeMapViewModel by viewModels()
+
     private lateinit var locationProvider: LocationProvider
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
-
-    private val treeMapViewModel: TreeMapViewModel by viewModels()
-    private val sharedViewModel: SharedViewModel by activityViewModels()
 
     private lateinit var map: GoogleMap
     private lateinit var clusterManager: ClusterManager<TreeMapClusterManagerBuilder.TreeClusterItem>
@@ -96,7 +96,6 @@ class TreeMapFragment : Fragment() {
                 }
                 is TreeMapContract.MapViewState.MapPickTreeLocationState -> {
                     viewLifecycleOwner.lifecycleScope.launch {
-                        sharedViewModel.addNewTree(map.cameraPosition.target)
                         val navController = findNavController()
                         val action =
                             TreeMapFragmentDirections.actionTreeMapFragmentToEditTreeFragment(
@@ -120,9 +119,6 @@ class TreeMapFragment : Fragment() {
             val action =
                 TreeMapFragmentDirections.actionTreeMapFragmentToTreeDetailFragment(selectedCircle?.tag.toString())
             navController.navigate(action)
-            lifecycleScope.launch {
-                sharedViewModel.onTreeSelected(selectedCircle?.tag.toString())
-            }
         }
 
         binding.userLocationButton.setOnClickListener {
@@ -250,13 +246,14 @@ class TreeMapFragment : Fragment() {
             setUpCamera()
             clusterManager = TreeMapClusterManagerBuilder.buildClusterManager(requireContext(), map)
 
-            map.setOnCameraIdleListener {
-                updateMapData()
-                clusterManager
-            }
-            observeViewModel()
+                map.setOnCameraIdleListener {
+                    updateMapData()
+                    clusterManager
+                }
+                observeViewModel()
 
-            treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnMapViewReady)
+                treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnMapViewReady)
+            }
         }
     }
 
@@ -311,7 +308,7 @@ class TreeMapFragment : Fragment() {
             if (map.cameraPosition.zoom < 16) {
                 treeMapViewModel.getClusterTreesInRegion(regionBounds)
             } else {
-                treeMapViewModel.uploadTreesInRegion(regionBounds)
+                treeMapViewModel.getTreesInRegion(regionBounds)
             }
         }
     }
@@ -341,15 +338,23 @@ class TreeMapFragment : Fragment() {
                                     treeEntity.coord.lat.toString(),
                                     treeEntity.coord.lon.toString()
                                 )
+                            binding.previewTreeLocationValue.text =
+                                getString(R.string.tree_location).plus(" ${treeEntity.coord.lat} ${treeEntity.coord.lon}")
                             binding.previewTreeDiameter.text =
                                 getString(R.string.diameter_of_crown).plus(" ${treeEntity.diameter}")
                             binding.treePreview.visibility = View.VISIBLE
                         }
                         binding.addTreeButton.setImageDrawable(
-                            AppCompatResources.getDrawable(requireContext(), R.drawable.ic_add_24)
+                            AppCompatResources.getDrawable(
+                                requireContext(),
+                                R.drawable.ic_add_24
+                            )
                         )
                         binding.addTreeButton.imageTintList =
-                            AppCompatResources.getColorStateList(requireContext(), R.color.black)
+                            AppCompatResources.getColorStateList(
+                                requireContext(),
+                                R.color.black
+                            )
                     }
                     is TreeMapContract.MapViewState.MapErrorState -> {
                         hidePickTreeLocationViews()
@@ -359,10 +364,17 @@ class TreeMapFragment : Fragment() {
                     is TreeMapContract.MapViewState.MapPickTreeLocationState -> {
                         showPickTreeLocationViews()
                         binding.addTreeButton.setImageDrawable(
-                            AppCompatResources.getDrawable(requireContext(), R.drawable.ic_check_24)
+                            AppCompatResources.getDrawable(
+                                requireContext(),
+                                R.drawable.ic_check_24
+                            )
                         )
                         binding.addTreeButton.imageTintList =
                             AppCompatResources.getColorStateList(requireContext(), R.color.green)
+                            AppCompatResources.getColorStateList(
+                                requireContext(),
+                                R.color.green
+                            )
                         binding.treePreview.visibility = View.GONE
                         map.setOnCircleClickListener { }
                         val cameraUpdateFactory =
