@@ -16,7 +16,7 @@ class TreesInteractorImpl(private val treesRepository: TreesRepository) : TreesI
     override suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity): Collection<TreeEntity> =
         try {
             treesRepository.getMapTreesInRegion(regionBoundsEntity)
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             emptyList()
         }
 
@@ -32,12 +32,14 @@ class TreesInteractorImpl(private val treesRepository: TreesRepository) : TreesI
         return treesRepository.getTreeDetailBy(id)
     }
 
-    override suspend fun createNewTree(newTreeDetailEntity: NewTreeDetailEntity) {
-        treesRepository.uploadNewTreeDetail(newTreeDetailEntity)
+    override suspend fun createNewTree(newTreeDetailEntity: NewTreeDetailEntity): Boolean {
+        val result = treesRepository.uploadNewTreeDetail(newTreeDetailEntity)
+        return result.isSuccess
     }
 
-    override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity) {
-        treesRepository.uploadTreeDetail(treeDetail)
+    override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): Boolean {
+        val result = treesRepository.uploadTreeDetail(treeDetail)
+        return result.isSuccess
     }
 
     override suspend fun getAllSpecies(): Collection<SpeciesEntity> {

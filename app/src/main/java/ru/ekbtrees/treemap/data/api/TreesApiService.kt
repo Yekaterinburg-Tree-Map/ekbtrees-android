@@ -1,5 +1,6 @@
 package ru.ekbtrees.treemap.data.api
 
+import retrofit2.Response
 import retrofit2.http.*
 import ru.ekbtrees.treemap.data.dto.*
 
@@ -32,10 +33,10 @@ interface TreesApiService {
     @POST("tree/save")
     suspend fun saveTreeDetail(
         @Body treeDetailDto: TreeDetailDto
-    )
+    ): Response<Unit>
 
     @POST("tree/save")
     suspend fun createNewTreeDetail(
         @Body treeDetailDto: NewTreeDetailDto
-    )
+    ): Response<Unit>
 }

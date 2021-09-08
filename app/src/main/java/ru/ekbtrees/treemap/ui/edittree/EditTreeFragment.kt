@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -29,7 +30,8 @@ import ru.ekbtrees.treemap.ui.model.NewTreeDetailUIModel
 import ru.ekbtrees.treemap.ui.model.SpeciesUIModel
 import ru.ekbtrees.treemap.ui.model.TreeDetailUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.EditTreeContract
-import java.sql.Timestamp
+import java.text.SimpleDateFormat
+import java.util.*
 
 private const val TAG = "EditTreeFragment"
 
@@ -59,7 +61,7 @@ class EditTreeFragment : Fragment() {
 
         val args: EditTreeFragmentArgs by navArgs()
         viewModel.provideInstanceValue(args.instanceValue)
-        observeViewStates()
+        observeViewModel()
 
         binding.conditionAssessmentValue.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
@@ -77,11 +79,15 @@ class EditTreeFragment : Fragment() {
 
         })
 
+        binding.reloadTreeDetailButton.setOnClickListener {
+            viewModel.setEvent(EditTreeContract.EditTreeEvent.OnReloadButtonClicked)
+        }
+
         binding.changeLocationButton.setOnClickListener {
             onChangeLocation()
         }
 
-        binding.saveData.setOnClickListener {
+        binding.saveDataButton.setOnClickListener {
             lifecycleScope.launch {
                 if (!checkInputFields()) {
                     return@launch
@@ -229,6 +235,10 @@ class EditTreeFragment : Fragment() {
             }
         }
 
+        val plantingTypeArray = resources.getStringArray(R.array.planting_types)
+        val plantingTypeSpinnerAdapter = createSpinnerAdapter(plantingTypeArray)
+        binding.plantingTypeValue.adapter = plantingTypeSpinnerAdapter
+
         val statusArray = resources.getStringArray(R.array.status_types)
         val statusSpinnerAdapter = createSpinnerAdapter(statusArray)
         binding.treeStatusValue.adapter = statusSpinnerAdapter
@@ -263,13 +273,12 @@ class EditTreeFragment : Fragment() {
             R.string.condition_assessment_holder,
             binding.conditionAssessmentValue.progress.toString()
         )
-        // tree planting type
 
         val treeId = if (treeDetail.id == "") getString(R.string.tree_id_plug) else treeDetail.id
         binding.treeIdValue.text = treeId
         binding.authorValue.text = treeDetail.authorId.toString()
-        binding.createTimeValue.text = treeDetail.createTime
-        binding.updateTimeValue.text = treeDetail.updateTime
+        binding.createTimeValue.text = formatTextTime(treeDetail.createTime)
+        binding.updateTimeValue.text = formatTextTime(treeDetail.updateTime)
     }
 
     /**
@@ -294,7 +303,7 @@ class EditTreeFragment : Fragment() {
         }
         return NewTreeDetailUIModel(
             coord = state.treeDetail.coord,
-            species = viewModel.getSpeciesByName(binding.treeSpeciesValue.selectedItem.toString()),
+            species = viewModel.getSpeciesByName(binding.treeSpeciesValue.selectedItem.toString())!!,
             height = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
                 binding.heightOfTheFirstBranchValue.text.toString().toDouble()
             else null,
@@ -306,7 +315,7 @@ class EditTreeFragment : Fragment() {
             else null,
             diameterOfCrown = if (!binding.diameterOfCrownValue.text.isNullOrBlank())
                 binding.diameterOfCrownValue.text.toString().toDouble()
-            else 0.0,
+            else throw IllegalArgumentException("Поле ${binding.diameterOfCrownValue::class.simpleName} не должно быть пустым!"),
             heightOfTheFirstBranch = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
                 binding.heightOfTheFirstBranchValue.text.toString().toDouble()
             else null,
@@ -314,11 +323,19 @@ class EditTreeFragment : Fragment() {
             age = if (!binding.ageValue.text.isNullOrBlank())
                 binding.ageValue.text.toString().toInt()
             else null,
-            treePlantingType = null,
+            treePlantingType = if (binding.plantingTypeValue.selectedItem.toString()
+                != resources.getStringArray(R.array.planting_types)[0]
+            ) {
+                binding.plantingTypeValue.selectedItem.toString()
+            } else null,
             createTime = state.treeDetail.createTime,
             updateTime = state.treeDetail.updateTime,
             authorId = state.treeDetail.authorId,
-            status = binding.treeStatusValue.selectedItem.toString(),
+            status = if (binding.treeStatusValue.selectedItem.toString()
+                != resources.getStringArray(R.array.status_types)[0]
+            ) {
+                binding.treeStatusValue.selectedItem.toString()
+            } else null,
             fileIds = emptyList()
         )
     }
@@ -357,13 +374,28 @@ class EditTreeFragment : Fragment() {
             age = if (!binding.ageValue.text.isNullOrBlank())
                 binding.ageValue.text.toString().toInt()
             else null,
-            treePlantingType = "",
+            treePlantingType = if (binding.plantingTypeValue.selectedItem.toString()
+                != resources.getStringArray(R.array.planting_types)[0]
+            ) {
+                binding.plantingTypeValue.selectedItem.toString()
+            } else null,
             createTime = state.treeData.createTime,
             updateTime = System.currentTimeMillis().toString(),
             authorId = state.treeData.authorId,
-            status = binding.treeStatusValue.selectedItem.toString(),
+            status = if (binding.treeStatusValue.selectedItem.toString()
+                != resources.getStringArray(R.array.status_types)[0]
+            ) {
+                binding.treeStatusValue.selectedItem.toString()
+            } else null,
             fileIds = emptyList()
         )
+    }
+
+    private fun formatTextTime(textTime: String): String {
+        val date = if ('.' in textTime) {
+            Date(textTime.toDouble().toLong() * 1000)
+        } else Date(textTime.toLong())
+        return SimpleDateFormat("dd-MM-yyyy hh:mm:ss").format(date)
     }
 
     /**
@@ -371,10 +403,30 @@ class EditTreeFragment : Fragment() {
      * @return true, если поля корректны, иначе false.
      * */
     private fun checkInputFields(): Boolean {
-        // TODO - добавить проверку выбора породы дерева
-        return (binding.numberOfTrunksValue.text.isNullOrBlank() ||
-                tryConvertInputTextValueToNumber(binding.numberOfTrunksValue)) &&
-                (binding.ageValue.text.isNullOrBlank() || tryConvertInputTextValueToNumber(binding.ageValue))
+        var result = true
+        if (binding.treeSpeciesValue.selectedItem.toString() == getString(R.string.select_tree_species)) {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.select_species),
+                Toast.LENGTH_SHORT
+            ).show()
+            result = false
+        }
+        if (binding.diameterOfCrownValue.text.isNullOrBlank()) {
+            binding.diameterOfCrownValue.error = getString(R.string.empty_field_warning)
+            result = false
+        }
+        if (!binding.numberOfTrunksValue.text.isNullOrBlank() &&
+            !tryConvertInputTextValueToNumber(binding.numberOfTrunksValue)
+        ) {
+            result = false
+        }
+        if (!binding.ageValue.text.isNullOrBlank() &&
+            !tryConvertInputTextValueToNumber(binding.ageValue)
+        ) {
+            result = false
+        }
+        return result
     }
 
     /**
@@ -414,31 +466,83 @@ class EditTreeFragment : Fragment() {
         )
 
         binding.treeIdValue.text = getString(R.string.tree_id_plug)
-        val date = Timestamp(System.currentTimeMillis())
-        binding.createTimeValue.text = date.toString()
-        binding.updateTimeValue.text = System.currentTimeMillis().toString()
+        binding.createTimeValue.text = formatTextTime(newTreeDetail.createTime)
+        binding.updateTimeValue.text = formatTextTime(newTreeDetail.updateTime)
     }
 
-    private fun observeViewStates() {
+    private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.uiState.collect { editTreeViewState ->
+                cleanUI()
                 when (editTreeViewState) {
                     is EditTreeContract.EditTreeViewState.Idle -> {
                     }
                     is EditTreeContract.EditTreeViewState.NewTreeData -> {
-                        showNewTreeDetailData(editTreeViewState.treeDetail)
+                        onNewTreeDataState(treeDetail = editTreeViewState.treeDetail)
                     }
                     is EditTreeContract.EditTreeViewState.DataLoading -> {
-                        // Show progressBar
+                        onDataLoadingState()
                     }
                     is EditTreeContract.EditTreeViewState.DataLoaded -> {
-                        showTreeDetailData(treeDetail = editTreeViewState.treeData)
+                        onDataLoadedState(treeDetail = editTreeViewState.treeData)
                     }
                     is EditTreeContract.EditTreeViewState.Error -> {
-                        // Show error message and show reload data button
+                        onErrorState()
                     }
                 }
             }
         }
+
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.effect.collect { effect ->
+                when (effect) {
+                    is EditTreeContract.TreeDetailEffect.ShowErrorMessage -> {
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.error_message),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    is EditTreeContract.TreeDetailEffect.BackOnBackStack -> {
+                        val navController = findNavController()
+                        navController.popBackStack()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun cleanUI() {
+        binding.progressBar.visibility = View.GONE
+        binding.loadingText.visibility = View.GONE
+        binding.mainContent.visibility = View.GONE
+        binding.saveDataButton.visibility = View.GONE
+        binding.gradient.visibility = View.GONE
+        binding.errorText.visibility = View.GONE
+        binding.reloadTreeDetailButton.visibility = View.GONE
+    }
+
+    private fun onNewTreeDataState(treeDetail: NewTreeDetailUIModel) {
+        binding.mainContent.visibility = View.VISIBLE
+        binding.saveDataButton.visibility = View.VISIBLE
+        binding.gradient.visibility = View.VISIBLE
+        showNewTreeDetailData(newTreeDetail = treeDetail)
+    }
+
+    private fun onDataLoadingState() {
+        binding.progressBar.visibility = View.VISIBLE
+        binding.loadingText.visibility = View.VISIBLE
+    }
+
+    private fun onDataLoadedState(treeDetail: TreeDetailUIModel) {
+        binding.mainContent.visibility = View.VISIBLE
+        binding.saveDataButton.visibility = View.VISIBLE
+        binding.gradient.visibility = View.VISIBLE
+        showTreeDetailData(treeDetail = treeDetail)
+    }
+
+    private fun onErrorState() {
+        binding.errorText.visibility = View.VISIBLE
+        binding.reloadTreeDetailButton.visibility = View.VISIBLE
     }
 }

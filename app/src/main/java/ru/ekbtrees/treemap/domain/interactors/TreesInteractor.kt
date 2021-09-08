@@ -14,9 +14,9 @@ interface TreesInteractor {
 
     suspend fun getTreeDetailBy(id: String): TreeDetailEntity
 
-    suspend fun createNewTree(newTreeDetailEntity: NewTreeDetailEntity)
+    suspend fun createNewTree(newTreeDetailEntity: NewTreeDetailEntity): Boolean
 
-    suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity)
+    suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): Boolean
 
     suspend fun getAllSpecies(): Collection<SpeciesEntity>
 

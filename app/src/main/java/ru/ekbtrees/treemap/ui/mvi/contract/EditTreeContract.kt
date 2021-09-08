@@ -32,7 +32,7 @@ class EditTreeContract {
         /**
          * Инициируем загрузку данных дерева.
          * */
-        class OnReloadButtonClicked(val treeId: String) : EditTreeEvent()
+        object OnReloadButtonClicked : EditTreeEvent()
 
         /**
          * Инициируем сохранение введённых данных.
@@ -40,7 +40,10 @@ class EditTreeContract {
         class OnSaveButtonClicked(val treeDetail: TreeDetailFragmentModel) : EditTreeEvent()
     }
 
-    class TreeMapEffect : UiEffect
+    sealed class TreeDetailEffect : UiEffect {
+        object BackOnBackStack: TreeDetailEffect()
+        object ShowErrorMessage : TreeDetailEffect()
+    }
 
     sealed class TreeDetailFragmentModel : Parcelable {
         @Parcelize

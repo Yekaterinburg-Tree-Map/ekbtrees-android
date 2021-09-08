@@ -17,7 +17,7 @@ interface TreesRepository {
 
     suspend fun getTreeDetailBy(id: String): TreeDetailEntity
 
-    suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity)
+    suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): Result<Unit>
 
-    suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity)
+    suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity): Result<Unit>
 }

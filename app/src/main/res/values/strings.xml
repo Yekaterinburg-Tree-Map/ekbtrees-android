@@ -43,4 +43,15 @@
     <string name="tree_location_holder">%1$s, %2$s</string>
     <string name="location_access_denied">Location access denied</string>
     <string name="tree_id_plug">Will appear after saving</string>
+    <string-array name="planting_types">
+        <item>Select type…</item>
+        <item>Self planting</item>
+        <item>Cultural planting</item>
+    </string-array>
+    <string name="select_species">Select tree species</string>
+    <string name="empty_field_warning">This field cannot be empty</string>
+    <string name="error_message">Failed to upload data</string>
+    <string name="loading">Loading…</string>
+    <string name="loading_error_massage">Error while loading data</string>
+    <string name="try_again">Try again</string>
 </resources>

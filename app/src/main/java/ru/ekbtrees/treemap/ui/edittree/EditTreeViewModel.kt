@@ -24,7 +24,9 @@ import javax.inject.Inject
 @HiltViewModel
 class EditTreeViewModel @Inject constructor(
     private val interactor: TreesInteractor
-) : BaseViewModel<EditTreeContract.EditTreeEvent, EditTreeContract.EditTreeViewState, EditTreeContract.TreeMapEffect>() {
+) : BaseViewModel<EditTreeContract.EditTreeEvent, EditTreeContract.EditTreeViewState, EditTreeContract.TreeDetailEffect>() {
+
+    private var treeId: String? = null
 
     suspend fun getTreeSpecies(): Collection<SpeciesEntity> {
         return interactor.getAllSpecies()
@@ -64,6 +66,7 @@ class EditTreeViewModel @Inject constructor(
                 setState(EditTreeContract.EditTreeViewState.NewTreeData(newTreeDetail))
             }
             is EditTreeInstanceValue.TreeId -> {
+                treeId = instanceValue.treeId
                 viewModelScope.launch {
                     setState(EditTreeContract.EditTreeViewState.DataLoading)
                     try {
@@ -87,7 +90,7 @@ class EditTreeViewModel @Inject constructor(
     override fun handleEvent(event: UiEvent) {
         when (event) {
             is EditTreeContract.EditTreeEvent.OnReloadButtonClicked -> {
-                // Launch loading tree data by treeId
+                reloadTreeData()
             }
             is EditTreeContract.EditTreeEvent.OnSaveButtonClicked -> {
                 viewModelScope.launch {
@@ -96,9 +99,32 @@ class EditTreeViewModel @Inject constructor(
                             interactor.createNewTree(event.treeDetail.newTreeDetail.toNewTreeDetailEntity())
                         }
                         is EditTreeContract.TreeDetailFragmentModel.TreeDetail -> {
-                            interactor.uploadTreeDetail(event.treeDetail.treeDetail.toTreeDetailEntity())
+                            val result =
+                                interactor.uploadTreeDetail(event.treeDetail.treeDetail.toTreeDetailEntity())
+                            if (result) {
+                                setEffect {
+                                    EditTreeContract.TreeDetailEffect.BackOnBackStack
+                                }
+                            } else {
+                                setEffect {
+                                    EditTreeContract.TreeDetailEffect.ShowErrorMessage
+                                }
+                            }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private fun reloadTreeData() {
+        viewModelScope.launch {
+            if (treeId != null) {
+                try {
+                    val treeDetail = interactor.getTreeDetailBy(treeId!!)
+                    setState(EditTreeContract.EditTreeViewState.DataLoaded(treeData = treeDetail.toTreeDetailUIModel()))
+                } catch (e: Exception) {
+                    setState(EditTreeContract.EditTreeViewState.Error)
                 }
             }
         }

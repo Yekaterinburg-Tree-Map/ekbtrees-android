@@ -150,14 +150,29 @@ class TreesRepositoryImpl(
         return TreeDetailDtoMapper().map(treeDetailDto)
     }
 
-    override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity) {
+    override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): Result<Unit> {
         val treeDetailDto = TreeDetailEntityMapper().map(treeDetail)
-        treesApiService.saveTreeDetail(treeDetailDto)
+        return try {
+            val response = treesApiService.saveTreeDetail(treeDetailDto)
+            if (response.code() == 201) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception())
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
     }
 
-    override suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity) {
+    override suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity): Result<Unit> {
         val newTreeDetail = NewTreeDetailEntityMapper().map(treeDetail)
-        treesApiService.createNewTreeDetail(newTreeDetail)
+        val response = treesApiService.createNewTreeDetail(newTreeDetail)
+        return if (response.code() == 201) {
+            Result.success(Unit)
+        } else {
+            Result.failure(Exception())
+        }
     }
 
     private fun getSpeciesByName(name: String): SpeciesEntity {
