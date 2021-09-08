@@ -255,7 +255,6 @@ class TreeMapFragment : Fragment() {
                 treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnMapViewReady)
             }
         }
-    }
 
     private fun setUpCamera() {
         map.setLatLngBoundsForCameraTarget(EKATERINBURG_CAMERA_BOUNDS)

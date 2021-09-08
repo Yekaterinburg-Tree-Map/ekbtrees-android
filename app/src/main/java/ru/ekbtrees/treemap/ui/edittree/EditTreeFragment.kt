@@ -519,13 +519,11 @@ class EditTreeFragment : Fragment() {
     }
 
     private fun cleanUI() {
-        binding.progressBar.visibility = View.GONE
-        binding.loadingText.visibility = View.GONE
+        binding.loadingContent.visibility = View.GONE
         binding.mainContent.visibility = View.GONE
         binding.saveDataButton.visibility = View.GONE
         binding.gradient.visibility = View.GONE
-        binding.errorText.visibility = View.GONE
-        binding.reloadTreeDetailButton.visibility = View.GONE
+        binding.errorContent.visibility = View.GONE
     }
 
     private fun onNewTreeDataState(treeDetail: NewTreeDetailUIModel) {
@@ -536,8 +534,7 @@ class EditTreeFragment : Fragment() {
     }
 
     private fun onDataLoadingState() {
-        binding.progressBar.visibility = View.VISIBLE
-        binding.loadingText.visibility = View.VISIBLE
+        binding.loadingContent.visibility = View.VISIBLE
     }
 
     private fun onDataLoadedState(treeDetail: TreeDetailUIModel) {
@@ -548,7 +545,6 @@ class EditTreeFragment : Fragment() {
     }
 
     private fun onErrorState() {
-        binding.errorText.visibility = View.VISIBLE
-        binding.reloadTreeDetailButton.visibility = View.VISIBLE
+        binding.errorContent.visibility = View.VISIBLE
     }
 }

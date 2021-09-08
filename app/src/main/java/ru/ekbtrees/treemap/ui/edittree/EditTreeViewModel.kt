@@ -96,17 +96,23 @@ class EditTreeViewModel @Inject constructor(
                 viewModelScope.launch {
                     when (event.treeDetail) {
                         is EditTreeContract.TreeDetailFragmentModel.NewTreeDetail -> {
-                            interactor.createNewTree(event.treeDetail.newTreeDetail.toNewTreeDetailEntity())
+                            val result =
+                                interactor.createNewTree(event.treeDetail.newTreeDetail.toNewTreeDetailEntity())
+                            setEffect {
+                                if (result) {
+                                    EditTreeContract.TreeDetailEffect.BackOnBackStack
+                                } else {
+                                    EditTreeContract.TreeDetailEffect.ShowErrorMessage
+                                }
+                            }
                         }
                         is EditTreeContract.TreeDetailFragmentModel.TreeDetail -> {
                             val result =
                                 interactor.uploadTreeDetail(event.treeDetail.treeDetail.toTreeDetailEntity())
-                            if (result) {
-                                setEffect {
+                            setEffect {
+                                if (result) {
                                     EditTreeContract.TreeDetailEffect.BackOnBackStack
-                                }
-                            } else {
-                                setEffect {
+                                } else {
                                     EditTreeContract.TreeDetailEffect.ShowErrorMessage
                                 }
                             }
