@@ -30,7 +30,7 @@ import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentTreeMapBinding
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
 import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
-import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
+import ru.ekbtrees.treemap.ui.mappers.toLatLng
 import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.TreeMapContract
 import java.util.*
@@ -205,7 +205,7 @@ class TreeMapFragment : Fragment() {
     private fun loadTreesAtMap(items: Collection<TreeEntity>) {
         items.forEach { item ->
             val added = map.addCircle {
-                center(LatLonMapper().map(item.coord))
+                center(item.coord.toLatLng())
                 val radius = if (item.diameter != 0.0f) item.diameter.toDouble() / 2.0 else 3.0
                 radius(radius)
                 fillColor(item.species.color)
@@ -219,7 +219,7 @@ class TreeMapFragment : Fragment() {
     private fun loadClustersAtMap(items: Collection<TreeEntity>) {
         items.forEach { tree ->
             val clusterItem =
-                TreeMapClusterManagerBuilder.TreeClusterItem(LatLonMapper().map(tree.coord))
+                TreeMapClusterManagerBuilder.TreeClusterItem(tree.coord.toLatLng())
             clusterManager.addItem(clusterItem)
         }
         clusterManager.cluster()

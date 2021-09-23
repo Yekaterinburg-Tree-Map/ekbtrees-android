@@ -36,9 +36,8 @@ class TreesRepositoryImpl(
         )
         if (clustersList.isEmpty()) return emptyList()
         val clusterTreesEntityList = mutableListOf<ClusterTreesEntity>()
-        val mapper = ClusterTreeDtoMapper()
         clustersList.forEach { clusterTreesDto ->
-            clusterTreesEntityList.add(mapper.map(clusterTreesDto))
+            clusterTreesEntityList.add(clusterTreesDto.toClusterTreeEntity())
         }
         return clusterTreesEntityList
     }
@@ -54,7 +53,7 @@ class TreesRepositoryImpl(
             return emptyList()
         }
         return treesList.map { mapTreeDto ->
-            TreeDtoMapper(getSpeciesBy(mapTreeDto.species.name)).map(mapTreeDto)
+            mapTreeDto.toTreeEntity(getSpeciesBy(name = mapTreeDto.species.name))
         }
     }
 
@@ -145,11 +144,11 @@ class TreesRepositoryImpl(
 
     override suspend fun getTreeDetailBy(id: String): TreeDetailEntity {
         val treeDetailDto = treesApiService.getTreeDetailBy(treeId = id.toInt())
-        return TreeDetailDtoMapper().map(treeDetailDto)
+        return treeDetailDto.toTreeDetailEntity()
     }
 
     override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): Result<Unit> {
-        val treeDetailDto = TreeDetailEntityMapper().map(treeDetail)
+        val treeDetailDto = treeDetail.toTreeDetailDto()
         return try {
             val response = treesApiService.saveTreeDetail(treeDetailDto)
             if (response.code() == 201) {
@@ -164,7 +163,7 @@ class TreesRepositoryImpl(
     }
 
     override suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity): Result<Unit> {
-        val newTreeDetail = NewTreeDetailEntityMapper().map(treeDetail)
+        val newTreeDetail = treeDetail.toNewTreeDetailDto()
         val response = treesApiService.createNewTreeDetail(newTreeDetail)
         return if (response.code() == 201) {
             Result.success(Unit)

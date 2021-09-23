@@ -2,24 +2,19 @@ package ru.ekbtrees.treemap.ui.mappers
 
 import com.google.android.gms.maps.model.LatLng
 import ru.ekbtrees.treemap.domain.entity.*
-import ru.ekbtrees.treemap.domain.mapper.Mapper
 import ru.ekbtrees.treemap.ui.model.NewTreeDetailUIModel
 import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
 import ru.ekbtrees.treemap.ui.model.SpeciesUIModel
 import ru.ekbtrees.treemap.ui.model.TreeDetailUIModel
 
-class LatLonMapper : Mapper<LatLonEntity, LatLng> {
-    override fun map(from: LatLonEntity): LatLng {
-        return LatLng(from.lat, from.lon)
-    }
+fun LatLonEntity.toLatLng(): LatLng {
+    return LatLng(lat, lon)
 }
 
-class RegionBoundsUIModelMapper : Mapper<RegionBoundsUIModel, RegionBoundsEntity> {
-    override fun map(from: RegionBoundsUIModel): RegionBoundsEntity {
-        val topLeft = LatLonEntity(from.topLeft.latitude, from.topLeft.longitude)
-        val bottomRight = LatLonEntity(from.bottomRight.latitude, from.bottomRight.longitude)
-        return RegionBoundsEntity(topLeft, bottomRight)
-    }
+fun RegionBoundsUIModel.toRegionBoundsUIModel(): RegionBoundsEntity {
+    val topLeft = LatLonEntity(topLeft.latitude, topLeft.longitude)
+    val bottomRight = LatLonEntity(bottomRight.latitude, bottomRight.longitude)
+    return RegionBoundsEntity(topLeft, bottomRight)
 }
 
 fun TreeDetailUIModel.toTreeDetailEntity(): TreeDetailEntity =
@@ -65,7 +60,7 @@ fun NewTreeDetailUIModel.toNewTreeDetailEntity(): NewTreeDetailEntity {
 fun TreeDetailEntity.toTreeDetailUIModel(): TreeDetailUIModel =
     TreeDetailUIModel(
         id = id,
-        coord = LatLonMapper().map(coord),
+        coord = coord.toLatLng(),
         species = SpeciesUIModel(species.id, species.color, species.name),
         height = height,
         numberOfTrunks = numberOfTrunks,
