@@ -53,30 +53,7 @@ class ChangeLocationFragment : Fragment() {
 
         // Пересоздаём TreeDetailUIModel с изменённым местоположением.
         binding.confirmButton.setOnClickListener {
-            val newTreeLocation = map.cameraPosition.target
-            val changedTreeDetail = TreeDetailUIModel(
-                id = treeDetail.id,
-                coord = newTreeLocation,
-                species = treeDetail.species,
-                height = treeDetail.height,
-                numberOfTrunks = treeDetail.numberOfTrunks,
-                trunkGirth = treeDetail.trunkGirth,
-                diameterOfCrown = treeDetail.diameterOfCrown,
-                heightOfTheFirstBranch = treeDetail.heightOfTheFirstBranch,
-                conditionAssessment = treeDetail.conditionAssessment,
-                age = treeDetail.age,
-                treePlantingType = treeDetail.treePlantingType,
-                createTime = treeDetail.createTime,
-                updateTime = treeDetail.updateTime,
-                authorId = treeDetail.authorId,
-                status = treeDetail.status,
-                fileIds = treeDetail.fileIds
-            )
-            val action =
-                ChangeLocationFragmentDirections.actionChangeLocationFragmentToEditTreeFragment(
-                    EditTreeInstanceValue.NewTreeLocation(changedTreeDetail)
-                )
-            navController.navigate(action)
+            onConfirmButtonClicked()
         }
 
         binding.cancelButton.setOnClickListener {
@@ -84,6 +61,33 @@ class ChangeLocationFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    private fun onConfirmButtonClicked() {
+        val newTreeLocation = map.cameraPosition.target
+        val changedTreeDetail = TreeDetailUIModel(
+            id = treeDetail.id,
+            coord = newTreeLocation,
+            species = treeDetail.species,
+            height = treeDetail.height,
+            numberOfTrunks = treeDetail.numberOfTrunks,
+            trunkGirth = treeDetail.trunkGirth,
+            diameterOfCrown = treeDetail.diameterOfCrown,
+            heightOfTheFirstBranch = treeDetail.heightOfTheFirstBranch,
+            conditionAssessment = treeDetail.conditionAssessment,
+            age = treeDetail.age,
+            treePlantingType = treeDetail.treePlantingType,
+            createTime = treeDetail.createTime,
+            updateTime = treeDetail.updateTime,
+            authorId = treeDetail.authorId,
+            status = treeDetail.status,
+            fileIds = treeDetail.fileIds
+        )
+        val action =
+            ChangeLocationFragmentDirections.actionChangeLocationFragmentToEditTreeFragment(
+                EditTreeInstanceValue.NewTreeLocation(changedTreeDetail)
+            )
+        navController.navigate(action)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
