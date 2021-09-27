@@ -10,8 +10,6 @@ interface TreesInteractor {
 
     suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity): Collection<TreeEntity>
 
-    fun getTrees(): Collection<TreeEntity>
-
     suspend fun getTreeDetailBy(id: String): TreeDetailEntity
 
     suspend fun createNewTree(newTreeDetailEntity: NewTreeDetailEntity): Boolean
@@ -19,6 +17,4 @@ interface TreesInteractor {
     suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): Boolean
 
     suspend fun getAllSpecies(): Collection<SpeciesEntity>
-
-    fun getTreeSpecies(): Collection<SpeciesEntity>
 }

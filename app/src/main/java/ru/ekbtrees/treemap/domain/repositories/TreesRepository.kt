@@ -11,10 +11,6 @@ interface TreesRepository {
 
     suspend fun getSpecies(): Collection<SpeciesEntity>
 
-    fun getTrees(): Collection<TreeEntity>
-
-    fun getAllSpecies(): Collection<SpeciesEntity>
-
     suspend fun getTreeDetailBy(id: String): TreeDetailEntity
 
     suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): Result<Unit>

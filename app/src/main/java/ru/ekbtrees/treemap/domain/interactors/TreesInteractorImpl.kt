@@ -20,14 +20,6 @@ class TreesInteractorImpl(private val treesRepository: TreesRepository) : TreesI
             emptyList()
         }
 
-    override fun getTrees(): Collection<TreeEntity> {
-        return treesRepository.getTrees()
-    }
-
-    override fun getTreeSpecies(): Collection<SpeciesEntity> {
-        return treesRepository.getAllSpecies()
-    }
-
     override suspend fun getTreeDetailBy(id: String): TreeDetailEntity {
         return treesRepository.getTreeDetailBy(id)
     }
