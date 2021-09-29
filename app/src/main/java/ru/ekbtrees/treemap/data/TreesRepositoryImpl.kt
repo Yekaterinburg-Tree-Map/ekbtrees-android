@@ -3,11 +3,12 @@ package ru.ekbtrees.treemap.data
 import android.graphics.Color
 import ru.ekbtrees.treemap.data.api.TreesApiService
 import ru.ekbtrees.treemap.data.dto.ClusterTreesDto
-import ru.ekbtrees.treemap.data.dto.MapTreeDto
 import ru.ekbtrees.treemap.data.mappers.*
+import ru.ekbtrees.treemap.data.result.Result
+import ru.ekbtrees.treemap.data.result.asSuccess
+import ru.ekbtrees.treemap.data.result.isSuccess
 import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
-import kotlin.Exception
 
 class TreesRepositoryImpl(
     private val treesApiService: TreesApiService
@@ -21,32 +22,48 @@ class TreesRepositoryImpl(
     }
 
     override suspend fun getTreeClusters(regionBoundsEntity: RegionBoundsEntity): Collection<ClusterTreesEntity> {
-        val clustersList: List<ClusterTreesDto> = treesApiService.getClusterTreesInRegion(
+        val result = treesApiService.getClusterTreesInRegion(
             regionBoundsEntity.topLeft.lat,
             regionBoundsEntity.topLeft.lon,
             regionBoundsEntity.bottomRight.lat,
             regionBoundsEntity.bottomRight.lon
         )
-        if (clustersList.isEmpty()) return emptyList()
-        val clusterTreesEntityList = mutableListOf<ClusterTreesEntity>()
-        clustersList.forEach { clusterTreesDto ->
-            clusterTreesEntityList.add(clusterTreesDto.toClusterTreeEntity())
+        when {
+            result.isSuccess() -> {
+                val clusterList: List<ClusterTreesDto> = result.asSuccess().value
+                if (clusterList.isEmpty()) return emptyList()
+                val clusterTreesEntityList = mutableListOf<ClusterTreesEntity>()
+                clusterList.forEach { clusterTreesDto ->
+                    clusterTreesEntityList.add(clusterTreesDto.toClusterTreeEntity())
+                }
+                return clusterTreesEntityList
+            }
+            else -> {
+                error("Exception while HTTP request")
+            }
         }
-        return clusterTreesEntityList
     }
 
-    override suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity): Collection<TreeEntity> {
-        val treesList: List<MapTreeDto> = treesApiService.getTreesInRegion(
+    override suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity)
+            : Collection<TreeEntity> {
+
+        val result = treesApiService.getTreesInRegion(
             regionBoundsEntity.topLeft.lat,
             regionBoundsEntity.topLeft.lon,
             regionBoundsEntity.bottomRight.lat,
             regionBoundsEntity.bottomRight.lon
         )
-        if (treesList.isEmpty()) {
-            return emptyList()
-        }
-        return treesList.map { mapTreeDto ->
-            mapTreeDto.toTreeEntity(getSpeciesBy(name = mapTreeDto.species.name))
+        return when (result) {
+            is Result.Success -> {
+                if (result.value.isEmpty()) {
+                    emptyList()
+                } else {
+                    result.value.map { mapTreeDto ->
+                        mapTreeDto.toTreeEntity(getSpeciesBy(name = mapTreeDto.species.name))
+                    }
+                }
+            }
+            else -> error("Exception while HTTP request")
         }
     }
 
@@ -67,32 +84,38 @@ class TreesRepositoryImpl(
     }
 
     override suspend fun getTreeDetailBy(id: String): TreeDetailEntity {
-        val treeDetailDto = treesApiService.getTreeDetailBy(treeId = id.toInt())
-        return treeDetailDto.toTreeDetailEntity()
-    }
-
-    override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): Result<Unit> {
-        val treeDetailDto = treeDetail.toTreeDetailDto()
-        return try {
-            val response = treesApiService.saveTreeDetail(treeDetailDto)
-            if (response.code() == 201) {
-                Result.success(Unit)
-            } else {
-                Result.failure(Exception())
+        when (val result = treesApiService.getTreeDetailBy(treeId = id.toInt())) {
+            is Result.Success -> {
+                return result.value.toTreeDetailEntity()
             }
-        } catch (e: Exception) {
-            Result.failure(e)
+            is Result.Failure<*> -> {
+                error(result)
+            }
+            else -> error("Unexpected case")
         }
-
     }
 
-    override suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity): Result<Unit> {
+    override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): Boolean {
+        val treeDetailDto = treeDetail.toTreeDetailDto()
+        return when (treesApiService.saveTreeDetail(treeDetailDto)) {
+            is Result.Success -> {
+                true
+            }
+            is Result.Failure<*> -> {
+                false
+            }
+        }
+    }
+
+    override suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity): Boolean {
         val newTreeDetail = treeDetail.toNewTreeDetailDto()
-        val response = treesApiService.createNewTreeDetail(newTreeDetail)
-        return if (response.code() == 201) {
-            Result.success(Unit)
-        } else {
-            Result.failure(Exception())
+        return when (treesApiService.createNewTreeDetail(newTreeDetail)) {
+            is Result.Success -> {
+                true
+            }
+            is Result.Failure<*> -> {
+                false
+            }
         }
     }
 

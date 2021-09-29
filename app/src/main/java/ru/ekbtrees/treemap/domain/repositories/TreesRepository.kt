@@ -2,7 +2,6 @@ package ru.ekbtrees.treemap.domain.repositories
 
 import ru.ekbtrees.treemap.domain.entity.*
 
-
 interface TreesRepository {
 
     suspend fun getTreeClusters(regionBoundsEntity: RegionBoundsEntity): Collection<ClusterTreesEntity>
@@ -13,7 +12,7 @@ interface TreesRepository {
 
     suspend fun getTreeDetailBy(id: String): TreeDetailEntity
 
-    suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): Result<Unit>
+    suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): Boolean
 
-    suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity): Result<Unit>
+    suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity): Boolean
 }
