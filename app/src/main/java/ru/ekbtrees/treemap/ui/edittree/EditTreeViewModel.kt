@@ -5,6 +5,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
 import ru.ekbtrees.treemap.domain.interactors.TreesInteractor
+import ru.ekbtrees.treemap.domain.repositories.UploadResult
 import ru.ekbtrees.treemap.ui.mappers.toNewTreeDetailEntity
 import ru.ekbtrees.treemap.ui.mappers.toSpeciesUIModel
 import ru.ekbtrees.treemap.ui.mappers.toTreeDetailEntity
@@ -99,7 +100,7 @@ class EditTreeViewModel @Inject constructor(
                             val result =
                                 interactor.createNewTree(event.treeDetail.newTreeDetail.toNewTreeDetailEntity())
                             setEffect {
-                                if (result) {
+                                if (result is UploadResult.Success) {
                                     EditTreeContract.TreeDetailEffect.BackOnBackStack
                                 } else {
                                     EditTreeContract.TreeDetailEffect.ShowErrorMessage
@@ -110,7 +111,7 @@ class EditTreeViewModel @Inject constructor(
                             val result =
                                 interactor.uploadTreeDetail(event.treeDetail.treeDetail.toTreeDetailEntity())
                             setEffect {
-                                if (result) {
+                                if (result is UploadResult.Success) {
                                     EditTreeContract.TreeDetailEffect.BackOnBackStack
                                 } else {
                                     EditTreeContract.TreeDetailEffect.ShowErrorMessage

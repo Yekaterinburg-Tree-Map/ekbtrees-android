@@ -1,8 +1,8 @@
 package ru.ekbtrees.treemap.data.result
 
-sealed class Result<out T> {
+sealed class RetrofitResult<out T> {
 
-    sealed class Success<T> : Result<T>() {
+    sealed class Success<T> : RetrofitResult<T>() {
 
         abstract val value: T
 
@@ -25,7 +25,7 @@ sealed class Result<out T> {
         }
     }
 
-    sealed class Failure<E : Throwable>(open val error: E? = null) : Result<Nothing>() {
+    sealed class Failure<E : Throwable>(open val error: E? = null) : RetrofitResult<Nothing>() {
 
         override fun toString() = "Failure($error)"
 
@@ -42,4 +42,4 @@ sealed class Result<out T> {
     }
 }
 
-typealias EmptyResult = Result<Nothing>
+typealias EmptyResult = RetrofitResult<Nothing>

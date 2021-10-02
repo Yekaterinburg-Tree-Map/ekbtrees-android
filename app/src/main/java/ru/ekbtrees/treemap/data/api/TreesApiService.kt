@@ -2,7 +2,7 @@ package ru.ekbtrees.treemap.data.api
 
 import retrofit2.http.*
 import ru.ekbtrees.treemap.data.dto.*
-import ru.ekbtrees.treemap.data.result.Result
+import ru.ekbtrees.treemap.data.result.RetrofitResult
 
 interface TreesApiService {
 
@@ -12,7 +12,7 @@ interface TreesApiService {
         @Query("y1") topLeftY: Double,
         @Query("x2") BotRightX: Double,
         @Query("y2") BotRightY: Double
-    ): Result<List<ClusterTreesDto>>
+    ): RetrofitResult<List<ClusterTreesDto>>
 
     @GET("tree-map-info/get-in-region")
     suspend fun getTreesInRegion(
@@ -20,7 +20,7 @@ interface TreesApiService {
         @Query("y1") topLeftY: Double,
         @Query("x2") BotRightX: Double,
         @Query("y2") BotRightY: Double
-    ): Result<List<MapTreeDto>>
+    ): RetrofitResult<List<MapTreeDto>>
 
     @GET("species/get-all")
     suspend fun getAllSpecies(): List<SpeciesDto>
@@ -28,15 +28,15 @@ interface TreesApiService {
     @GET("tree/get/{id}")
     suspend fun getTreeDetailBy(
         @Path("id") treeId: Int
-    ): Result<TreeDetailDto>
+    ): RetrofitResult<TreeDetailDto>
 
     @POST("tree/save")
     suspend fun saveTreeDetail(
         @Body treeDetailDto: TreeDetailDto
-    ): Result<Unit>
+    ): RetrofitResult<Unit>
 
     @POST("tree/save")
     suspend fun createNewTreeDetail(
         @Body treeDetailDto: NewTreeDetailDto
-    ): Result<Unit>
+    ): RetrofitResult<Unit>
 }

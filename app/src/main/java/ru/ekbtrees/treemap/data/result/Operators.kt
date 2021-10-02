@@ -3,33 +3,33 @@ package ru.ekbtrees.treemap.data.result
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-fun <T> Result<T>.isSuccess(): Boolean {
-    return this is Result.Success
+fun <T> RetrofitResult<T>.isSuccess(): Boolean {
+    return this is RetrofitResult.Success
 }
 
-fun <T> Result<T>.asSuccess(): Result.Success<T> {
-    return this as Result.Success<T>
+fun <T> RetrofitResult<T>.asSuccess(): RetrofitResult.Success<T> {
+    return this as RetrofitResult.Success<T>
 }
 
 @ExperimentalContracts
-fun <T> Result<T>.isFailure(): Boolean {
+fun <T> RetrofitResult<T>.isFailure(): Boolean {
     contract {
-        returns(true) implies (this@isFailure is Result.Failure<*>)
+        returns(true) implies (this@isFailure is RetrofitResult.Failure<*>)
     }
-    return this is Result.Failure<*>
+    return this is RetrofitResult.Failure<*>
 }
 
-fun <T> Result<T>.asFailure(): Result.Failure<*> {
-    return this as Result.Failure<*>
+fun <T> RetrofitResult<T>.asFailure(): RetrofitResult.Failure<*> {
+    return this as RetrofitResult.Failure<*>
 }
 
-fun <T, R> Result<T>.map(transform: (value: T) -> R): Result<R> {
+fun <T, R> RetrofitResult<T>.map(transform: (value: T) -> R): RetrofitResult<R> {
     return when(this) {
-        is Result.Success -> Result.Success.Value(transform(value))
-        is Result.Failure<*> -> this
+        is RetrofitResult.Success -> RetrofitResult.Success.Value(transform(value))
+        is RetrofitResult.Failure<*> -> this
     }
 }
 
-fun <T, R> Result<T>.flatMap(transform: (result: Result<T>) -> Result<R>): Result<R> {
+fun <T, R> RetrofitResult<T>.flatMap(transform: (result: RetrofitResult<T>) -> RetrofitResult<R>): RetrofitResult<R> {
     return transform(this)
 }

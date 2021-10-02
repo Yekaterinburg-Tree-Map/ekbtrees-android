@@ -2,6 +2,7 @@ package ru.ekbtrees.treemap.domain.interactors
 
 import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
+import ru.ekbtrees.treemap.domain.repositories.UploadResult
 
 class TreesInteractorImpl(private val treesRepository: TreesRepository) : TreesInteractor {
 
@@ -25,11 +26,11 @@ class TreesInteractorImpl(private val treesRepository: TreesRepository) : TreesI
         return treesRepository.getTreeDetailBy(id)
     }
 
-    override suspend fun createNewTree(newTreeDetailEntity: NewTreeDetailEntity): Boolean {
+    override suspend fun createNewTree(newTreeDetailEntity: NewTreeDetailEntity): UploadResult {
         return treesRepository.uploadNewTreeDetail(newTreeDetailEntity)
     }
 
-    override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): Boolean {
+    override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): UploadResult {
         return treesRepository.uploadTreeDetail(treeDetail)
     }
 

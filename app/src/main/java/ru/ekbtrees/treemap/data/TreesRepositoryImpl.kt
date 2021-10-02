@@ -4,11 +4,12 @@ import android.graphics.Color
 import ru.ekbtrees.treemap.data.api.TreesApiService
 import ru.ekbtrees.treemap.data.dto.ClusterTreesDto
 import ru.ekbtrees.treemap.data.mappers.*
-import ru.ekbtrees.treemap.data.result.Result
+import ru.ekbtrees.treemap.data.result.RetrofitResult
 import ru.ekbtrees.treemap.data.result.asSuccess
 import ru.ekbtrees.treemap.data.result.isSuccess
 import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
+import ru.ekbtrees.treemap.domain.repositories.UploadResult
 
 class TreesRepositoryImpl(
     private val treesApiService: TreesApiService
@@ -54,7 +55,7 @@ class TreesRepositoryImpl(
             regionBoundsEntity.bottomRight.lon
         )
         return when (result) {
-            is Result.Success -> {
+            is RetrofitResult.Success -> {
                 if (result.value.isEmpty()) {
                     emptyList()
                 } else {
@@ -85,36 +86,36 @@ class TreesRepositoryImpl(
 
     override suspend fun getTreeDetailBy(id: String): TreeDetailEntity {
         when (val result = treesApiService.getTreeDetailBy(treeId = id.toInt())) {
-            is Result.Success -> {
+            is RetrofitResult.Success -> {
                 return result.value.toTreeDetailEntity()
             }
-            is Result.Failure<*> -> {
+            is RetrofitResult.Failure<*> -> {
                 error(result)
             }
             else -> error("Unexpected case")
         }
     }
 
-    override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): Boolean {
+    override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): UploadResult {
         val treeDetailDto = treeDetail.toTreeDetailDto()
         return when (treesApiService.saveTreeDetail(treeDetailDto)) {
-            is Result.Success -> {
-                true
+            is RetrofitResult.Success -> {
+                UploadResult.Success
             }
-            is Result.Failure<*> -> {
-                false
+            is RetrofitResult.Failure<*> -> {
+                UploadResult.Failure
             }
         }
     }
 
-    override suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity): Boolean {
+    override suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity): UploadResult {
         val newTreeDetail = treeDetail.toNewTreeDetailDto()
         return when (treesApiService.createNewTreeDetail(newTreeDetail)) {
-            is Result.Success -> {
-                true
+            is RetrofitResult.Success -> {
+                UploadResult.Success
             }
-            is Result.Failure<*> -> {
-                false
+            is RetrofitResult.Failure<*> -> {
+                UploadResult.Failure
             }
         }
     }

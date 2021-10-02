@@ -12,7 +12,13 @@ interface TreesRepository {
 
     suspend fun getTreeDetailBy(id: String): TreeDetailEntity
 
-    suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): Boolean
+    suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): UploadResult
 
-    suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity): Boolean
+    suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity): UploadResult
+}
+
+/** Класс для результата загрузки */
+sealed class UploadResult {
+    object Success: UploadResult()
+    object Failure: UploadResult()
 }
