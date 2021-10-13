@@ -1,6 +1,7 @@
 package ru.ekbtrees.treemap.domain.interactors
 
 import ru.ekbtrees.treemap.domain.entity.*
+import ru.ekbtrees.treemap.domain.repositories.UploadResult
 
 /**
  * Класс для бизнес логики связанной с деревьями
@@ -10,11 +11,11 @@ interface TreesInteractor {
 
     suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity): Collection<TreeEntity>
 
-    fun getTrees(): Collection<TreeEntity>
-
     suspend fun getTreeDetailBy(id: String): TreeDetailEntity
 
-    suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity)
+    suspend fun createNewTree(newTreeDetailEntity: NewTreeDetailEntity): UploadResult
 
-    fun getTreeSpecies(): Collection<SpeciesEntity>
+    suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): UploadResult
+
+    suspend fun getAllSpecies(): Collection<SpeciesEntity>
 }

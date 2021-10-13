@@ -5,7 +5,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
 import ru.ekbtrees.treemap.domain.interactors.TreesInteractor
-import ru.ekbtrees.treemap.ui.mappers.RegionBoundsUIModelMapper
+import ru.ekbtrees.treemap.ui.mappers.toRegionBoundsUIModel
 import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
 import javax.inject.Inject
 import ru.ekbtrees.treemap.ui.mvi.base.BaseViewModel
@@ -25,7 +25,8 @@ class TreeMapViewModel @Inject constructor(
 
     var cameraPosition: CameraPosition? = null
 
-    private val _treeMapDataState = MutableStateFlow<TreeMapContract.DataState>(TreeMapContract.DataState.Idle)
+    private val _treeMapDataState =
+        MutableStateFlow<TreeMapContract.DataState>(TreeMapContract.DataState.Idle)
     val treeDataState: StateFlow<TreeMapContract.DataState> = _treeMapDataState.asStateFlow()
 
     /**
@@ -34,7 +35,7 @@ class TreeMapViewModel @Inject constructor(
     suspend fun getClusterTreesInRegion(regionBoundsUIModel: RegionBoundsUIModel) {
         _treeMapDataState.value = TreeMapContract.DataState.Loading
         try {
-            val trees = interactor.getMapTreesInRegion(RegionBoundsUIModelMapper().map(regionBoundsUIModel))
+            val trees = interactor.getMapTreesInRegion(regionBoundsUIModel.toRegionBoundsUIModel())
             val data = TreeMapContract.LoadedData.TreeClusters(trees)
             _treeMapDataState.value = TreeMapContract.DataState.Loaded(data = data)
         } catch (e: Exception) {
@@ -48,7 +49,7 @@ class TreeMapViewModel @Inject constructor(
     suspend fun getTreesInRegion(regionBoundsUIModel: RegionBoundsUIModel) {
         _treeMapDataState.value = TreeMapContract.DataState.Loading
         try {
-            val trees = interactor.getMapTreesInRegion(RegionBoundsUIModelMapper().map(regionBoundsUIModel))
+            val trees = interactor.getMapTreesInRegion(regionBoundsUIModel.toRegionBoundsUIModel())
             val data = TreeMapContract.LoadedData.Trees(trees = trees)
             _treeMapDataState.value = TreeMapContract.DataState.Loaded(data = data)
         } catch (e: Exception) {
