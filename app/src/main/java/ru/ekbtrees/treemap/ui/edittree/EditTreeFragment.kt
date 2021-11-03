@@ -29,6 +29,7 @@ import ru.ekbtrees.treemap.databinding.FragmentEditTreeBinding
 import ru.ekbtrees.treemap.domain.entity.LatLonEntity
 import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
 import ru.ekbtrees.treemap.domain.entity.TreeDetailEntity
+import ru.ekbtrees.treemap.ui.common.TreePhotosAdapter
 import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.ui.mvi.contract.EditTreeContract
 import java.util.*
@@ -45,6 +46,8 @@ class EditTreeFragment : Fragment() {
     private lateinit var map: GoogleMap
     private lateinit var location: LatLng
 
+    private lateinit var photoAdapter: TreePhotosAdapter
+
     private val startForProfileImageResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             val resultCode = result.resultCode
@@ -55,7 +58,7 @@ class EditTreeFragment : Fragment() {
                     //Image Uri will not be null for RESULT_OK
                     val fileUri = data?.data!!
 
-                    binding.treePhoto.setImageURI(fileUri)
+                    photoAdapter.addPhoto(fileUri)
                 }
                 ImagePicker.RESULT_ERROR -> {
                     Toast.makeText(requireContext(), ImagePicker.getError(data), Toast.LENGTH_SHORT)
@@ -154,6 +157,16 @@ class EditTreeFragment : Fragment() {
                 )
             )
         }
+        photoAdapter = TreePhotosAdapter(
+            emptyList(),
+            onItemClick = {
+                Toast.makeText(
+                    requireContext(),
+                    "Photo Uri: $it",
+                    Toast.LENGTH_SHORT
+                ).show()
+            })
+        binding.photos.adapter = photoAdapter
     }
 
     /**
