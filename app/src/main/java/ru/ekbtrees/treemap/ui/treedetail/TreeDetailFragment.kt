@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -64,6 +65,8 @@ class TreeDetailFragment : Fragment() {
             )
             navController.navigate(action)
         }
+        val commentsButton = view.findViewById<Button>(R.id.comments_button)
+        commentsButton?.setOnClickListener {findNavController().navigate(R.layout.activity_comment)}
     }
 
     private fun observeViewModel() {
