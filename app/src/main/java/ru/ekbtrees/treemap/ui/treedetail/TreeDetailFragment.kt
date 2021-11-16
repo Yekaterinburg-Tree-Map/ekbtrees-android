@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -18,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentTreeDetailBinding
+import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
 import ru.ekbtrees.treemap.ui.mvi.contract.TreeDetailContract
 
 private const val TAG = "TreeDetailFragment"
@@ -54,6 +56,14 @@ class TreeDetailFragment : Fragment() {
         treeId = args.treeId
         treeDetailViewModel.provideTreeId(treeId)
         observeViewModel()
+        binding.editTreeButton.setOnClickListener {
+            val navController = findNavController()
+            val instanceValue = EditTreeInstanceValue.TreeId(treeId)
+            val action = TreeDetailFragmentDirections.actionTreeDetailFragmentToEditTreeFragment(
+                instanceValue
+            )
+            navController.navigate(action)
+        }
     }
 
     private fun observeViewModel() {

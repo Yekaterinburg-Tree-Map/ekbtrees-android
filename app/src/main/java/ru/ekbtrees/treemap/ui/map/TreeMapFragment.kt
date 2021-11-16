@@ -30,7 +30,7 @@ import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentTreeMapBinding
 import ru.ekbtrees.treemap.domain.entity.TreeEntity
 import ru.ekbtrees.treemap.ui.edittree.EditTreeInstanceValue
-import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
+import ru.ekbtrees.treemap.ui.mappers.toLatLng
 import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.TreeMapContract
 import java.util.*
@@ -50,6 +50,7 @@ class TreeMapFragment : Fragment() {
 
     private lateinit var map: GoogleMap
     private lateinit var clusterManager: ClusterManager<TreeMapClusterManagerBuilder.TreeClusterItem>
+
     private var selectedCircle: Circle? = null
     private var isUserLocationGranted = false
 
@@ -67,6 +68,13 @@ class TreeMapFragment : Fragment() {
         } else {
             requestPermissionLauncher =
                 registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                    if (!isGranted) {
+                        Toast.makeText(
+                            requireContext(),
+                            getText(R.string.location_access_denied),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                     handleLocationPermissionResponse(isGranted)
                 }
         }
@@ -138,7 +146,7 @@ class TreeMapFragment : Fragment() {
             }
         }
 
-        handleLocationPermissionResponse(isUserLocationGranted)
+        handleLocationPermissionResponse(isUserLocationGranted, false)
     }
 
     override fun onResume() {
@@ -154,7 +162,10 @@ class TreeMapFragment : Fragment() {
         }
     }
 
-    private fun handleLocationPermissionResponse(isGranted: Boolean) {
+    private fun handleLocationPermissionResponse(
+        isGranted: Boolean,
+        moveCameraToUser: Boolean = true
+    ) {
         isUserLocationGranted = isGranted
         if (isGranted) {
             binding.userLocationButton.setImageResource(R.drawable.ic_location_24)
@@ -165,7 +176,7 @@ class TreeMapFragment : Fragment() {
             binding.userLocationButton.imageTintList =
                 AppCompatResources.getColorStateList(requireContext(), R.color.red)
         }
-        if (::map.isInitialized && ContextCompat.checkSelfPermission(
+        if (::map.isInitialized && moveCameraToUser && ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
@@ -194,7 +205,7 @@ class TreeMapFragment : Fragment() {
     private fun loadTreesAtMap(items: Collection<TreeEntity>) {
         items.forEach { item ->
             val added = map.addCircle {
-                center(LatLonMapper().map(item.coord))
+                center(item.coord.toLatLng())
                 val radius = if (item.diameter != 0.0f) item.diameter.toDouble() / 2.0 else 3.0
                 radius(radius)
                 fillColor(item.species.color)
@@ -208,7 +219,7 @@ class TreeMapFragment : Fragment() {
     private fun loadClustersAtMap(items: Collection<TreeEntity>) {
         items.forEach { tree ->
             val clusterItem =
-                TreeMapClusterManagerBuilder.TreeClusterItem(LatLonMapper().map(tree.coord))
+                TreeMapClusterManagerBuilder.TreeClusterItem(tree.coord.toLatLng())
             clusterManager.addItem(clusterItem)
         }
         clusterManager.cluster()
@@ -217,8 +228,8 @@ class TreeMapFragment : Fragment() {
     private fun setUpMap() {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 
-        mapFragment.getMapAsync { googleMap ->
-            map = googleMap
+        viewLifecycleOwner.lifecycleScope.launchWhenCreated {
+            map = mapFragment.awaitMap()
             map.setOnMyLocationButtonClickListener {
                 false
             }
@@ -232,11 +243,8 @@ class TreeMapFragment : Fragment() {
             ) {
                 map.isMyLocationEnabled = true
             }
-            viewLifecycleOwner.lifecycleScope.launchWhenCreated {
-                map = mapFragment.awaitMap()
-                setUpCamera()
-                clusterManager =
-                    TreeMapClusterManagerBuilder.buildClusterManager(requireContext(), map)
+            setUpCamera()
+            clusterManager = TreeMapClusterManagerBuilder.buildClusterManager(requireContext(), map)
 
                 map.setOnCameraIdleListener {
                     updateMapData()
@@ -247,7 +255,6 @@ class TreeMapFragment : Fragment() {
                 treeMapViewModel.setEvent(TreeMapContract.TreeMapEvent.OnMapViewReady)
             }
         }
-    }
 
     private fun setUpCamera() {
         map.setLatLngBoundsForCameraTarget(EKATERINBURG_CAMERA_BOUNDS)
@@ -325,6 +332,12 @@ class TreeMapFragment : Fragment() {
                                     ) else it.toString()
                                 }
                             binding.previewTreeLocationValue.text =
+                                getString(
+                                    R.string.tree_location_holder,
+                                    treeEntity.coord.lat.toString(),
+                                    treeEntity.coord.lon.toString()
+                                )
+                            binding.previewTreeLocationValue.text =
                                 getString(R.string.tree_location).plus(" ${treeEntity.coord.lat} ${treeEntity.coord.lon}")
                             binding.previewTreeDiameter.text =
                                 getString(R.string.diameter_of_crown).plus(" ${treeEntity.diameter}")
@@ -356,6 +369,7 @@ class TreeMapFragment : Fragment() {
                             )
                         )
                         binding.addTreeButton.imageTintList =
+                            AppCompatResources.getColorStateList(requireContext(), R.color.green)
                             AppCompatResources.getColorStateList(
                                 requireContext(),
                                 R.color.green

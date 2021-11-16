@@ -1,23 +1,17 @@
 package ru.ekbtrees.treemap.data
 
-import android.content.Context
 import android.graphics.Color
-import android.util.Log
-import org.json.JSONException
-import org.json.JSONObject
 import ru.ekbtrees.treemap.data.api.TreesApiService
 import ru.ekbtrees.treemap.data.dto.ClusterTreesDto
-import ru.ekbtrees.treemap.data.dto.MapTreeDto
-import ru.ekbtrees.treemap.data.mappers.ClusterTreeDtoMapper
-import ru.ekbtrees.treemap.data.mappers.TreeDtoMapper
+import ru.ekbtrees.treemap.data.mappers.*
+import ru.ekbtrees.treemap.data.result.RetrofitResult
+import ru.ekbtrees.treemap.data.result.asSuccess
+import ru.ekbtrees.treemap.data.result.isSuccess
 import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
-import java.io.IOException
-import java.lang.Exception
-import java.nio.charset.Charset
+import ru.ekbtrees.treemap.domain.repositories.UploadResult
 
 class TreesRepositoryImpl(
-    private val context: Context,
     private val treesApiService: TreesApiService
 ) : TreesRepository {
 
@@ -29,33 +23,48 @@ class TreesRepositoryImpl(
     }
 
     override suspend fun getTreeClusters(regionBoundsEntity: RegionBoundsEntity): Collection<ClusterTreesEntity> {
-        val clustersList: List<ClusterTreesDto> = treesApiService.getClusterTreesInRegion(
+        val result = treesApiService.getClusterTreesInRegion(
             regionBoundsEntity.topLeft.lat,
             regionBoundsEntity.topLeft.lon,
             regionBoundsEntity.bottomRight.lat,
             regionBoundsEntity.bottomRight.lon
         )
-        if (clustersList.isEmpty()) return emptyList()
-        val clusterTreesEntityList = mutableListOf<ClusterTreesEntity>()
-        val mapper = ClusterTreeDtoMapper()
-        clustersList.forEach { clusterTreesDto ->
-            clusterTreesEntityList.add(mapper.map(clusterTreesDto))
+        when {
+            result.isSuccess() -> {
+                val clusterList: List<ClusterTreesDto> = result.asSuccess().value
+                if (clusterList.isEmpty()) return emptyList()
+                val clusterTreesEntityList = mutableListOf<ClusterTreesEntity>()
+                clusterList.forEach { clusterTreesDto ->
+                    clusterTreesEntityList.add(clusterTreesDto.toClusterTreeEntity())
+                }
+                return clusterTreesEntityList
+            }
+            else -> {
+                error("Exception while HTTP request")
+            }
         }
-        return clusterTreesEntityList
     }
 
-    override suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity): Collection<TreeEntity> {
-        val treesList: List<MapTreeDto> = treesApiService.getTreesInRegion(
+    override suspend fun getMapTreesInRegion(regionBoundsEntity: RegionBoundsEntity)
+            : Collection<TreeEntity> {
+
+        val result = treesApiService.getTreesInRegion(
             regionBoundsEntity.topLeft.lat,
             regionBoundsEntity.topLeft.lon,
             regionBoundsEntity.bottomRight.lat,
             regionBoundsEntity.bottomRight.lon
         )
-        if (treesList.isEmpty()) {
-            return emptyList()
-        }
-        return treesList.map { mapTreeDto ->
-            TreeDtoMapper(getSpeciesBy(mapTreeDto.species.name)).map(mapTreeDto)
+        return when (result) {
+            is RetrofitResult.Success -> {
+                if (result.value.isEmpty()) {
+                    emptyList()
+                } else {
+                    result.value.map { mapTreeDto ->
+                        mapTreeDto.toTreeEntity(getSpeciesBy(name = mapTreeDto.species.name))
+                    }
+                }
+            }
+            else -> error("Exception while HTTP request")
         }
     }
 
@@ -75,106 +84,40 @@ class TreesRepositoryImpl(
         return species as Collection<SpeciesEntity>
     }
 
-    override fun getTrees(): Collection<TreeEntity> {
-        // asset location: app/src/main/assets
-        var id = 0
-        val json = loadJSON(context = context)
-        val result = mutableListOf<TreeEntity>()
-        val arr = json.getJSONArray("features")
-        for (i in 0 until arr.length()) {
-            try {
-                val treeData = arr.getJSONObject(i).getJSONObject("properties")
-                val position =
-                    arr.getJSONObject(i).getJSONObject("geometry").getJSONArray("coordinates")
-                val latLon =
-                    LatLonEntity(
-                        position.getDouble(1),
-                        position.getDouble(0)
-                    )
-                val diameter = treeData.getString("diameter_crown").toFloat()
-                val genus = treeData.getString("genus:ru")
-                val species = getSpeciesByName(genus)
-                val treeEntity = TreeEntity("$id", diameter, species, latLon)
-                id++
-                result.add(treeEntity)
-            } catch (e: JSONException) {
-                continue
-            }
-        }
-        return result
-    }
-
-    private fun loadJSON(context: Context): JSONObject {
-        val jsonString: String?
-        try {
-            val rawFile = context.assets.open("weiner_park.geojson")
-            val buffer: ByteArray
-            rawFile.use {
-                val size = rawFile.available()
-                buffer = ByteArray(size)
-                rawFile.read(buffer)
-            }
-            jsonString = String(buffer, Charset.forName("UTF-8"))
-        } catch (e: IOException) {
-            Log.e(
-                this.javaClass.name,
-                "Failed to load local asset. Check asset location and the name of a file.",
-                e
-            )
-            return JSONObject(
-                """
-                {
-                    "features": []
-                }
-            """.trimIndent()
-            )
-        }
-        return JSONObject(jsonString)
-    }
-
-    override fun getAllSpecies(): Collection<SpeciesEntity> {
-        return arrayListOf(
-            SpeciesEntity("1", Color.parseColor("#C8BEEB5A"), "клен"),
-            SpeciesEntity("2", Color.parseColor("#C800FFBF"), "тополь"),
-            SpeciesEntity("3", Color.parseColor("#C8ffbf00"), "липа"),
-            SpeciesEntity("4", Color.parseColor("#C800ffbf"), "лиственница"),
-            SpeciesEntity("5", Color.parseColor("#C8ff8000"), "береза"),
-            SpeciesEntity("6", Color.parseColor("#C8ff00ff"), "вяз"),
-            SpeciesEntity("7", Color.parseColor("#C800bfff"), "ель"),
-        )
-    }
-
     override suspend fun getTreeDetailBy(id: String): TreeDetailEntity {
-        // Заглушка пока не готов HTTP клиент.
-        return TreeDetailEntity(
-            id = "",
-            coord = LatLonEntity(0.0, 0.0),
-            species = SpeciesEntity("", Color.parseColor("#000000"), ""),
-            height = 0.0,
-            numberOfTrunks = 0,
-            trunkGirth = 0.0,
-            diameterOfCrown = 0,
-            heightOfTheFirstBranch = 0.0,
-            conditionAssessment = 0,
-            age = 0,
-            treePlantingType = "",
-            createTime = "",
-            updateTime = "",
-            authorId = 0,
-            status = "",
-            fileIds = emptyList()
-        )
-    }
-
-    override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity) {
-        TODO("Not yet implemented")
-    }
-
-    private fun getSpeciesByName(name: String): SpeciesEntity {
-        for (type in getAllSpecies()) {
-            if (type.name == name) return type
+        when (val result = treesApiService.getTreeDetailBy(treeId = id.toInt())) {
+            is RetrofitResult.Success -> {
+                return result.value.toTreeDetailEntity()
+            }
+            is RetrofitResult.Failure<*> -> {
+                error(result)
+            }
+            else -> error("Unexpected case")
         }
-        throw Exception("$name не был определён")
+    }
+
+    override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): UploadResult {
+        val treeDetailDto = treeDetail.toTreeDetailDto()
+        return when (treesApiService.saveTreeDetail(treeDetailDto)) {
+            is RetrofitResult.Success -> {
+                UploadResult.Success
+            }
+            is RetrofitResult.Failure<*> -> {
+                UploadResult.Failure
+            }
+        }
+    }
+
+    override suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity): UploadResult {
+        val newTreeDetail = treeDetail.toNewTreeDetailDto()
+        return when (treesApiService.createNewTreeDetail(newTreeDetail)) {
+            is RetrofitResult.Success -> {
+                UploadResult.Success
+            }
+            is RetrofitResult.Failure<*> -> {
+                UploadResult.Failure
+            }
+        }
     }
 
     private suspend fun getSpeciesBy(name: String): SpeciesEntity {

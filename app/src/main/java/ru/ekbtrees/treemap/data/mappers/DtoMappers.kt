@@ -1,23 +1,89 @@
 package ru.ekbtrees.treemap.data.mappers
 
-import ru.ekbtrees.treemap.data.dto.ClusterTreesDto
-import ru.ekbtrees.treemap.data.dto.MapTreeDto
-import ru.ekbtrees.treemap.domain.entity.ClusterTreesEntity
-import ru.ekbtrees.treemap.domain.entity.LatLonEntity
-import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
-import ru.ekbtrees.treemap.domain.entity.TreeEntity
-import ru.ekbtrees.treemap.domain.mapper.Mapper
+import android.graphics.Color
+import ru.ekbtrees.treemap.data.dto.*
+import ru.ekbtrees.treemap.domain.entity.*
 
-class TreeDtoMapper(private val speciesEntity: SpeciesEntity) : Mapper<MapTreeDto, TreeEntity> {
-    override fun map(from: MapTreeDto): TreeEntity {
-        val latLonEntity = LatLonEntity(from.coord.lat, from.coord.lon)
-        return TreeEntity(from.id.toString(), from.diameter, speciesEntity, latLonEntity)
-    }
+fun MapTreeDto.toTreeEntity(speciesEntity: SpeciesEntity): TreeEntity {
+    val latLonEntity = coord.toLatLonEntity()
+    return TreeEntity(id.toString(), diameter, speciesEntity, latLonEntity)
 }
 
-class ClusterTreeDtoMapper : Mapper<ClusterTreesDto, ClusterTreesEntity> {
-    override fun map(from: ClusterTreesDto): ClusterTreesEntity {
-        val latLonEntity = LatLonEntity(from.coord.lat, from.coord.lon)
-        return ClusterTreesEntity(from.count, latLonEntity)
-    }
+fun ClusterTreesDto.toClusterTreeEntity(): ClusterTreesEntity {
+    val latLonEntity = coord.toLatLonEntity()
+    return ClusterTreesEntity(count, latLonEntity)
+}
+
+fun LatLonDto.toLatLonEntity(): LatLonEntity {
+    return LatLonEntity(lat = lat, lon = lon)
+}
+
+fun TreeDetailDto.toTreeDetailEntity(): TreeDetailEntity {
+    return TreeDetailEntity(
+        id = id.toString(),
+        coord = coord.toLatLonEntity(),
+        species = SpeciesEntity(
+            species.id.toString(),
+            Color.parseColor("#00FF00"),
+            species.name
+        ),
+        height = height ?: 0.0,
+        numberOfTrunks = numberOfTrunks ?: 0,
+        trunkGirth = trunkGirth ?: 0.0,
+        diameterOfCrown = diameterOfCrown ?: 0.0,
+        heightOfTheFirstBranch = heightOfTheFirstBranch ?: 0.0,
+        conditionAssessment = conditionAssessment ?: 0,
+        age = age ?: 0,
+        treePlantingType = treePlantingType ?: "",
+        createTime = createTime,
+        updateTime = updateTime ?: "",
+        authorId = authorId ?: 0,
+        status = status ?: "",
+        fileIds = fileIds ?: emptyList()
+    )
+}
+
+fun TreeDetailEntity.toTreeDetailDto(): TreeDetailDto {
+    val latLon = LatLonDto(coord.lat, coord.lon)
+    val species = SpeciesDto(species.id.toInt(), species.name)
+    return TreeDetailDto(
+        id = id.toInt(),
+        coord = latLon,
+        species = species,
+        height = height,
+        numberOfTrunks = numberOfTrunks,
+        trunkGirth = trunkGirth,
+        diameterOfCrown = diameterOfCrown,
+        heightOfTheFirstBranch = heightOfTheFirstBranch,
+        conditionAssessment = conditionAssessment,
+        age = age,
+        treePlantingType = treePlantingType,
+        createTime = createTime,
+        updateTime = updateTime,
+        authorId = authorId,
+        status = status,
+        fileIds = fileIds as List<Int>
+    )
+}
+
+fun NewTreeDetailEntity.toNewTreeDetailDto(): NewTreeDetailDto {
+    val latLonDto = LatLonDto(coord.lat, coord.lon)
+    val speciesDto = SpeciesDto(species.id.toInt(), species.name)
+    return NewTreeDetailDto(
+        coord = latLonDto,
+        species = speciesDto,
+        height = height,
+        numberOfTrunks = numberOfTrunks,
+        trunkGirth = trunkGirth,
+        diameterOfCrown = diameterOfCrown,
+        heightOfTheFirstBranch = heightOfTheFirstBranch,
+        conditionAssessment = conditionAssessment,
+        age = age,
+        treePlantingType = treePlantingType,
+        createTime = createTime,
+        updateTime = updateTime,
+        authorId = authorId,
+        status = status,
+        fileIds = fileIds as List<Int>
+    )
 }

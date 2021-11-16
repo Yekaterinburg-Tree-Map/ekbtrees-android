@@ -2,7 +2,6 @@ package ru.ekbtrees.treemap.ui.mvi.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -25,7 +24,7 @@ abstract class BaseViewModel<Event : UiEvent, State : UiState, Effect : UiEffect
     val event = _event.asSharedFlow()
 
     private val _effect = Channel<UiEffect>()
-    val effect = _effect.consumeAsFlow()
+    val effect = _effect.receiveAsFlow()
 
     fun setEvent(event: Event) {
         viewModelScope.launch { _event.emit(event) }
