@@ -30,11 +30,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentEditTreeBinding
-import ru.ekbtrees.treemap.domain.entity.LatLonEntity
-import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
-import ru.ekbtrees.treemap.domain.entity.TreeDetailEntity
 import ru.ekbtrees.treemap.ui.common.TreePhotosAdapter
-import ru.ekbtrees.treemap.ui.mappers.LatLonMapper
 import ru.ekbtrees.treemap.ui.model.NewTreeDetailUIModel
 import ru.ekbtrees.treemap.ui.model.SpeciesUIModel
 import ru.ekbtrees.treemap.ui.model.TreeDetailUIModel
