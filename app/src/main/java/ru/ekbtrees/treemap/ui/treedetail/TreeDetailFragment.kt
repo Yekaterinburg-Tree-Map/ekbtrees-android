@@ -66,7 +66,11 @@ class TreeDetailFragment : Fragment() {
             navController.navigate(action)
         }
         val commentsButton = view.findViewById<Button>(R.id.comments_button)
-        commentsButton?.setOnClickListener {findNavController().navigate(R.id.CommentFragment)}
+        commentsButton?.setOnClickListener {
+            val action = TreeDetailFragmentDirections.actionTreeDetailFragmentToCommentFragment(treeId)
+            findNavController().navigate(action)
+        }
+
     }
 
     private fun observeViewModel() {

@@ -67,7 +67,7 @@
         tools:layout="@layout/fragment_comment">
 
         <argument
-            android:name="treeDetail"
-            app:argType="ru.ekbtrees.treemap.ui.model.TreeDetailUIModel" />
+            android:name="treeId"
+            app:argType="string" />
     </fragment>
 </navigation>
