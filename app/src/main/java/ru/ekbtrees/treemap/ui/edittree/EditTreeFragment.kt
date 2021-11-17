@@ -1,5 +1,6 @@
 package ru.ekbtrees.treemap.ui.edittree
 
+import android.content.Context
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -28,9 +29,13 @@ import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import net.gotev.uploadservice.data.UploadInfo
+import net.gotev.uploadservice.network.ServerResponse
+import net.gotev.uploadservice.observer.request.RequestObserverDelegate
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentEditTreeBinding
 import ru.ekbtrees.treemap.ui.common.TreePhotosAdapter
+import ru.ekbtrees.treemap.ui.common.uploadFile
 import ru.ekbtrees.treemap.ui.model.NewTreeDetailUIModel
 import ru.ekbtrees.treemap.ui.model.SpeciesUIModel
 import ru.ekbtrees.treemap.ui.model.TreeDetailUIModel
@@ -88,7 +93,7 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
 
         binding.getPhotoButton.setOnClickListener {
             BottomSheetImagePicker.Builder(getString(R.xml.files_paths)).apply {
-                multiSelect(max = 5)
+                multiSelect()
                 cameraButton(ButtonType.Button)
                 show(childFragmentManager)
             }
@@ -578,6 +583,39 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
         Log.d(TAG, "Images selected: ${uris.size} uris")
         uris.forEach { uri ->
             photoAdapter.addPhoto(uri)
+            uploadFile(
+                requireContext(),
+                viewLifecycleOwner,
+                uri.path!!,
+                object : RequestObserverDelegate {
+                    override fun onCompleted(context: Context, uploadInfo: UploadInfo) {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun onCompletedWhileNotObserving() {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun onError(
+                        context: Context,
+                        uploadInfo: UploadInfo,
+                        exception: Throwable
+                    ) {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun onProgress(context: Context, uploadInfo: UploadInfo) {
+                        uploadInfo.progressPercent
+                    }
+
+                    override fun onSuccess(
+                        context: Context,
+                        uploadInfo: UploadInfo,
+                        serverResponse: ServerResponse
+                    ) {
+                        serverResponse.bodyString.toLong()
+                    }
+                })
         }
     }
 }
