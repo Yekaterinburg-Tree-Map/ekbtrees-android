@@ -4,10 +4,12 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import ru.ekbtrees.treemap.constants.NetworkConstants.BASE_URL
 import ru.ekbtrees.treemap.data.api.TreesApiService
 import ru.ekbtrees.treemap.data.retrofit.ResultAdapterFactory
 import javax.inject.Singleton
@@ -18,8 +20,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    private const val BASE_URL = "https://ekb-trees-help.ru/api/"
-
     @Provides
     fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor = HttpLoggingInterceptor()
         .apply {
@@ -46,4 +46,10 @@ object NetworkModule {
     @Provides
     fun provideTreesApiService(retrofit: Retrofit): TreesApiService =
         retrofit.create(TreesApiService::class.java)
+
+    @Singleton
+    @Provides
+    fun provideCoroutineScope(): CoroutineScope {
+
+    }
 }
