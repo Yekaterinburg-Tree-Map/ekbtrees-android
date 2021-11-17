@@ -1,4 +1,4 @@
-package ru.ekbtrees.treemap.ui.treedetail
+package ru.ekbtrees.treemap.ui.comment
 
 import android.os.Bundle
 import android.view.LayoutInflater
