@@ -35,4 +35,14 @@
         app:layout_constraintStart_toStartOf="@id/appBar"
         app:layout_constraintTop_toBottomOf="@id/appBar"
         />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tree_id_view" />
 </androidx.constraintlayout.widget.ConstraintLayout>
