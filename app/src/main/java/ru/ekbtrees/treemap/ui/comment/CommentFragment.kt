@@ -20,7 +20,11 @@ class CommentFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentCommentBinding.inflate(inflater, container, false)
+        binding.topAppBar.setNavigationOnClickListener{
+            activity?.onBackPressed()
+        }
         return binding.root
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
