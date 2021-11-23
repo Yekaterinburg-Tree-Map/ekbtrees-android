@@ -4,7 +4,6 @@ import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import net.gotev.uploadservice.data.UploadInfo
 import net.gotev.uploadservice.network.ServerResponse
@@ -13,7 +12,7 @@ import ru.ekbtrees.treemap.data.files.dto.UploadFileDto
 
 class UploadFileRequestObserverDelegate(
     private val coroutineScope: CoroutineScope
-): RequestObserverDelegate {
+) : RequestObserverDelegate {
     private val _flow: MutableSharedFlow<UploadFileDto> = MutableSharedFlow()
     val flow: Flow<UploadFileDto> = _flow
 
@@ -37,6 +36,7 @@ class UploadFileRequestObserverDelegate(
         uploadInfo: UploadInfo,
         serverResponse: ServerResponse
     ) {
-        coroutineScope.launch { _flow.emit(UploadFileDto.Success) }
+        val fileId = serverResponse.bodyString.toLong()
+        coroutineScope.launch { _flow.emit(UploadFileDto.Success(fileId)) }
     }
 }

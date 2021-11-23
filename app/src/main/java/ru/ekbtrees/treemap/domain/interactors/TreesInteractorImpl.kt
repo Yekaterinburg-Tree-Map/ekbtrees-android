@@ -1,10 +1,16 @@
 package ru.ekbtrees.treemap.domain.interactors
 
+import kotlinx.coroutines.flow.Flow
+import ru.ekbtrees.treemap.data.files.dto.UploadFileDto
 import ru.ekbtrees.treemap.domain.entity.*
+import ru.ekbtrees.treemap.domain.repositories.FilesRepository
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
 import ru.ekbtrees.treemap.domain.repositories.UploadResult
 
-class TreesInteractorImpl(private val treesRepository: TreesRepository) : TreesInteractor {
+class TreesInteractorImpl(
+    private val treesRepository: TreesRepository,
+    private val filesRepository: FilesRepository
+) : TreesInteractor {
 
     override suspend fun getTreeClusters(regionBoundsEntity: RegionBoundsEntity): Collection<ClusterTreesEntity> {
         return try {
@@ -36,5 +42,9 @@ class TreesInteractorImpl(private val treesRepository: TreesRepository) : TreesI
 
     override suspend fun getAllSpecies(): Collection<SpeciesEntity> {
         return treesRepository.getSpecies()
+    }
+
+    override suspend fun uploadFile(filePath: String): Flow<UploadFileDto> {
+        return filesRepository.upload(filePath)
     }
 }

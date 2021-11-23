@@ -38,6 +38,8 @@ class EditTreeContract {
          * Инициируем сохранение введённых данных.
          */
         class OnSaveButtonClicked(val treeDetail: TreeDetailFragmentModel) : EditTreeEvent()
+
+        class OnImagesSelected(val filesPaths: List<String>): EditTreeEvent()
     }
 
     sealed class TreeDetailEffect : UiEffect {

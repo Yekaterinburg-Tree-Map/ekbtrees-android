@@ -13,7 +13,7 @@ class FilesRepositoryImpl(
     private val context: Application,
     private val lifecycleOwner: LifecycleOwner,
     private val coroutineScope: CoroutineScope
-): FilesRepository {
+) : FilesRepository {
 
     override suspend fun upload(filePath: String): Flow<UploadFileDto> {
         val delegate = UploadFileRequestObserverDelegate(coroutineScope)
