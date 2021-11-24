@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentCommentBinding
@@ -23,6 +24,8 @@ class CommentFragment : Fragment() {
         binding.topAppBar.setNavigationOnClickListener{
             activity?.onBackPressed()
         }
+        binding.recyclerView.adapter = CommentRecyclerAdapter()
+        binding.recyclerView.layoutManager = LinearLayoutManager(context)
         return binding.root
 
     }
