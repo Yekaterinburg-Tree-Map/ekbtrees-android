@@ -14,6 +14,8 @@ import ru.ekbtrees.treemap.databinding.FragmentCommentBinding
 @AndroidEntryPoint
 class CommentFragment : Fragment() {
     private lateinit var binding: FragmentCommentBinding
+    private val adapter = CommentRecyclerAdapter()
+    private val testComment = CommentView("Me","This is comment")
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -24,10 +26,12 @@ class CommentFragment : Fragment() {
         binding.topAppBar.setNavigationOnClickListener{
             activity?.onBackPressed()
         }
-        binding.recyclerView.adapter = CommentRecyclerAdapter()
+        binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
+        binding.sendButton.setOnClickListener{
+            adapter.addComment(testComment)
+        }
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
