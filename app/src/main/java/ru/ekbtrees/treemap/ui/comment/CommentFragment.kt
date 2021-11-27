@@ -29,7 +29,10 @@ class CommentFragment : Fragment() {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
         binding.sendButton.setOnClickListener{
-            adapter.addComment(testComment)
+            if(!binding.editTextTextMultiLine.text.toString().equals("")) {
+                adapter.addComment(CommentView("Me", binding.editTextTextMultiLine.text.toString()))
+                binding.editTextTextMultiLine.text.clear()
+            }
         }
         return binding.root
     }
