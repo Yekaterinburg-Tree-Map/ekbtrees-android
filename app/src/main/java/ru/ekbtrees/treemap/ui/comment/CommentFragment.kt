@@ -30,7 +30,8 @@ class CommentFragment : Fragment() {
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
         binding.sendButton.setOnClickListener{
             if(!binding.editTextTextMultiLine.text.toString().equals("")) {
-                adapter.addComment(CommentView("Me", binding.editTextTextMultiLine.text.toString()))
+                adapter.commentList.add(CommentView("Me", binding.editTextTextMultiLine.text.toString()))
+                adapter.submitList(adapter.commentList)
                 binding.editTextTextMultiLine.text.clear()
             }
         }

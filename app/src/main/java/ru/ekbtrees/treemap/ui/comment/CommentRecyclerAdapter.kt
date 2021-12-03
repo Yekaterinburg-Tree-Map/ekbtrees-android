@@ -10,12 +10,11 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.CommentItemBinding
 
+
+
+
 class CommentRecyclerAdapter: ListAdapter<CommentView, CommentRecyclerAdapter.CommentHolder>(ItemComprator()) {
-//    val commentList = listOf<CommentView>(
-//        CommentView("Me","This is first comment"),
-//        CommentView("Me","This is second comment"),
-//        CommentView("Me","This is third comment"),
-//    )
+
     val commentList = ArrayList<CommentView>()
 
     class CommentHolder(private val binding: CommentItemBinding): RecyclerView.ViewHolder(binding.root) {
@@ -54,11 +53,8 @@ class CommentRecyclerAdapter: ListAdapter<CommentView, CommentRecyclerAdapter.Co
         return commentList.size
     }
 
-    /** Будет использоваться для заполнения листа комментариев **/
-//    @SuppressLint("NotifyDataSetChanged")
-    fun addComment(comm: CommentView){
-        commentList.add(comm)
+    override fun submitList(list: MutableList<CommentView>?) {
+        super.submitList(list)
         notifyDataSetChanged()
     }
-
 }
