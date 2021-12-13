@@ -15,7 +15,6 @@ import ru.ekbtrees.treemap.databinding.CommentItemBinding
 
 class CommentRecyclerAdapter: ListAdapter<CommentView, CommentRecyclerAdapter.CommentHolder>(ItemComprator()) {
 
-    val commentList = ArrayList<CommentView>()
 
     class CommentHolder(private val binding: CommentItemBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(comm: CommentView) = with(binding){
@@ -46,15 +45,7 @@ class CommentRecyclerAdapter: ListAdapter<CommentView, CommentRecyclerAdapter.Co
     }
 
     override fun onBindViewHolder(holder: CommentHolder, position: Int) {
-        holder.bind(commentList[position])
+        holder.bind(getItem(position))
     }
 
-    override fun getItemCount(): Int {
-        return commentList.size
-    }
-
-    override fun submitList(list: MutableList<CommentView>?) {
-        super.submitList(list)
-        notifyDataSetChanged()
-    }
 }

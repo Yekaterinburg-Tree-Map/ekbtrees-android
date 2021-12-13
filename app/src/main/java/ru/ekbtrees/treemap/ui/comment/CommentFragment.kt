@@ -32,9 +32,12 @@ class CommentFragment : Fragment() {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
         binding.sendButton.setOnClickListener{
-                viewModel.addComment(binding, adapter)
+            if(!binding.editTextTextMultiLine.text.toString().equals("")) {
+                viewModel.commentList.add(CommentView("Me", binding.editTextTextMultiLine.text.toString()))
+                adapter.submitList(viewModel.commentList)
+                binding.editTextTextMultiLine.text.clear()
         }
-
+            }
         return binding.root
     }
 
