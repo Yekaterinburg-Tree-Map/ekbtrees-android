@@ -39,11 +39,14 @@ class EditTreeContract {
          */
         class OnSaveButtonClicked(val treeDetail: TreeDetailFragmentModel) : EditTreeEvent()
 
-        class OnImagesSelected(val filesPaths: List<String>): EditTreeEvent()
+        class OnImagesSelected(
+            //val treeDetail: TreeDetailFragmentModel,
+            val filesPaths: List<String>
+        ) : EditTreeEvent()
     }
 
     sealed class TreeDetailEffect : UiEffect {
-        object BackOnBackStack: TreeDetailEffect()
+        object BackOnBackStack : TreeDetailEffect()
         object ShowErrorMessage : TreeDetailEffect()
     }
 

@@ -1,8 +1,14 @@
 package ru.ekbtrees.treemap.ui.edittree
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import ru.ekbtrees.treemap.constants.NetworkConstants
+import ru.ekbtrees.treemap.data.files.dto.UploadFileDto
 import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
 import ru.ekbtrees.treemap.domain.interactors.TreesInteractor
 import ru.ekbtrees.treemap.domain.repositories.UploadResult
@@ -11,12 +17,15 @@ import ru.ekbtrees.treemap.ui.mappers.toSpeciesUIModel
 import ru.ekbtrees.treemap.ui.mappers.toTreeDetailEntity
 import ru.ekbtrees.treemap.ui.mappers.toTreeDetailUIModel
 import ru.ekbtrees.treemap.ui.model.NewTreeDetailUIModel
+import ru.ekbtrees.treemap.ui.model.PhotoUIModel
 import ru.ekbtrees.treemap.ui.model.SpeciesUIModel
 import ru.ekbtrees.treemap.ui.model.TreeDetailUIModel
 import ru.ekbtrees.treemap.ui.mvi.base.BaseViewModel
 import ru.ekbtrees.treemap.ui.mvi.base.UiEvent
 import ru.ekbtrees.treemap.ui.mvi.contract.EditTreeContract
 import javax.inject.Inject
+
+private const val TAG = "EditTreeViewModel"
 
 /**
  * ViewModel для [EditTreeFragment].
@@ -31,6 +40,25 @@ class EditTreeViewModel @Inject constructor(
 
     suspend fun getTreeSpecies(): Collection<SpeciesEntity> {
         return interactor.getAllSpecies()
+    }
+
+    fun uploadPhotos(photos: List<PhotoUIModel>): Flow<PhotoUIModel> = flow {
+        photos.forEach { photo ->
+            val result = interactor.uploadFile(photo.uri.toString())
+            result.collect {
+                when (it) {
+                    is UploadFileDto.Success -> {
+                        Log.d(TAG, "uploadPhotos: ${it.fileId}")
+                        emit(photo.copy(link = "${NetworkConstants.FILE_DOWNLOAD_URL}${it.fileId}"))
+                    }
+                    is UploadFileDto.Error -> {
+                        Log.d(TAG, "uploadPhotos: error ${photo.uri}. ${it.throwable}")
+                    }
+                    UploadFileDto.Progress -> {
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -94,29 +122,57 @@ class EditTreeViewModel @Inject constructor(
                 reloadTreeData()
             }
             is EditTreeContract.EditTreeEvent.OnSaveButtonClicked -> {
-                viewModelScope.launch {
-                    when (event.treeDetail) {
-                        is EditTreeContract.TreeDetailFragmentModel.NewTreeDetail -> {
-                            val result =
-                                interactor.createNewTree(event.treeDetail.newTreeDetail.toNewTreeDetailEntity())
-                            setEffect {
-                                if (result is UploadResult.Success) {
-                                    EditTreeContract.TreeDetailEffect.BackOnBackStack
-                                } else {
-                                    EditTreeContract.TreeDetailEffect.ShowErrorMessage
-                                }
-                            }
+                uploadTreeDetail(event.treeDetail)
+            }
+            is EditTreeContract.EditTreeEvent.OnImagesSelected -> {
+                uploadFiles(event.filesPaths)
+            }
+        }
+    }
+
+    private fun uploadFiles(
+        //treeDetail: EditTreeContract.TreeDetailFragmentModel,
+        filesPaths: List<String>
+    ) {
+//        viewModelScope.launch {
+//            filesPaths.forEach { filePath ->
+//                interactor.uploadFile(filePath).collect { uploadFile ->
+//                    when (uploadFile) {
+//                        is UploadFileDto.Progress -> {
+//                        }
+//                        is UploadFileDto.Success -> {
+//                            uploadFile.fileId
+//                        }
+//                        is UploadFileDto.Error -> {
+//                        }
+//                    }
+//                }
+//            }
+//        }
+    }
+
+    private fun uploadTreeDetail(treeDetail: EditTreeContract.TreeDetailFragmentModel) {
+        viewModelScope.launch {
+            when (treeDetail) {
+                is EditTreeContract.TreeDetailFragmentModel.NewTreeDetail -> {
+                    val result =
+                        interactor.createNewTree(treeDetail.newTreeDetail.toNewTreeDetailEntity())
+                    setEffect {
+                        return@setEffect if (result is UploadResult.Success) {
+                            EditTreeContract.TreeDetailEffect.BackOnBackStack
+                        } else {
+                            EditTreeContract.TreeDetailEffect.ShowErrorMessage
                         }
-                        is EditTreeContract.TreeDetailFragmentModel.TreeDetail -> {
-                            val result =
-                                interactor.uploadTreeDetail(event.treeDetail.treeDetail.toTreeDetailEntity())
-                            setEffect {
-                                if (result is UploadResult.Success) {
-                                    EditTreeContract.TreeDetailEffect.BackOnBackStack
-                                } else {
-                                    EditTreeContract.TreeDetailEffect.ShowErrorMessage
-                                }
-                            }
+                    }
+                }
+                is EditTreeContract.TreeDetailFragmentModel.TreeDetail -> {
+                    val result =
+                        interactor.uploadTreeDetail(treeDetail.treeDetail.toTreeDetailEntity())
+                    setEffect {
+                        return@setEffect if (result is UploadResult.Success) {
+                            EditTreeContract.TreeDetailEffect.BackOnBackStack
+                        } else {
+                            EditTreeContract.TreeDetailEffect.ShowErrorMessage
                         }
                     }
                 }

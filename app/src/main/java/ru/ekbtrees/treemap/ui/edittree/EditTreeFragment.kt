@@ -3,7 +3,6 @@ package ru.ekbtrees.treemap.ui.edittree
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -135,7 +134,6 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
         }
 
         photoAdapter = TreePhotosAdapter(
-            emptyList(),
             onItemClick = {
                 Toast.makeText(
                     requireContext(),
@@ -575,11 +573,7 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
     }
 
     override fun onImagesSelected(uris: List<Uri>, tag: String?) {
-        Log.d(TAG, "Images selected: ${uris.size} uris")
-        val imagePaths = uris.map { it.path!! }
-        viewModel.setEvent(EditTreeContract.EditTreeEvent.OnImagesSelected(imagePaths))
-        uris.forEach { uri ->
-            photoAdapter.addPhoto(uri)
-        }
+        val imagePaths = uris.map { it.toString() }
+        photoAdapter.submitList(imagePaths)
     }
 }

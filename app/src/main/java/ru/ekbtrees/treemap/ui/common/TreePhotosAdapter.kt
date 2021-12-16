@@ -1,32 +1,26 @@
 package ru.ekbtrees.treemap.ui.common
 
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.ekbtrees.treemap.R
+import ru.ekbtrees.treemap.databinding.TreePhotoItemBinding
 
-class TreePhotosAdapter(photosUris: List<Uri>, private val onItemClick: ((Uri) -> Unit)? = null) :
-    RecyclerView.Adapter<TreePhotosAdapter.ViewHolder>() {
-
-    private val _photoUris: MutableList<Uri> = photosUris.toMutableList()
-
-    fun addPhoto(photoUri: Uri) {
-        _photoUris.add(photoUri)
-        notifyItemInserted(_photoUris.size)
-    }
+class TreePhotosAdapter(private val onItemClick: ((String) -> Unit)? = null) :
+    ListAdapter<String, TreePhotosAdapter.ViewHolder>(PhotoItemDiffCallback()) {
 
     class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
-        private var image: ImageView = view.findViewById(R.id.tree_photo)
+        private val binding = TreePhotoItemBinding.bind(view)
 
-        fun bind(photoUri: Uri, onItemClick: ((Uri) -> Unit)? = null) {
-            image.setOnClickListener {
+        fun bind(photoUri: String, onItemClick: ((String) -> Unit)? = null) {
+            binding.treePhoto.setOnClickListener {
                 onItemClick?.invoke(photoUri)
             }
-            Glide.with(view).load(photoUri).into(image)
+            Glide.with(view).load(photoUri).into(binding.treePhoto)
         }
     }
 
@@ -38,8 +32,16 @@ class TreePhotosAdapter(photosUris: List<Uri>, private val onItemClick: ((Uri) -
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(photoUri = _photoUris[position], onItemClick)
+        holder.bind(photoUri = getItem(position), onItemClick)
     }
 
-    override fun getItemCount(): Int = _photoUris.size
+    class PhotoItemDiffCallback : DiffUtil.ItemCallback<String>() {
+        override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+            return oldItem == newItem
+        }
+
+        override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+            return oldItem == newItem
+        }
+    }
 }

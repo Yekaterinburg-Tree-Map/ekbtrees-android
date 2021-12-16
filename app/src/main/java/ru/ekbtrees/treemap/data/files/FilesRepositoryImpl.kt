@@ -17,12 +17,10 @@ class FilesRepositoryImpl(
 
     override suspend fun upload(filePath: String): Flow<UploadFileDto> {
         val delegate = UploadFileRequestObserverDelegate(coroutineScope)
-        MultipartUploadRequest(context, "$BASE_URL/file/upload").apply {
-            setMethod("POST")
-            addFileToUpload(filePath, parameterName = "file")
-            subscribe(context, lifecycleOwner, delegate)
-            startUpload()
-        }
+        MultipartUploadRequest(context, "$BASE_URL/file/upload")
+            .setMethod("POST")
+            .addFileToUpload(filePath, parameterName = "file")
+            .subscribe(context, lifecycleOwner, delegate)
         return delegate.flow
     }
 }
