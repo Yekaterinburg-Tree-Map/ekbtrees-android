@@ -15,7 +15,7 @@ class CommentContract {
         data class Loaded(val comments : List<CommentView>) : CommentState()
     }
     sealed class CommentEvent: UiEvent {
-        object SendCommentButtonClicked : CommentEvent()
+        data class SendCommentButtonClicked(val text: String) : CommentEvent()
     }
     class CommentEffect : UiEffect
 }

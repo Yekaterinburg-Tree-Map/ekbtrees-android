@@ -18,17 +18,16 @@ class CommentFragmentViewModel @Inject constructor(
     override fun createInitialState(): CommentContract.CommentState {
         return CommentContract.CommentState.Idle
     }
-    val commentList = ArrayList<CommentView>()
-    // Создать state
+    private val commentList = ArrayList<CommentView>()
 
 
 
     override fun handleEvent(event: UiEvent) {
-        // Событие, которое меняет state, добавляя в лист новый комментарий
-        // Добавить событие, которое будет изменять state и отправлять его во фрагмент
+
         when(event) {
             is CommentContract.CommentEvent.SendCommentButtonClicked ->{
                 viewModelScope.launch {
+                    commentList.add(CommentView("Me", event.text))
                     setState(CommentContract.CommentState.Loaded(commentList))
                 }
             }

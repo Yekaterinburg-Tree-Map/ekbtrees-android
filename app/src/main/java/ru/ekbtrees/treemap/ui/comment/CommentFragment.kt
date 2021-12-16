@@ -6,13 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentCommentBinding
 import ru.ekbtrees.treemap.ui.comment.CommentFragmentViewModel
 import ru.ekbtrees.treemap.ui.edittree.EditTreeViewModel
+import ru.ekbtrees.treemap.ui.mvi.contract.CommentContract
 
 @AndroidEntryPoint
 class CommentFragment : Fragment() {
@@ -33,8 +37,7 @@ class CommentFragment : Fragment() {
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
         binding.sendButton.setOnClickListener{
             if(!binding.editTextTextMultiLine.text.toString().equals("")) {
-                viewModel.commentList.add(CommentView("Me", binding.editTextTextMultiLine.text.toString()))
-                adapter.submitList(viewModel.commentList)
+                viewModel.handleEvent(CommentContract.CommentEvent.SendCommentButtonClicked(binding.editTextTextMultiLine.text.toString()))
                 binding.editTextTextMultiLine.text.clear()
         }
             }
@@ -46,5 +49,15 @@ class CommentFragment : Fragment() {
         val args: CommentFragmentArgs by navArgs()
         val treeId = args.treeId
         binding.treeIdView.text = treeId
+        viewLifecycleOwner.lifecycleScope.launch{
+            viewModel.uiState.collect { newState ->
+                when (newState) {
+                    is CommentContract.CommentState.Loaded -> {
+                        adapter.submitList(newState.comments)
+                    }
+                }
+
+            }
+        }
     }
 }
