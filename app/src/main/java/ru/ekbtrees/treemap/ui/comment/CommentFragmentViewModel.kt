@@ -7,9 +7,8 @@ import ru.ekbtrees.treemap.domain.interactors.TreesInteractor
 import ru.ekbtrees.treemap.ui.mvi.base.BaseViewModel
 import ru.ekbtrees.treemap.ui.mvi.base.UiEvent
 import ru.ekbtrees.treemap.ui.mvi.contract.CommentContract
-import ru.ekbtrees.treemap.ui.mvi.contract.TreeDetailContract
+import java.util.*
 import javax.inject.Inject
-import java.util.ArrayList
 
 @HiltViewModel
 class CommentFragmentViewModel @Inject constructor(
@@ -23,11 +22,10 @@ class CommentFragmentViewModel @Inject constructor(
     private val commentList = ArrayList<CommentView>()
 
 
-
     override fun handleEvent(event: UiEvent) {
 
-        when(event) {
-            is CommentContract.CommentEvent.SendCommentButtonClicked ->{
+        when (event) {
+            is CommentContract.CommentEvent.SendCommentButtonClicked -> {
                 viewModelScope.launch {
                     commentList.add(CommentView("Me", event.text))
                     setState(CommentContract.CommentState.Loaded(commentList.toList()))

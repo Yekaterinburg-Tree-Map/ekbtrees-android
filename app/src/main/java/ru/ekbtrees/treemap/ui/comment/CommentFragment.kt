@@ -1,7 +1,6 @@
 package ru.ekbtrees.treemap.ui.comment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +11,6 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.databinding.FragmentCommentBinding
 import ru.ekbtrees.treemap.ui.mvi.contract.CommentContract
@@ -50,7 +47,7 @@ class CommentFragment : Fragment() {
         val args: CommentFragmentArgs by navArgs()
         val treeId = args.treeId
         binding.treeIdView.text = treeId
-        viewLifecycleOwner.lifecycleScope.launch{
+        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { newState ->
                 when (newState) {
                     is CommentContract.CommentState.Loaded -> {
