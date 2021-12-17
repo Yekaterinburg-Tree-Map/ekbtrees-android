@@ -1,5 +1,6 @@
 package ru.ekbtrees.treemap.ui.mvi.base
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -31,6 +32,7 @@ abstract class BaseViewModel<Event : UiEvent, State : UiState, Effect : UiEffect
     }
 
     protected fun setState(state: State) {
+        Log.d(this.javaClass.simpleName, "setState - $state")
         _uiState.value = state
     }
 

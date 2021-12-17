@@ -15,9 +15,11 @@ import java.util.ArrayList
 class CommentFragmentViewModel @Inject constructor(
     private val interactor: TreesInteractor
 ) : BaseViewModel<CommentContract.CommentEvent, CommentContract.CommentState, CommentContract.CommentEffect>() {
+
     override fun createInitialState(): CommentContract.CommentState {
         return CommentContract.CommentState.Idle
     }
+
     private val commentList = ArrayList<CommentView>()
 
 
@@ -28,7 +30,7 @@ class CommentFragmentViewModel @Inject constructor(
             is CommentContract.CommentEvent.SendCommentButtonClicked ->{
                 viewModelScope.launch {
                     commentList.add(CommentView("Me", event.text))
-                    setState(CommentContract.CommentState.Loaded(commentList))
+                    setState(CommentContract.CommentState.Loaded(commentList.toList()))
                 }
             }
 
