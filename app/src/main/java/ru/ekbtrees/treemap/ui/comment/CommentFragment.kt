@@ -46,7 +46,7 @@ class CommentFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val args: CommentFragmentArgs by navArgs()
         val treeId = args.treeId
-        binding.treeIdView.text = treeId
+//        binding.treeIdView.text = treeId
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { newState ->
                 when (newState) {
