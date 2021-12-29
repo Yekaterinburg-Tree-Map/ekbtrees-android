@@ -18,6 +18,15 @@ fun LatLonDto.toLatLonEntity(): LatLonEntity {
     return LatLonEntity(lat = lat, lon = lon)
 }
 
+fun TreeCommentDto.toTreeCommentEntity(): TreeCommentEntity {
+    return TreeCommentEntity(
+        id = id,
+        authorId = authorId ?: 0,
+        text = text,
+        createTime = createTime
+    )
+}
+
 fun TreeDetailDto.toTreeDetailEntity(): TreeDetailEntity {
     return TreeDetailEntity(
         id = id.toString(),
@@ -85,5 +94,22 @@ fun NewTreeDetailEntity.toNewTreeDetailDto(): NewTreeDetailDto {
         authorId = authorId,
         status = status,
         fileIds = fileIds as List<Int>
+    )
+}
+
+fun TreeCommentEntity.toTreeCommentDto(): TreeCommentDto{
+    return TreeCommentDto(
+        id = id,
+        authorId = authorId,
+        text = text,
+        createTime = createTime
+    )
+}
+
+fun NewTreeCommentEntity.toNewTreeCommentDto(): NewTreeCommentDto {
+    return NewTreeCommentDto(
+        authorId = authorId,
+        text = text,
+        createTime = createTime
     )
 }

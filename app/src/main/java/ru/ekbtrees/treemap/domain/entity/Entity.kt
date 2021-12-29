@@ -51,3 +51,7 @@ data class SpeciesEntity(val id: String, val color: Int, val name: String)
 data class LatLonEntity(val lat: Double, val lon: Double)
 
 data class RegionBoundsEntity(val topLeft: LatLonEntity, val bottomRight: LatLonEntity)
+
+data class TreeCommentEntity(val id: String, val authorId: Int?, val text: String, val createTime: String)
+
+data class NewTreeCommentEntity(val authorId: Int?, val text: String, val createTime: String)
