@@ -12,7 +12,6 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -38,7 +37,7 @@ object NetworkModule {
         }
 
     @Provides
-    fun provideTokenInterceptor(): Interceptor {
+    fun provideTokenInterceptor(): TokenInterceptor {
         return TokenInterceptor()
     }
 

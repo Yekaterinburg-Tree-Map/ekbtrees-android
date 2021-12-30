@@ -134,21 +134,23 @@ class EditTreeViewModel @Inject constructor(
         //treeDetail: EditTreeContract.TreeDetailFragmentModel,
         filesPaths: List<String>
     ) {
-//        viewModelScope.launch {
-//            filesPaths.forEach { filePath ->
-//                interactor.uploadFile(filePath).collect { uploadFile ->
-//                    when (uploadFile) {
-//                        is UploadFileDto.Progress -> {
-//                        }
-//                        is UploadFileDto.Success -> {
-//                            uploadFile.fileId
-//                        }
-//                        is UploadFileDto.Error -> {
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        viewModelScope.launch {
+            filesPaths.forEach { filePath ->
+                interactor.uploadFile(filePath).collect { uploadFile ->
+                    when (uploadFile) {
+                        is UploadFileDto.Progress -> {
+                        }
+                        is UploadFileDto.Success -> {
+                            Log.d("file_upload", "successful: ${uploadFile.fileId}")
+                        }
+                        is UploadFileDto.Error -> {
+                            Log.e("file_upload", "FAILED")
+                            uploadFile.throwable.printStackTrace()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun uploadTreeDetail(treeDetail: EditTreeContract.TreeDetailFragmentModel) {

@@ -575,5 +575,6 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
     override fun onImagesSelected(uris: List<Uri>, tag: String?) {
         val imagePaths = uris.map { it.toString() }
         photoAdapter.submitList(imagePaths)
+        viewModel.setEvent(EditTreeContract.EditTreeEvent.OnImagesSelected(imagePaths))
     }
 }
