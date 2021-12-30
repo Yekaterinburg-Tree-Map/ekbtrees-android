@@ -9,6 +9,10 @@ import ru.ekbtrees.treemap.ui.mvi.base.UiEvent
 import ru.ekbtrees.treemap.ui.mvi.contract.CommentContract
 import java.util.*
 import javax.inject.Inject
+import android.R.array
+
+
+
 
 @HiltViewModel
 class CommentFragmentViewModel @Inject constructor(
@@ -23,11 +27,11 @@ class CommentFragmentViewModel @Inject constructor(
 
 
     override fun handleEvent(event: UiEvent) {
-
+        var arr = arrayOf("Me", "Another User")
         when (event) {
             is CommentContract.CommentEvent.SendCommentButtonClicked -> {
                 viewModelScope.launch {
-                    commentList.add(CommentView("Me", event.text))
+                    commentList.add(CommentView(arr[Random().nextInt(arr.size)], event.text))
                     setState(CommentContract.CommentState.Loaded(commentList.toList()))
                 }
             }
