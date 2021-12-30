@@ -51,3 +51,22 @@ data class SpeciesUIModel(
     val color: Int,
     val name: String
 ) : Parcelable
+
+@Parcelize
+data class TreeCommentUIModel(
+    val id: String,
+    val treeId: String,
+    val authorId: String,
+    val text: String,
+    val createTime: String,
+    val updateTime: String?
+) : Parcelable
+
+@Parcelize
+data class NewTreeCommentUIModel(
+    val treeId: String,
+    val authorId: String,
+    val text: String,
+    val createTime: String,
+    val updateTime: String?
+) : Parcelable

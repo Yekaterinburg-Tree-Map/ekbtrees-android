@@ -30,7 +30,7 @@ class CommentRecyclerAdapter: ListAdapter<CommentView, RecyclerView.ViewHolder>(
 
     class AnotherUserCommentHolder(private val binding: CommentItemAnotherUserBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(comm: CommentView) = with(binding){
-            anotherCommentTextView.text = comm.commText
+            commentTextView.text = comm.commText
             userName.text = comm.userName
         }
         companion object{
@@ -53,26 +53,26 @@ class CommentRecyclerAdapter: ListAdapter<CommentView, RecyclerView.ViewHolder>(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (getItemViewType(position) == 0)
-        {
-            var anotherUserComment: AnotherUserCommentHolder = holder as AnotherUserCommentHolder
-            anotherUserComment.bind(getItem(position))
-        }
-        else
-        {
-            var currentUserComment: CommentHolder = holder as CommentHolder
-            currentUserComment.bind(getItem(position))
+        when(holder) {
+            is AnotherUserCommentHolder -> holder.bind(getItem(position))
+            is CommentHolder -> holder.bind(getItem(position))
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        if(viewType == 0)
-        {
+        if (viewType == 0) {
             return AnotherUserCommentHolder.create(parent)
-        }
-        else
-        {
+        } else {
             return CommentHolder.create(parent)
+        }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        val name = getItem(position).userName
+        if (name == Constants.UsersNames.ANOTHER_USER.name){
+            return 0
+        } else{
+            return 1
         }
     }
 }

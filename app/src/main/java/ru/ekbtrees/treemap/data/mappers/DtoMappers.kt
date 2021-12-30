@@ -3,6 +3,7 @@ package ru.ekbtrees.treemap.data.mappers
 import android.graphics.Color
 import ru.ekbtrees.treemap.data.dto.*
 import ru.ekbtrees.treemap.domain.entity.*
+import ru.ekbtrees.treemap.domain.entity.commentsEntity.*
 
 fun MapTreeDto.toTreeEntity(speciesEntity: SpeciesEntity): TreeEntity {
     val latLonEntity = coord.toLatLonEntity()
@@ -16,15 +17,6 @@ fun ClusterTreesDto.toClusterTreeEntity(): ClusterTreesEntity {
 
 fun LatLonDto.toLatLonEntity(): LatLonEntity {
     return LatLonEntity(lat = lat, lon = lon)
-}
-
-fun TreeCommentDto.toTreeCommentEntity(): TreeCommentEntity {
-    return TreeCommentEntity(
-        id = id,
-        authorId = authorId ?: 0,
-        text = text,
-        createTime = createTime
-    )
 }
 
 fun TreeDetailDto.toTreeDetailEntity(): TreeDetailEntity {
@@ -100,16 +92,42 @@ fun NewTreeDetailEntity.toNewTreeDetailDto(): NewTreeDetailDto {
 fun TreeCommentEntity.toTreeCommentDto(): TreeCommentDto{
     return TreeCommentDto(
         id = id,
+        treeId = treeId,
         authorId = authorId,
         text = text,
-        createTime = createTime
+        createTime = createTime,
+        updateTime = updateTime
     )
 }
 
 fun NewTreeCommentEntity.toNewTreeCommentDto(): NewTreeCommentDto {
     return NewTreeCommentDto(
+        treeId = treeId,
         authorId = authorId,
         text = text,
-        createTime = createTime
+        createTime = createTime,
+        updateTime = updateTime
+    )
+}
+
+fun TreeCommentDto.toTreeCommentEntity(): TreeCommentEntity {
+    return TreeCommentEntity(
+        id = id,
+        treeId = treeId,
+        authorId = authorId,
+        text = text,
+        createTime = createTime,
+        updateTime = updateTime
+    )
+}
+
+
+fun NewTreeCommentDto.toNewTreeCommentEntity(): NewTreeCommentEntity {
+    return NewTreeCommentEntity(
+        treeId = treeId,
+        authorId = authorId,
+        text = text,
+        createTime = createTime,
+        updateTime = updateTime
     )
 }

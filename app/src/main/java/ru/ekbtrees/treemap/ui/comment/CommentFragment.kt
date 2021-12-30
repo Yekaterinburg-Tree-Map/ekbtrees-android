@@ -46,12 +46,13 @@ class CommentFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val args: CommentFragmentArgs by navArgs()
         val treeId = args.treeId
-//        binding.treeIdView.text = treeId
+        viewModel.provideTreeId(treeId)
+        viewModel.handleEvent(CommentContract.CommentEvent.Load(treeId))
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { newState ->
                 when (newState) {
                     is CommentContract.CommentState.Loaded -> {
-                        adapter.submitList(newState.comments)
+                        adapter.submitList(viewModel.commentList)
                     }
                 }
 

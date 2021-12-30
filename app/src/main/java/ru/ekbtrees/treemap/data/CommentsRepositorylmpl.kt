@@ -3,18 +3,22 @@ package ru.ekbtrees.treemap.data
 import ru.ekbtrees.treemap.data.api.CommentApiService
 import ru.ekbtrees.treemap.data.mappers.*
 import ru.ekbtrees.treemap.data.result.RetrofitResult
-import ru.ekbtrees.treemap.domain.entity.NewTreeCommentEntity
-import ru.ekbtrees.treemap.domain.entity.TreeCommentEntity
+import ru.ekbtrees.treemap.domain.entity.commentsEntity.*
 import ru.ekbtrees.treemap.domain.repositories.CommentsRepository
 import ru.ekbtrees.treemap.domain.repositories.UploadResult
 
 class CommentsRepositorylmpl(
     private val commentApiService: CommentApiService
     ) : CommentsRepository {
-    override suspend fun getTreeCommentBy(id: String): TreeCommentEntity {
-        when(val result = commentApiService.getTreeCommentBy(treeId = id.toInt())){
+    override suspend fun getTreeCommentBy(id: String): List<TreeCommentEntity> {
+        val result = commentApiService.getTreeCommentBy(id)
+        when(result){
             is RetrofitResult.Success -> {
-                return result.value.toTreeCommentEntity()
+                val treeCommentEntityList = mutableListOf<TreeCommentEntity>()
+                for (comm in result.value) {
+                    treeCommentEntityList.add(comm.toTreeCommentEntity())
+                }
+                return treeCommentEntityList
             }
             is RetrofitResult.Failure<*> -> {
                 error(result)
@@ -35,9 +39,8 @@ class CommentsRepositorylmpl(
         }
     }
 
-    override suspend fun updateTreeComment(treeCommentEntity: TreeCommentEntity): UploadResult {
-        val treeCommentDto = treeCommentEntity.toTreeCommentDto()
-        return when(commentApiService.updateTreeComment(treeCommentDto)){
+    override suspend fun updateTreeComment(id: String): UploadResult {
+        return when(commentApiService.updateTreeComment(id)){
             is RetrofitResult.Success -> {
                 UploadResult.Success
             }
@@ -47,8 +50,15 @@ class CommentsRepositorylmpl(
         }
     }
 
-    override suspend fun deleteTreeComment(): UploadResult {
-        TODO("Not yet implemented")
+    override suspend fun deleteTreeComment(id: String): UploadResult {
+        return when(commentApiService.deleteTreeComment(id)) {
+            is RetrofitResult.Success -> {
+                UploadResult.Success
+            }
+            is RetrofitResult.Failure<*> -> {
+                UploadResult.Failure
+            }
+        }
     }
 
 

@@ -6,21 +6,23 @@ import ru.ekbtrees.treemap.data.dto.TreeCommentDto
 import ru.ekbtrees.treemap.data.result.RetrofitResult
 
 interface CommentApiService {
-    @GET("tree/comment/get/{id}")
+    @GET("comment/by-tree/{treeId}")
     suspend fun getTreeCommentBy(
-        @Path("id") treeId: Int
-    ): RetrofitResult<TreeCommentDto>
+        @Path("treeId") id: String
+    ): RetrofitResult<List<TreeCommentDto>>
 
-    @POST("tree/comment/save")
+    @POST("comment")
     suspend fun saveTreeComment(
         @Body treeCommentDto: NewTreeCommentDto
     ): RetrofitResult<Unit>
 
-    @PUT("tree/comment/update")
+    @PUT("comment/{id}")
     suspend fun updateTreeComment(
-        @Body treeCommentDto: TreeCommentDto
+        @Path("id") id: String
     ): RetrofitResult<Unit>
 
-    @DELETE("tree/comment/delete")
-    suspend fun deleteTreeComment(): RetrofitResult<Unit>
+    @DELETE("comment/{id}")
+    suspend fun deleteTreeComment(
+        @Path("id") id: String
+    ): RetrofitResult<Unit>
 }

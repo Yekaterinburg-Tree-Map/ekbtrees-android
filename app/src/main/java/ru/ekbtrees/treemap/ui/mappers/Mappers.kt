@@ -2,10 +2,8 @@ package ru.ekbtrees.treemap.ui.mappers
 
 import com.google.android.gms.maps.model.LatLng
 import ru.ekbtrees.treemap.domain.entity.*
-import ru.ekbtrees.treemap.ui.model.NewTreeDetailUIModel
-import ru.ekbtrees.treemap.ui.model.RegionBoundsUIModel
-import ru.ekbtrees.treemap.ui.model.SpeciesUIModel
-import ru.ekbtrees.treemap.ui.model.TreeDetailUIModel
+import ru.ekbtrees.treemap.domain.entity.commentsEntity.*
+import ru.ekbtrees.treemap.ui.model.*
 
 fun LatLonEntity.toLatLng(): LatLng {
     return LatLng(lat, lon)
@@ -78,3 +76,41 @@ fun TreeDetailEntity.toTreeDetailUIModel(): TreeDetailUIModel =
     )
 
 fun SpeciesEntity.toSpeciesUIModel(): SpeciesUIModel = SpeciesUIModel(id, color, name)
+
+fun TreeCommentUIModel.toTreeCommentEntity(): TreeCommentEntity =
+    TreeCommentEntity(
+        id = id,
+        treeId = treeId,
+        authorId = authorId,
+        text = text,
+        createTime = createTime,
+        updateTime = updateTime
+    )
+
+fun TreeCommentEntity.toTreeCommentUIModel(): TreeCommentUIModel =
+    TreeCommentUIModel(
+        id = id,
+        treeId = treeId,
+        authorId = authorId,
+        text = text,
+        createTime = createTime,
+        updateTime = updateTime
+    )
+
+fun NewTreeCommentUIModel.toNewCommentEntity(): NewTreeCommentEntity =
+    NewTreeCommentEntity(
+        treeId = treeId,
+        authorId = authorId,
+        text = text,
+        createTime = createTime,
+        updateTime = updateTime
+    )
+
+fun NewTreeCommentEntity.toNewCommentUIModel(): NewTreeCommentUIModel =
+    NewTreeCommentUIModel(
+        treeId = treeId,
+        authorId = authorId,
+        text = text,
+        createTime = createTime,
+        updateTime = updateTime
+    )

@@ -3,39 +3,77 @@ package ru.ekbtrees.treemap.ui.comment
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import ru.ekbtrees.treemap.domain.interactors.TreesInteractor
 import ru.ekbtrees.treemap.ui.mvi.base.BaseViewModel
 import ru.ekbtrees.treemap.ui.mvi.base.UiEvent
 import ru.ekbtrees.treemap.ui.mvi.contract.CommentContract
 import java.util.*
 import javax.inject.Inject
-import android.R.array
-
-
+import ru.ekbtrees.treemap.domain.interactors.CommentInteractor
+import ru.ekbtrees.treemap.domain.repositories.UploadResult
+import ru.ekbtrees.treemap.ui.mappers.toNewCommentEntity
+import ru.ekbtrees.treemap.ui.model.NewTreeCommentUIModel
 
 
 @HiltViewModel
 class CommentFragmentViewModel @Inject constructor(
-    private val interactor: TreesInteractor
+    private val interactor: CommentInteractor
 ) : BaseViewModel<CommentContract.CommentEvent, CommentContract.CommentState, CommentContract.CommentEffect>() {
 
     override fun createInitialState(): CommentContract.CommentState {
         return CommentContract.CommentState.Idle
     }
 
-    private val commentList = ArrayList<CommentView>()
+    val commentList = ArrayList<CommentView>()
+    private lateinit var currTreeId: String
 
+    fun provideTreeId(treeId: String) {
+        currTreeId = treeId
+    }
 
     override fun handleEvent(event: UiEvent) {
-        var arr = arrayOf("Me", "Another User")
+        val arr = arrayOf(Constants.UsersNames.ME.name, Constants.UsersNames.ANOTHER_USER.name)
         when (event) {
+            is CommentContract.CommentEvent.Load -> {
+                viewModelScope.launch {
+                    setState(CommentContract.CommentState.Loading)
+                    try {
+                        val treeComments = interactor.getTreeCommentBy(currTreeId)
+                        setState(CommentContract.CommentState.Loaded(treeComments))
+                    } catch (e: Exception) {
+                        setState((CommentContract.CommentState.Error))
+                    }
+                }
+            }
             is CommentContract.CommentEvent.SendCommentButtonClicked -> {
                 viewModelScope.launch {
-                    commentList.add(CommentView(arr[Random().nextInt(arr.size)], event.text))
-                    setState(CommentContract.CommentState.Loaded(commentList.toList()))
+                    setState(CommentContract.CommentState.Loading)
+                    val randIndex = Random().nextInt(arr.size)
+                    val result = interactor.saveTreeComment(
+                        getNewTreeCommentUIModel(event.text, arr[randIndex]).toNewCommentEntity())
+                    setEffect {
+                        if (result is UploadResult.Success) {
+                            CommentContract.CommentEffect.BackOnBackStack
+                        } else {
+                            CommentContract.CommentEffect.ShowErrorMessage
+                        }
+                    }
+                    commentList.add(CommentView(arr[randIndex], event.text))
+                    val list = interactor.getTreeCommentBy(currTreeId)
+                    setState(CommentContract.CommentState.Loaded(list))
                 }
             }
 
         }
     }
+
+    private fun getNewTreeCommentUIModel(text: String, authorId: String) : NewTreeCommentUIModel {
+        return NewTreeCommentUIModel(
+            treeId = currTreeId,
+            authorId = authorId,
+            text = text,
+            createTime = System.currentTimeMillis().toString(),
+            updateTime = null
+        )
+    }
+
 }

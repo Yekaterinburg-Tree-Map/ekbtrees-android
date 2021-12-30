@@ -105,19 +105,27 @@ data class NewTreeDetailDto(
 data class TreeCommentDto(
     @SerializedName("id")
     val id: String,
+    @SerializedName("treeId")
+    val treeId: String,
     @SerializedName("authorId")
-    val authorId: Int?,
+    val authorId: String,
     @SerializedName("text")
     val text: String,
     @SerializedName("created")
-    val createTime: String
+    val createTime: String,
+    @SerializedName("updated")
+    val updateTime: String?
 )
 
 data class NewTreeCommentDto(
+    @SerializedName("treeId")
+    val treeId: String,
     @SerializedName("authorId")
-    val authorId: Int?,
+    val authorId: String,
     @SerializedName("text")
     val text: String,
     @SerializedName("created")
-    val createTime: String
+    val createTime: String,
+    @SerializedName("updated")
+    val updateTime: String?
 )
