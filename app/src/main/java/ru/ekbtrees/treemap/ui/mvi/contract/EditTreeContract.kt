@@ -1,5 +1,6 @@
 package ru.ekbtrees.treemap.ui.mvi.contract
 
+import android.graphics.Bitmap
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import ru.ekbtrees.treemap.ui.mvi.base.UiEffect
@@ -41,7 +42,7 @@ class EditTreeContract {
 
         class OnImagesSelected(
             //val treeDetail: TreeDetailFragmentModel,
-            val filesPaths: List<String>
+            val image: List<Bitmap>
         ) : EditTreeEvent()
     }
 

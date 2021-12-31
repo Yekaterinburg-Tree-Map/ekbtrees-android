@@ -1,5 +1,6 @@
 package ru.ekbtrees.treemap.ui.edittree
 
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,7 +12,7 @@ import ru.ekbtrees.treemap.constants.NetworkConstants
 import ru.ekbtrees.treemap.data.files.dto.UploadFileDto
 import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
 import ru.ekbtrees.treemap.domain.interactors.TreesInteractor
-import ru.ekbtrees.treemap.domain.repositories.UploadResult
+import ru.ekbtrees.treemap.domain.utils.UploadResult
 import ru.ekbtrees.treemap.ui.mappers.toNewTreeDetailEntity
 import ru.ekbtrees.treemap.ui.mappers.toSpeciesUIModel
 import ru.ekbtrees.treemap.ui.mappers.toTreeDetailEntity
@@ -125,30 +126,36 @@ class EditTreeViewModel @Inject constructor(
                 uploadTreeDetail(event.treeDetail)
             }
             is EditTreeContract.EditTreeEvent.OnImagesSelected -> {
-                uploadFiles(event.filesPaths)
+                uploadFiles(event.image)
             }
         }
     }
 
     private fun uploadFiles(
         //treeDetail: EditTreeContract.TreeDetailFragmentModel,
-        filesPaths: List<String>
+        filesPaths: List<Bitmap>
     ) {
         viewModelScope.launch {
             filesPaths.forEach { filePath ->
-                interactor.uploadFile(filePath).collect { uploadFile ->
-                    when (uploadFile) {
-                        is UploadFileDto.Progress -> {
-                        }
-                        is UploadFileDto.Success -> {
-                            Log.d("file_upload", "successful: ${uploadFile.fileId}")
-                        }
-                        is UploadFileDto.Error -> {
-                            Log.e("file_upload", "FAILED")
-                            uploadFile.throwable.printStackTrace()
-                        }
+                when (interactor.sendFile(filePath)) {
+                    UploadResult.Success -> {
+                    }
+                    UploadResult.Failure -> {
                     }
                 }
+//                interactor.uploadFile(filePath).collect { uploadFile ->
+//                    when (uploadFile) {
+//                        is UploadFileDto.Progress -> {
+//                        }
+//                        is UploadFileDto.Success -> {
+//                            Log.d("file_upload", "successful: ${uploadFile.fileId}")
+//                        }
+//                        is UploadFileDto.Error -> {
+//                            Log.e("file_upload", "FAILED")
+//                            uploadFile.throwable.printStackTrace()
+//                        }
+//                    }
+//                }
             }
         }
     }

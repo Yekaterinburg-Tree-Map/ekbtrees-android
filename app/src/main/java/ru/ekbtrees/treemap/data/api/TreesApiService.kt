@@ -1,5 +1,6 @@
 package ru.ekbtrees.treemap.data.api
 
+import okhttp3.MultipartBody
 import retrofit2.http.*
 import ru.ekbtrees.treemap.data.dto.*
 import ru.ekbtrees.treemap.data.result.RetrofitResult
@@ -39,4 +40,10 @@ interface TreesApiService {
     suspend fun createNewTreeDetail(
         @Body treeDetailDto: NewTreeDetailDto
     ): RetrofitResult<Unit>
+
+    @POST("file/upload")
+    @Multipart
+    suspend fun sendFile(
+        @Part body: MultipartBody.Part
+    ): RetrofitResult<String>
 }

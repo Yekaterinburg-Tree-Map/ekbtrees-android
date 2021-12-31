@@ -1,5 +1,6 @@
 package ru.ekbtrees.treemap.ui.edittree
 
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -68,7 +69,6 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
         val args: EditTreeFragmentArgs by navArgs()
         viewModel.provideInstanceValue(args.instanceValue)
         observeViewModel()
-
         binding.conditionAssessmentValue.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -575,6 +575,8 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
     override fun onImagesSelected(uris: List<Uri>, tag: String?) {
         val imagePaths = uris.map { it.toString() }
         photoAdapter.submitList(imagePaths)
-        viewModel.setEvent(EditTreeContract.EditTreeEvent.OnImagesSelected(imagePaths))
+        val stream = requireContext().contentResolver.openInputStream(uris.first())
+        val bitmap = BitmapFactory.decodeStream(stream)
+        viewModel.setEvent(EditTreeContract.EditTreeEvent.OnImagesSelected(listOf(bitmap)))
     }
 }

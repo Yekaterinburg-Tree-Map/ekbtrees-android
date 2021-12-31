@@ -1,11 +1,12 @@
 package ru.ekbtrees.treemap.domain.interactors
 
+import android.graphics.Bitmap
 import kotlinx.coroutines.flow.Flow
 import ru.ekbtrees.treemap.data.files.dto.UploadFileDto
 import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.repositories.FilesRepository
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
-import ru.ekbtrees.treemap.domain.repositories.UploadResult
+import ru.ekbtrees.treemap.domain.utils.UploadResult
 
 class TreesInteractorImpl(
     private val treesRepository: TreesRepository,
@@ -46,5 +47,9 @@ class TreesInteractorImpl(
 
     override suspend fun uploadFile(filePath: String): Flow<UploadFileDto> {
         return filesRepository.upload(filePath)
+    }
+
+    override suspend fun sendFile(image: Bitmap): UploadResult {
+        return treesRepository.sendFile(image)
     }
 }
