@@ -31,14 +31,13 @@ class CommentFragmentViewModel @Inject constructor(
     }
 
     override fun handleEvent(event: UiEvent) {
-        val arr = arrayOf(Constants.UsersNames.ME.name, Constants.UsersNames.ANOTHER_USER.name)
         when (event) {
             is CommentContract.CommentEvent.Load -> {
                 viewModelScope.launch {
                     setState(CommentContract.CommentState.Loading)
                     try {
                         val treeComments = interactor.getTreeCommentBy(currTreeId)
-                        setState(CommentContract.CommentState.Loaded(treeComments))
+                        setState(CommentContract.CommentState.Loaded(treeComments.toList()))
                     } catch (e: Exception) {
                         setState((CommentContract.CommentState.Error))
                     }
@@ -47,23 +46,27 @@ class CommentFragmentViewModel @Inject constructor(
             is CommentContract.CommentEvent.SendCommentButtonClicked -> {
                 viewModelScope.launch {
                     setState(CommentContract.CommentState.Loading)
-                    val randIndex = Random().nextInt(arr.size)
-                    val result = interactor.saveTreeComment(
-                        getNewTreeCommentUIModel(event.text, arr[randIndex]).toNewCommentEntity())
-                    setEffect {
-                        if (result is UploadResult.Success) {
-                            CommentContract.CommentEffect.BackOnBackStack
-                        } else {
-                            CommentContract.CommentEffect.ShowErrorMessage
-                        }
-                    }
-                    commentList.add(CommentView(arr[randIndex], event.text))
-                    val list = interactor.getTreeCommentBy(currTreeId)
-                    setState(CommentContract.CommentState.Loaded(list))
+                    saveNewComment(event.text)
+                    setEvent(CommentContract.CommentEvent.Load(currTreeId))
                 }
             }
 
         }
+    }
+
+    private suspend fun saveNewComment(commText: String){
+        val arr = arrayOf(Constants.UsersNames.ME.name, Constants.UsersNames.ANOTHER_USER.name)
+        val randIndex = Random().nextInt(arr.size)
+        val result = interactor.saveTreeComment(
+            getNewTreeCommentUIModel(commText, arr[randIndex]).toNewCommentEntity())
+        setEffect {
+            if (result is UploadResult.Success) {
+                CommentContract.CommentEffect.BackOnBackStack
+            } else {
+                CommentContract.CommentEffect.ShowErrorMessage
+            }
+        }
+        commentList.add(CommentView(arr[randIndex], commText))
     }
 
     private fun getNewTreeCommentUIModel(text: String, authorId: String) : NewTreeCommentUIModel {
