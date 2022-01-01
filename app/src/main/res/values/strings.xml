@@ -55,4 +55,7 @@
     <string name="loading_error_massage">Error while loading data</string>
     <string name="try_again">Try again</string>
     <string name="comment">Comment</string>
+    <string name="comments">comments</string>
+    <string name="topAppBar">topAppBar</string>
+    <string name="t">" "</string>
 </resources>

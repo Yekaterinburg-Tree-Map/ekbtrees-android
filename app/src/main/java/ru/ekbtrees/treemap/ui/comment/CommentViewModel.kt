@@ -15,7 +15,7 @@ import ru.ekbtrees.treemap.ui.model.NewTreeCommentUIModel
 
 
 @HiltViewModel
-class CommentFragmentViewModel @Inject constructor(
+class CommentViewModel @Inject constructor(
     private val interactor: CommentInteractor
 ) : BaseViewModel<CommentContract.CommentEvent, CommentContract.CommentState, CommentContract.CommentEffect>() {
 

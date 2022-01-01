@@ -256,7 +256,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="24dp"
                 android:layout_marginTop="12dp"
-                android:text="comments" />
+                android:text="@string/comments" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

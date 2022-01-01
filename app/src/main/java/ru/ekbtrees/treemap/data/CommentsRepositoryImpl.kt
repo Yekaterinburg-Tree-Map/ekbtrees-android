@@ -7,19 +7,12 @@ import ru.ekbtrees.treemap.domain.entity.commentsEntity.*
 import ru.ekbtrees.treemap.domain.repositories.CommentsRepository
 import ru.ekbtrees.treemap.domain.repositories.UploadResult
 
-class CommentsRepositorylmpl(
+class CommentsRepositoryImpl(
     private val commentApiService: CommentApiService
     ) : CommentsRepository {
     override suspend fun getTreeCommentBy(id: String): List<TreeCommentEntity> {
-        val result = commentApiService.getTreeCommentBy(id)
-        when(result){
-            is RetrofitResult.Success -> {
-                val treeCommentEntityList = mutableListOf<TreeCommentEntity>()
-                for (comm in result.value) {
-                    treeCommentEntityList.add(comm.toTreeCommentEntity())
-                }
-                return treeCommentEntityList
-            }
+        when(val result = commentApiService.getTreeCommentBy(id)){
+            is RetrofitResult.Success -> return result.value.map { comment -> comment.toTreeCommentEntity() }
             is RetrofitResult.Failure<*> -> {
                 error(result)
             }

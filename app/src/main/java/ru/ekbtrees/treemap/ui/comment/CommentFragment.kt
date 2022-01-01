@@ -19,7 +19,7 @@ import ru.ekbtrees.treemap.ui.mvi.contract.CommentContract
 class CommentFragment : Fragment() {
     private lateinit var binding: FragmentCommentBinding
     private val adapter = CommentRecyclerAdapter()
-    private val viewModel: CommentFragmentViewModel by viewModels()
+    private val viewModel: CommentViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,13 +50,35 @@ class CommentFragment : Fragment() {
         viewModel.handleEvent(CommentContract.CommentEvent.Load(treeId))
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { newState ->
+                cleanUI()
                 when (newState) {
                     is CommentContract.CommentState.Loaded -> {
                         adapter.submitList(viewModel.commentList)
+                    }
+                    is CommentContract.CommentState.Error -> {
+                        onErrorState()
+                    }
+                    is CommentContract.CommentState.Idle -> {
+                    }
+                    is CommentContract.CommentState.Loading -> {
+                        onDataLoadingState()
                     }
                 }
 
             }
         }
+    }
+
+    private fun cleanUI() {
+        binding.loadingContent.visibility = View.GONE
+        binding.errorContent.visibility = View.GONE
+    }
+
+    private fun onDataLoadingState() {
+        binding.loadingContent.visibility = View.VISIBLE
+    }
+
+    private fun onErrorState() {
+        binding.errorContent.visibility = View.VISIBLE
     }
 }
