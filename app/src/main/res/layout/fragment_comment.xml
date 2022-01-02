@@ -6,26 +6,29 @@
     android:layout_height="match_parent"
     tools:context=".ui.treedetail.TreeDetailFragment">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="100">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:liftOnScroll="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        >
+        app:liftOnScroll="true">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
-            app:title="@string/comments"
             style="@style/Widget.MaterialComponents.ActionBar.Primary"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|enterAlways"
             app:navigationIcon="@drawable/ic_arrow_back_24"
+            app:title="@string/comments"
             app:titleTextColor="@android:color/white" />
-
 
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -88,46 +91,52 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
     <!-- END Error UI state -->
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/sendButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBar">
 
-    </androidx.recyclerview.widget.RecyclerView>
 
-    <Button
-        android:id="@+id/sendButton"
-        android:layout_width="45dp"
-        android:layout_height="90dp"
-        android:drawableBottom="@drawable/ic_airplane"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/editTextTextMultiLine"
-        app:layout_constraintTop_toBottomOf="@+id/recyclerView"
-        tools:ignore="SpeakableTextPresentCheck" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="85">
 
-    <EditText
-        android:id="@+id/editTextTextMultiLine"
-        android:layout_width="366dp"
-        android:layout_height="79dp"
-        android:autofillHints="place for your comment"
-        android:background="@drawable/comment_input_design"
-        android:backgroundTint="#546C6C6C"
-        android:ems="10"
-        android:gravity="start|top"
-        android:hint="@string/comment"
-        android:inputType="textMultiLine"
-        android:singleLine="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/sendButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recyclerView" />
+        </androidx.recyclerview.widget.RecyclerView>
 
+
+        <LinearLayout
+            android:id="@+id/sendForm"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_margin="10dp"
+            android:layout_weight="15"
+            android:orientation="horizontal">
+
+
+            <EditText
+                android:id="@+id/editTextTextMultiLine"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="6"
+                android:autofillHints="place for your comment"
+                android:background="@drawable/comment_input_design"
+                android:backgroundTint="#546C6C6C"
+                android:gravity="start|top"
+                android:padding="5dp"
+                android:hint="@string/comment"
+                android:inputType="textMultiLine"
+                android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/sendButton"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:drawableBottom="@drawable/ic_airplane"
+                android:layout_margin="0dp"
+                android:layout_gravity="fill_vertical"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+        </LinearLayout>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

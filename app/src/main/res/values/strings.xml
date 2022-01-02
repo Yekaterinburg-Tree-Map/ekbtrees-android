@@ -58,4 +58,6 @@
     <string name="comments">comments</string>
     <string name="topAppBar">topAppBar</string>
     <string name="t">" "</string>
+    <string name="Some_comment">Some comment</string>
+    <string name="user_name">user name</string>
 </resources>

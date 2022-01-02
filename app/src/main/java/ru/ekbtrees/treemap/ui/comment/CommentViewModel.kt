@@ -57,15 +57,8 @@ class CommentViewModel @Inject constructor(
     private suspend fun saveNewComment(commText: String){
         val arr = arrayOf(Constants.UsersNames.ME.name, Constants.UsersNames.ANOTHER_USER.name)
         val randIndex = Random().nextInt(arr.size)
-        val result = interactor.saveTreeComment(
+        interactor.saveTreeComment(
             getNewTreeCommentUIModel(commText, arr[randIndex]).toNewCommentEntity())
-        setEffect {
-            if (result is UploadResult.Success) {
-                CommentContract.CommentEffect.BackOnBackStack
-            } else {
-                CommentContract.CommentEffect.ShowErrorMessage
-            }
-        }
         commentList.add(CommentView(arr[randIndex], commText))
     }
 
