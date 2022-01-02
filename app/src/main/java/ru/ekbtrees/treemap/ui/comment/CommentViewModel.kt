@@ -33,24 +33,24 @@ class CommentViewModel @Inject constructor(
     override fun handleEvent(event: UiEvent) {
         when (event) {
             is CommentContract.CommentEvent.Load -> {
-                viewModelScope.launch {
-                    setState(CommentContract.CommentState.Loading)
-                    try {
-                        val treeComments = interactor.getTreeCommentBy(currTreeId)
-                        setState(CommentContract.CommentState.Loaded(treeComments.toList()))
-                    } catch (e: Exception) {
-                        setState((CommentContract.CommentState.Error))
-                    }
-                }
+                viewModelScope.launch { loadNewComment() }
             }
             is CommentContract.CommentEvent.SendCommentButtonClicked -> {
                 viewModelScope.launch {
-                    setState(CommentContract.CommentState.Loading)
                     saveNewComment(event.text)
-                    setEvent(CommentContract.CommentEvent.Load(currTreeId))
+                    loadNewComment()
                 }
             }
 
+        }
+    }
+
+    private suspend fun loadNewComment() {
+        try {
+            val treeComments = interactor.getTreeCommentBy(currTreeId)
+            setState(CommentContract.CommentState.Loaded(treeComments.toList()))
+        } catch (e: Exception) {
+            setState((CommentContract.CommentState.Error))
         }
     }
 
