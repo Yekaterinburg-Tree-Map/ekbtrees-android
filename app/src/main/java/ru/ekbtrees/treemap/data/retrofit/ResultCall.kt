@@ -1,11 +1,13 @@
 package ru.ekbtrees.treemap.data.retrofit
 
+import okio.Timeout
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import ru.ekbtrees.treemap.data.result.HttpException
 import ru.ekbtrees.treemap.data.result.RetrofitResult
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 @Suppress("UNCHECKED_CAST")
 class ResultCall<T>(proxy: Call<T>) : CallDelegate<T, RetrofitResult<T>>(proxy) {
@@ -30,14 +32,14 @@ class ResultCall<T>(proxy: Call<T>) : CallDelegate<T, RetrofitResult<T>>(proxy) 
                     value = response.body() as T,
                     statusCode = response.code(),
                     statusMessage = response.message(),
-                    url = call.request().url().toString(),
+                    url = call.request().url.toString(),
                 )
             } else {
                 result = RetrofitResult.Failure.HttpError(
                     HttpException(
                         statusCode = response.code(),
                         statusMessage = response.message(),
-                        url = call.request().url().toString(),
+                        url = call.request().url.toString(),
                     )
                 )
             }
@@ -55,5 +57,9 @@ class ResultCall<T>(proxy: Call<T>) : CallDelegate<T, RetrofitResult<T>>(proxy) 
 
             callback.onResponse(proxy, Response.success(result))
         }
+    }
+
+    override fun timeout(): Timeout {
+        return Timeout().timeout(3, TimeUnit.SECONDS)
     }
 }

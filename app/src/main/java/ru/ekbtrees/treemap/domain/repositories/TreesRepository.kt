@@ -1,6 +1,8 @@
 package ru.ekbtrees.treemap.domain.repositories
 
+import android.graphics.Bitmap
 import ru.ekbtrees.treemap.domain.entity.*
+import ru.ekbtrees.treemap.domain.utils.UploadResult
 
 interface TreesRepository {
 
@@ -15,10 +17,6 @@ interface TreesRepository {
     suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): UploadResult
 
     suspend fun uploadNewTreeDetail(treeDetail: NewTreeDetailEntity): UploadResult
-}
 
-/** Класс для результата загрузки */
-sealed class UploadResult {
-    object Success: UploadResult()
-    object Failure: UploadResult()
+    suspend fun sendFile(image: Bitmap): UploadResult
 }

@@ -1,6 +1,8 @@
 package ru.ekbtrees.treemap.ui.edittree
 
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -20,12 +22,15 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.kroegerama.imgpicker.BottomSheetImagePicker
+import com.kroegerama.imgpicker.ButtonType
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentEditTreeBinding
+import ru.ekbtrees.treemap.ui.common.TreePhotosAdapter
 import ru.ekbtrees.treemap.ui.model.NewTreeDetailUIModel
 import ru.ekbtrees.treemap.ui.model.SpeciesUIModel
 import ru.ekbtrees.treemap.ui.model.TreeDetailUIModel
@@ -39,13 +44,15 @@ private const val TAG = "EditTreeFragment"
  * Фрагмент добавления или редактирования детализации дерева.
  * */
 @AndroidEntryPoint
-class EditTreeFragment : Fragment() {
+class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedListener {
 
     private val viewModel: EditTreeViewModel by viewModels()
 
     private lateinit var binding: FragmentEditTreeBinding
 
     private lateinit var map: GoogleMap
+
+    private lateinit var photoAdapter: TreePhotosAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,7 +69,6 @@ class EditTreeFragment : Fragment() {
         val args: EditTreeFragmentArgs by navArgs()
         viewModel.provideInstanceValue(args.instanceValue)
         observeViewModel()
-
         binding.conditionAssessmentValue.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -78,6 +84,14 @@ class EditTreeFragment : Fragment() {
             }
 
         })
+
+        binding.getPhotoButton.setOnClickListener {
+            BottomSheetImagePicker.Builder(getString(R.xml.files_paths)).apply {
+                multiSelect()
+                cameraButton(ButtonType.Button)
+                show(childFragmentManager)
+            }
+        }
 
         binding.topAppBar.setNavigationOnClickListener {
             activity?.onBackPressed()
@@ -118,6 +132,16 @@ class EditTreeFragment : Fragment() {
                 binding.diameterOfCrownValue.text?.clear()
             }
         }
+
+        photoAdapter = TreePhotosAdapter(
+            onItemClick = {
+                Toast.makeText(
+                    requireContext(),
+                    "Photo Uri: $it",
+                    Toast.LENGTH_SHORT
+                ).show()
+            })
+        binding.photos.adapter = photoAdapter
     }
 
     /**
@@ -546,5 +570,13 @@ class EditTreeFragment : Fragment() {
 
     private fun onErrorState() {
         binding.errorContent.visibility = View.VISIBLE
+    }
+
+    override fun onImagesSelected(uris: List<Uri>, tag: String?) {
+        val imagePaths = uris.map { it.toString() }
+        photoAdapter.submitList(imagePaths)
+        val stream = requireContext().contentResolver.openInputStream(uris.first())
+        val bitmap = BitmapFactory.decodeStream(stream)
+        viewModel.setEvent(EditTreeContract.EditTreeEvent.OnImagesSelected(listOf(bitmap)))
     }
 }

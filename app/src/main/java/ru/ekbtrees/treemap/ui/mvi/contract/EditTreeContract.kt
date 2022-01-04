@@ -1,5 +1,6 @@
 package ru.ekbtrees.treemap.ui.mvi.contract
 
+import android.graphics.Bitmap
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import ru.ekbtrees.treemap.ui.mvi.base.UiEffect
@@ -38,10 +39,15 @@ class EditTreeContract {
          * Инициируем сохранение введённых данных.
          */
         class OnSaveButtonClicked(val treeDetail: TreeDetailFragmentModel) : EditTreeEvent()
+
+        class OnImagesSelected(
+            //val treeDetail: TreeDetailFragmentModel,
+            val image: List<Bitmap>
+        ) : EditTreeEvent()
     }
 
     sealed class TreeDetailEffect : UiEffect {
-        object BackOnBackStack: TreeDetailEffect()
+        object BackOnBackStack : TreeDetailEffect()
         object ShowErrorMessage : TreeDetailEffect()
     }
 
