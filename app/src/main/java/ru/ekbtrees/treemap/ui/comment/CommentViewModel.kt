@@ -1,5 +1,6 @@
 package ru.ekbtrees.treemap.ui.comment
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -14,21 +15,21 @@ import ru.ekbtrees.treemap.domain.repositories.UploadResult
 import ru.ekbtrees.treemap.ui.mappers.toNewCommentEntity
 import ru.ekbtrees.treemap.ui.model.NewTreeCommentUIModel
 
+const val TREE_ID_KEY = "treeId"
 
 @HiltViewModel
 class CommentViewModel @Inject constructor(
-    private val interactor: CommentInteractor
+    private val interactor: CommentInteractor,
+    savedStateHandle: SavedStateHandle
 ) : BaseViewModel<CommentContract.CommentEvent, CommentContract.CommentState, CommentContract.CommentEffect>() {
 
     override fun createInitialState(): CommentContract.CommentState {
         return CommentContract.CommentState.Idle
     }
 
-    private lateinit var currTreeId: String
+    private var currTreeId: String = savedStateHandle.get<String>(TREE_ID_KEY)
+        ?: error("Параметр Tree ID не был добавлен")
 
-    fun provideTreeId(treeId: String) {
-        currTreeId = treeId
-    }
 
     override fun handleEvent(event: UiEvent) {
         when (event) {

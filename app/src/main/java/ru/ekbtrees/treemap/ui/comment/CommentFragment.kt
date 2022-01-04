@@ -45,9 +45,6 @@ class CommentFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val args: CommentFragmentArgs by navArgs()
-        val treeId = args.treeId
-        viewModel.provideTreeId(treeId)
         viewModel.handleEvent(CommentContract.CommentEvent.Load)
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { newState ->
