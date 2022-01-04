@@ -84,8 +84,7 @@ fun TreeCommentUIModel.toTreeCommentEntity(): TreeCommentEntity =
         treeId = treeId,
         authorId = authorId,
         text = text,
-        createTime = createTime,
-        updateTime = updateTime
+        createTime = createTime
     )
 
 fun NewTreeCommentUIModel.toNewCommentEntity(): NewTreeCommentEntity =
@@ -93,8 +92,7 @@ fun NewTreeCommentUIModel.toNewCommentEntity(): NewTreeCommentEntity =
         treeId = treeId,
         authorId = authorId,
         text = text,
-        createTime = createTime,
-        updateTime = updateTime
+        createTime = createTime
     )
 
 fun TreeCommentEntity.toCommentView(): CommentView =

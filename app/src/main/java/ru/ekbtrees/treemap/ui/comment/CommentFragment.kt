@@ -12,10 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import ru.ekbtrees.treemap.data.mappers.toTreeCommentDto
 import ru.ekbtrees.treemap.databinding.FragmentCommentBinding
 import ru.ekbtrees.treemap.ui.mappers.toCommentView
-import ru.ekbtrees.treemap.ui.mappers.toTreeCommentUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.CommentContract
 
 @AndroidEntryPoint
@@ -37,7 +35,7 @@ class CommentFragment : Fragment() {
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
 
         binding.sendButton.setOnClickListener {
-            if (!binding.editTextTextMultiLine.text.toString().equals("")) {
+            if (binding.editTextTextMultiLine.text.toString().isNotEmpty()) {
                 viewModel.handleEvent(CommentContract.CommentEvent.SendCommentButtonClicked(binding.editTextTextMultiLine.text.toString()))
                 binding.editTextTextMultiLine.text.clear()
             }

@@ -58,10 +58,9 @@ class CommentViewModel @Inject constructor(
         val arr = arrayOf(Constants.UsersNames.ME.name, Constants.UsersNames.ANOTHER_USER.name)
         interactor.saveTreeComment(NewTreeCommentEntity(
             treeId = currTreeId,
-            authorId = arr[Random().nextInt(arr.size)],
+            authorId = Random().nextInt(arr.size).toLong(),
             text = commText,
-            createTime = System.currentTimeMillis().toString(),
-            updateTime = null
+            createTime = System.currentTimeMillis().toString()
         ))
     }
 

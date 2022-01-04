@@ -95,8 +95,7 @@ fun TreeCommentEntity.toTreeCommentDto(): TreeCommentDto{
         treeId = treeId,
         authorId = authorId,
         text = text,
-        createTime = createTime,
-        updateTime = updateTime
+        createTime = createTime
     )
 }
 
@@ -105,8 +104,7 @@ fun NewTreeCommentEntity.toNewTreeCommentDto(): NewTreeCommentDto {
         treeId = treeId,
         authorId = authorId,
         text = text,
-        createTime = createTime,
-        updateTime = updateTime
+        createTime = createTime
     )
 }
 
@@ -116,8 +114,7 @@ fun TreeCommentDto.toTreeCommentEntity(): TreeCommentEntity {
         treeId = treeId,
         authorId = authorId,
         text = text,
-        createTime = createTime,
-        updateTime = updateTime
+        createTime = createTime
     )
 }
 
@@ -127,7 +124,6 @@ fun NewTreeCommentDto.toNewTreeCommentEntity(): NewTreeCommentEntity {
         treeId = treeId,
         authorId = authorId,
         text = text,
-        createTime = createTime,
-        updateTime = updateTime
+        createTime = createTime
     )
 }

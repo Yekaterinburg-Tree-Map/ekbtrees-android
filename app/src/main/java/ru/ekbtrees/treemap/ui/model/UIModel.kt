@@ -54,17 +54,15 @@ data class SpeciesUIModel(
 
 data class TreeCommentUIModel(
     val id: String,
-    val treeId: String,
+    val treeId: Long,
     val authorId: String,
     val text: String,
-    val createTime: String,
-    val updateTime: String?
+    val createTime: String
 )
 
 data class NewTreeCommentUIModel(
     val treeId: String,
-    val authorId: String,
+    val authorId: Long,
     val text: String,
-    val createTime: String,
-    val updateTime: String?
+    val createTime: String
 )
