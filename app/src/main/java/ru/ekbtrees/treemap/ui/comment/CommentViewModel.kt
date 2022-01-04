@@ -3,6 +3,7 @@ package ru.ekbtrees.treemap.ui.comment
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import ru.ekbtrees.treemap.domain.entity.commentsEntity.NewTreeCommentEntity
 import ru.ekbtrees.treemap.ui.mvi.base.BaseViewModel
 import ru.ekbtrees.treemap.ui.mvi.base.UiEvent
 import ru.ekbtrees.treemap.ui.mvi.contract.CommentContract
@@ -23,7 +24,6 @@ class CommentViewModel @Inject constructor(
         return CommentContract.CommentState.Idle
     }
 
-    val commentList = ArrayList<CommentView>()
     private lateinit var currTreeId: String
 
     fun provideTreeId(treeId: String) {
@@ -56,20 +56,13 @@ class CommentViewModel @Inject constructor(
 
     private suspend fun saveNewComment(commText: String){
         val arr = arrayOf(Constants.UsersNames.ME.name, Constants.UsersNames.ANOTHER_USER.name)
-        val randIndex = Random().nextInt(arr.size)
-        interactor.saveTreeComment(
-            getNewTreeCommentUIModel(commText, arr[randIndex]).toNewCommentEntity())
-        commentList.add(CommentView(arr[randIndex], commText))
-    }
-
-    private fun getNewTreeCommentUIModel(text: String, authorId: String) : NewTreeCommentUIModel {
-        return NewTreeCommentUIModel(
+        interactor.saveTreeComment(NewTreeCommentEntity(
             treeId = currTreeId,
-            authorId = authorId,
-            text = text,
+            authorId = arr[Random().nextInt(arr.size)],
+            text = commText,
             createTime = System.currentTimeMillis().toString(),
             updateTime = null
-        )
+        ))
     }
 
 }

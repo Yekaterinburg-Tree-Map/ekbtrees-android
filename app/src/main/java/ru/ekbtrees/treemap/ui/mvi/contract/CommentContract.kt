@@ -16,10 +16,9 @@ class CommentContract {
     }
     sealed class CommentEvent: UiEvent {
         data class SendCommentButtonClicked(val text: String) : CommentEvent()
-        data class Load(val treeId: String) : CommentEvent()
+        object Load: CommentEvent()
     }
     sealed class CommentEffect : UiEffect {
-        object BackOnBackStack: CommentEffect()
         object ShowErrorMessage: CommentEffect()
     }
 }

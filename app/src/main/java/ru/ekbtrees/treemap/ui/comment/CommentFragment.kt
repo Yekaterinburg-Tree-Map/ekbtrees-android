@@ -12,7 +12,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import ru.ekbtrees.treemap.data.mappers.toTreeCommentDto
 import ru.ekbtrees.treemap.databinding.FragmentCommentBinding
+import ru.ekbtrees.treemap.ui.mappers.toCommentView
+import ru.ekbtrees.treemap.ui.mappers.toTreeCommentUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.CommentContract
 
 @AndroidEntryPoint
@@ -47,13 +50,13 @@ class CommentFragment : Fragment() {
         val args: CommentFragmentArgs by navArgs()
         val treeId = args.treeId
         viewModel.provideTreeId(treeId)
-        viewModel.handleEvent(CommentContract.CommentEvent.Load(treeId))
+        viewModel.handleEvent(CommentContract.CommentEvent.Load)
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { newState ->
                 cleanUI()
                 when (newState) {
                     is CommentContract.CommentState.Loaded -> {
-                        adapter.submitList(viewModel.commentList)
+                        adapter.submitList(newState.comments.map { commentEntity -> commentEntity.toCommentView() })
                     }
                     is CommentContract.CommentState.Error -> {
                         onErrorState()

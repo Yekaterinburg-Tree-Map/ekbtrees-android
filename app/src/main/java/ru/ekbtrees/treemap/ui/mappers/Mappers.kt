@@ -3,6 +3,7 @@ package ru.ekbtrees.treemap.ui.mappers
 import com.google.android.gms.maps.model.LatLng
 import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.entity.commentsEntity.*
+import ru.ekbtrees.treemap.ui.comment.CommentView
 import ru.ekbtrees.treemap.ui.model.*
 
 fun LatLonEntity.toLatLng(): LatLng {
@@ -87,16 +88,6 @@ fun TreeCommentUIModel.toTreeCommentEntity(): TreeCommentEntity =
         updateTime = updateTime
     )
 
-fun TreeCommentEntity.toTreeCommentUIModel(): TreeCommentUIModel =
-    TreeCommentUIModel(
-        id = id,
-        treeId = treeId,
-        authorId = authorId,
-        text = text,
-        createTime = createTime,
-        updateTime = updateTime
-    )
-
 fun NewTreeCommentUIModel.toNewCommentEntity(): NewTreeCommentEntity =
     NewTreeCommentEntity(
         treeId = treeId,
@@ -106,11 +97,5 @@ fun NewTreeCommentUIModel.toNewCommentEntity(): NewTreeCommentEntity =
         updateTime = updateTime
     )
 
-fun NewTreeCommentEntity.toNewCommentUIModel(): NewTreeCommentUIModel =
-    NewTreeCommentUIModel(
-        treeId = treeId,
-        authorId = authorId,
-        text = text,
-        createTime = createTime,
-        updateTime = updateTime
-    )
+fun TreeCommentEntity.toCommentView(): CommentView =
+    CommentView(userName = authorId, commText = text)
