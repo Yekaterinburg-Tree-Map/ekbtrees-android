@@ -2,10 +2,6 @@ package ru.ekbtrees.treemap.data
 
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.util.Log
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import ru.ekbtrees.treemap.data.api.TreesApiService
 import ru.ekbtrees.treemap.data.dto.ClusterTreesDto
 import ru.ekbtrees.treemap.data.mappers.*
@@ -15,7 +11,6 @@ import ru.ekbtrees.treemap.data.result.isSuccess
 import ru.ekbtrees.treemap.domain.entity.*
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
 import ru.ekbtrees.treemap.domain.utils.UploadResult
-import java.io.ByteArrayOutputStream
 
 class TreesRepositoryImpl(
     private val treesApiService: TreesApiService
@@ -165,30 +160,6 @@ class TreesRepositoryImpl(
     }
 
     override suspend fun sendFile(image: Bitmap): UploadResult {
-        val stream = ByteArrayOutputStream()
-        image.compress(Bitmap.CompressFormat.JPEG, 80, stream)
-        val byteArray = stream.toByteArray()
-        val body = MultipartBody.Part.createFormData(
-            name = "file",
-            filename = "file",
-            body = byteArray.toRequestBody(
-                contentType = "*/*".toMediaType(),
-                offset = 0,
-                byteCount = byteArray.size
-            )
-        )
-        return when (val result = treesApiService.sendFile(body)) {
-            is RetrofitResult.Failure.Error -> {
-                UploadResult.Failure
-            }
-            is RetrofitResult.Success -> {
-                Log.d("upload_file", "Upload file SUCCESS: ${result.value}")
-                UploadResult.Success
-            }
-            is RetrofitResult.Failure.HttpError -> {
-                Log.e("upload_result", "Upload file FAILURE")
-                UploadResult.Failure
-            }
-        }
+        error("Deprecated")
     }
 }
