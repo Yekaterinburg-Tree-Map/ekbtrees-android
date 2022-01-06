@@ -1,6 +1,5 @@
 package ru.ekbtrees.treemap.ui.edittree
 
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -575,8 +574,6 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
     override fun onImagesSelected(uris: List<Uri>, tag: String?) {
         val imagePaths = uris.map { it.toString() }
         photoAdapter.submitList(imagePaths)
-        val stream = requireContext().contentResolver.openInputStream(uris.first())
-        val bitmap = BitmapFactory.decodeStream(stream)
-        viewModel.setEvent(EditTreeContract.EditTreeEvent.OnImagesSelected(listOf(bitmap)))
+        viewModel.setEvent(EditTreeContract.EditTreeEvent.OnImagesSelected(imagePaths))
     }
 }

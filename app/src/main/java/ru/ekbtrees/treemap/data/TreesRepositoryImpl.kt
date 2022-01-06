@@ -1,6 +1,5 @@
 package ru.ekbtrees.treemap.data
 
-import android.graphics.Bitmap
 import android.graphics.Color
 import ru.ekbtrees.treemap.data.api.TreesApiService
 import ru.ekbtrees.treemap.data.dto.ClusterTreesDto
@@ -157,9 +156,5 @@ class TreesRepositoryImpl(
             blueColor += 8
         }
         return colors
-    }
-
-    override suspend fun sendFile(image: Bitmap): UploadResult {
-        error("Deprecated")
     }
 }

@@ -42,7 +42,7 @@ class EditTreeContract {
 
         class OnImagesSelected(
             //val treeDetail: TreeDetailFragmentModel,
-            val image: List<Bitmap>
+            val filePath: List<String>
         ) : EditTreeEvent()
     }
 
