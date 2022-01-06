@@ -6,7 +6,7 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 import ru.ekbtrees.treemap.data.result.RetrofitResult
 
-interface UploadFileApiService {
+interface FilesApiService {
 
     @POST("file/upload")
     @Multipart

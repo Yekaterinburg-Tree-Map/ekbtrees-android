@@ -6,6 +6,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import ru.ekbtrees.treemap.domain.interactors.TreesInteractor
 import ru.ekbtrees.treemap.domain.interactors.TreesInteractorImpl
+import ru.ekbtrees.treemap.domain.interactors.files.FilesInteractor
+import ru.ekbtrees.treemap.domain.interactors.files.FilesInteractorImpl
 import ru.ekbtrees.treemap.domain.repositories.FilesRepository
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
 
@@ -17,9 +19,13 @@ import ru.ekbtrees.treemap.domain.repositories.TreesRepository
 object DomainModule {
     @Provides
     fun provideTreesInteractor(
-        treesRepository: TreesRepository,
-        filesRepository: FilesRepository
+        treesRepository: TreesRepository
     ): TreesInteractor {
-        return TreesInteractorImpl(treesRepository, filesRepository)
+        return TreesInteractorImpl(treesRepository = treesRepository)
+    }
+
+    @Provides
+    fun provideFilesInteractor(filesRepository: FilesRepository): FilesInteractor {
+        return FilesInteractorImpl(filesRepository = filesRepository)
     }
 }

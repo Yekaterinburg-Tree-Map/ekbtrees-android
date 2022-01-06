@@ -53,9 +53,10 @@ class EditTreeViewModel @Inject constructor(
                         emit(photo.copy(link = "${NetworkConstants.FILE_DOWNLOAD_URL}${it.fileId}"))
                     }
                     is UploadFileDto.Error -> {
-                        Log.d(TAG, "uploadPhotos: error ${photo.uri}. ${it.throwable}")
-                    }
-                    UploadFileDto.Progress -> {
+                        Log.d(
+                            TAG,
+                            "uploadPhotos: error ${photo.uri}. ${it.exception.printStackTrace()}"
+                        )
                     }
                 }
             }

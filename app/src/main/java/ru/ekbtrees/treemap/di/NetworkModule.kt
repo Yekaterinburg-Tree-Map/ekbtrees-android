@@ -10,7 +10,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.ekbtrees.treemap.constants.NetworkConstants.BASE_URL
 import ru.ekbtrees.treemap.data.api.TreesApiService
-import ru.ekbtrees.treemap.data.files.api.UploadFileApiService
+import ru.ekbtrees.treemap.data.files.api.FilesApiService
 import ru.ekbtrees.treemap.data.retrofit.ResultAdapterFactory
 import ru.ekbtrees.treemap.data.retrofit.TokenInterceptor
 import javax.inject.Singleton
@@ -59,6 +59,6 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideUploadFileApiService(retrofit: Retrofit): UploadFileApiService =
-        retrofit.create(UploadFileApiService::class.java)
+    fun provideUploadFileApiService(retrofit: Retrofit): FilesApiService =
+        retrofit.create(FilesApiService::class.java)
 }

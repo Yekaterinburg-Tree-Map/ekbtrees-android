@@ -1,9 +1,8 @@
 package ru.ekbtrees.treemap.domain.repositories
 
-import kotlinx.coroutines.flow.Flow
-import ru.ekbtrees.treemap.data.files.dto.UploadFileDto
+import ru.ekbtrees.treemap.domain.utils.Resource
 
 interface FilesRepository {
 
-    suspend fun upload(filePath: String): Flow<UploadFileDto>
+    suspend fun upload(filePath: String): Resource<Long>
 }
