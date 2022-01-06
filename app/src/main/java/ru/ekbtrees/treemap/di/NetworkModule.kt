@@ -2,16 +2,13 @@ package ru.ekbtrees.treemap.di
 
 import android.app.Application
 import android.content.Context
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -66,29 +63,20 @@ object NetworkModule {
     fun provideTreesApiService(retrofit: Retrofit): TreesApiService =
         retrofit.create(TreesApiService::class.java)
 
-    @DelicateCoroutinesApi
     @Singleton
     @Provides
     fun provideCoroutineScope(): CoroutineScope {
-        return GlobalScope
-    }
-
-    @Provides
-    @Singleton
-    fun provideLifecycleOwner(): LifecycleOwner {
-        return ProcessLifecycleOwner.get()
+        return CoroutineScope(Dispatchers.IO)
     }
 
     @Provides
     fun provideFilesRepository(
         @ApplicationContext context: Context,
-        coroutineScope: CoroutineScope,
-        lifecycleOwner: LifecycleOwner
+        coroutineScope: CoroutineScope
     ): FilesRepository {
         return FilesRepositoryImpl(
             context = context as Application,
-            coroutineScope = coroutineScope,
-            lifecycleOwner = lifecycleOwner
+            coroutineScope = coroutineScope
         )
     }
 }
