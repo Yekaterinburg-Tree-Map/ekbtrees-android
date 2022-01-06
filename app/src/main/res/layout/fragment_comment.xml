@@ -4,13 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.treedetail.TreeDetailFragment">
+    tools:context=".ui.comment.CommentFragment">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:weightSum="100">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
@@ -92,51 +87,49 @@
     <!-- END Error UI state -->
 
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/sendButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appBar">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="85">
-
-        </androidx.recyclerview.widget.RecyclerView>
-
-
-        <LinearLayout
-            android:id="@+id/sendForm"
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_margin="10dp"
-            android:layout_weight="15"
-            android:orientation="horizontal">
+    </androidx.recyclerview.widget.RecyclerView>
 
 
-            <EditText
-                android:id="@+id/editTextTextMultiLine"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_marginEnd="10dp"
-                android:layout_weight="6"
-                android:autofillHints="place for your comment"
-                android:background="@drawable/comment_input_design"
-                android:backgroundTint="#546C6C6C"
-                android:gravity="start|top"
-                android:padding="5dp"
-                android:hint="@string/comment"
-                android:inputType="textMultiLine"
-                android:textSize="20sp" />
+    <EditText
+        android:id="@+id/editTextTextMultiLine"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:autofillHints="place for your comment"
+        android:background="@drawable/comment_input_design"
+        android:backgroundTint="#546C6C6C"
+        android:gravity="start|top"
+        android:hint="@string/comment"
+        android:inputType="textMultiLine"
+        android:padding="5dp"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/sendButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerView" />
 
-            <Button
-                android:id="@+id/sendButton"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:drawableBottom="@drawable/ic_airplane"
-                android:layout_margin="0dp"
-                android:layout_gravity="fill_vertical"
-                tools:ignore="SpeakableTextPresentCheck" />
-
-        </LinearLayout>
-    </LinearLayout>
+    <Button
+        android:id="@+id/sendButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="10dp"
+        android:drawableBottom="@drawable/ic_airplane"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/editTextTextMultiLine"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerView"
+        tools:ignore="SpeakableTextPresentCheck" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

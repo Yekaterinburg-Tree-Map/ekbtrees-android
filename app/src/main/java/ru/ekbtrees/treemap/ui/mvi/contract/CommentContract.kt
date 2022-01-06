@@ -12,13 +12,11 @@ class CommentContract {
         object Idle : CommentState()
         object Loading : CommentState()
         object Error : CommentState()
-        data class Loaded(val comments: List<TreeCommentEntity>) : CommentState()
+        data class Loaded(var comments: List<TreeCommentEntity>) : CommentState()
     }
     sealed class CommentEvent: UiEvent {
         data class SendCommentButtonClicked(val text: String) : CommentEvent()
         object Load: CommentEvent()
     }
-    sealed class CommentEffect : UiEffect {
-        object ShowErrorMessage: CommentEffect()
-    }
+    sealed class CommentEffect : UiEffect
 }

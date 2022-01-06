@@ -27,8 +27,8 @@ class CommentViewModel @Inject constructor(
         return CommentContract.CommentState.Idle
     }
 
-    private var currTreeId: String = savedStateHandle.get<String>(TREE_ID_KEY)
-        ?: error("Параметр Tree ID не был добавлен")
+    private val currTreeId: String = savedStateHandle.get<String>(TREE_ID_KEY)
+        ?: error("нет параметра treeId")
 
 
     override fun handleEvent(event: UiEvent) {
