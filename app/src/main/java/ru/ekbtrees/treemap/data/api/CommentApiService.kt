@@ -8,7 +8,7 @@ import ru.ekbtrees.treemap.data.result.RetrofitResult
 interface CommentApiService {
     @GET("comment/by-tree/{treeId}")
     suspend fun getTreeCommentBy(
-        @Path("treeId") id: String
+        @Path("treeId") id: Int
     ): RetrofitResult<List<TreeCommentDto>>
 
     @POST("comment")
@@ -18,11 +18,11 @@ interface CommentApiService {
 
     @PUT("comment/{id}")
     suspend fun updateTreeComment(
-        @Path("id") id: String
+        @Path("id") id: Int
     ): RetrofitResult<Unit>
 
     @DELETE("comment/{id}")
     suspend fun deleteTreeComment(
-        @Path("id") id: String
+        @Path("id") id: Int
     ): RetrofitResult<Unit>
 }

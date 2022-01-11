@@ -1,9 +1,9 @@
 package ru.ekbtrees.treemap.domain.entity.commentsEntity
 
 data class TreeCommentEntity(
-    val id: String,
-    val treeId: Long,
-    val authorId: String,
+    val id: Int,
+    val createTime: String,
+    val authorId: Int,
     val text: String,
-    val createTime: String
+    val treeId: Int
 )

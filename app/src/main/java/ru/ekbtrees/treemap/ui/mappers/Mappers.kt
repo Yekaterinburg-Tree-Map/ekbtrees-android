@@ -78,22 +78,5 @@ fun TreeDetailEntity.toTreeDetailUIModel(): TreeDetailUIModel =
 
 fun SpeciesEntity.toSpeciesUIModel(): SpeciesUIModel = SpeciesUIModel(id, color, name)
 
-fun TreeCommentUIModel.toTreeCommentEntity(): TreeCommentEntity =
-    TreeCommentEntity(
-        id = id,
-        treeId = treeId,
-        authorId = authorId,
-        text = text,
-        createTime = createTime
-    )
-
-fun NewTreeCommentUIModel.toNewCommentEntity(): NewTreeCommentEntity =
-    NewTreeCommentEntity(
-        treeId = treeId,
-        authorId = authorId,
-        text = text,
-        createTime = createTime
-    )
-
 fun TreeCommentEntity.toCommentView(): CommentView =
-    CommentView(userName = authorId, commText = text)
+    CommentView(userName = authorId.toString(), commText = text)

@@ -92,38 +92,34 @@ fun NewTreeDetailEntity.toNewTreeDetailDto(): NewTreeDetailDto {
 fun TreeCommentEntity.toTreeCommentDto(): TreeCommentDto{
     return TreeCommentDto(
         id = id,
-        treeId = treeId,
+        createTime = createTime,
         authorId = authorId,
         text = text,
-        createTime = createTime
+        treeId = treeId
     )
 }
 
 fun NewTreeCommentEntity.toNewTreeCommentDto(): NewTreeCommentDto {
     return NewTreeCommentDto(
-        treeId = treeId,
-        authorId = authorId,
         text = text,
-        createTime = createTime
+        treeId = treeId
     )
 }
 
 fun TreeCommentDto.toTreeCommentEntity(): TreeCommentEntity {
     return TreeCommentEntity(
         id = id,
-        treeId = treeId,
+        createTime = createTime,
         authorId = authorId,
         text = text,
-        createTime = createTime
+        treeId = treeId
     )
 }
 
 
 fun NewTreeCommentDto.toNewTreeCommentEntity(): NewTreeCommentEntity {
     return NewTreeCommentEntity(
-        treeId = treeId,
-        authorId = authorId,
         text = text,
-        createTime = createTime
+        treeId = treeId
     )
 }

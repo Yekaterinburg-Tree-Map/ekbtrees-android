@@ -11,9 +11,6 @@ import ru.ekbtrees.treemap.ui.mvi.contract.CommentContract
 import java.util.*
 import javax.inject.Inject
 import ru.ekbtrees.treemap.domain.interactors.CommentInteractor
-import ru.ekbtrees.treemap.domain.repositories.UploadResult
-import ru.ekbtrees.treemap.ui.mappers.toNewCommentEntity
-import ru.ekbtrees.treemap.ui.model.NewTreeCommentUIModel
 
 const val TREE_ID_KEY = "treeId"
 
@@ -48,7 +45,7 @@ class CommentViewModel @Inject constructor(
 
     private suspend fun loadNewComment() {
         try {
-            val treeComments = interactor.getTreeCommentBy(currTreeId)
+            val treeComments = interactor.getTreeCommentBy(currTreeId.toInt())
             if (treeComments.isEmpty()) {
                 setState(CommentContract.CommentState.NoComments)
             } else {
@@ -60,13 +57,10 @@ class CommentViewModel @Inject constructor(
     }
 
     private suspend fun saveNewComment(commText: String) {
-        val arr = arrayOf(Constants.UsersNames.ME.name, Constants.UsersNames.ANOTHER_USER.name)
         interactor.saveTreeComment(
             NewTreeCommentEntity(
-                treeId = currTreeId,
-                authorId = Random().nextInt(arr.size).toLong(),
                 text = commText,
-                createTime = System.currentTimeMillis().toString()
+                treeId = currTreeId.toInt()
             )
         )
     }

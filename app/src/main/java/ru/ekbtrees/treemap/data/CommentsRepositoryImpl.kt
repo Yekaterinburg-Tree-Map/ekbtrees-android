@@ -10,7 +10,7 @@ import ru.ekbtrees.treemap.domain.repositories.UploadResult
 class CommentsRepositoryImpl(
     private val commentApiService: CommentApiService
     ) : CommentsRepository {
-    override suspend fun getTreeCommentBy(id: String): List<TreeCommentEntity> {
+    override suspend fun getTreeCommentBy(id: Int): List<TreeCommentEntity> {
         when(val result = commentApiService.getTreeCommentBy(id)){
             is RetrofitResult.Success -> return result.value.map { comment -> comment.toTreeCommentEntity() }
             is RetrofitResult.Failure<*> -> {
@@ -32,7 +32,7 @@ class CommentsRepositoryImpl(
         }
     }
 
-    override suspend fun updateTreeComment(id: String): UploadResult {
+    override suspend fun updateTreeComment(id: Int): UploadResult {
         return when(commentApiService.updateTreeComment(id)){
             is RetrofitResult.Success -> {
                 UploadResult.Success
@@ -43,7 +43,7 @@ class CommentsRepositoryImpl(
         }
     }
 
-    override suspend fun deleteTreeComment(id: String): UploadResult {
+    override suspend fun deleteTreeComment(id: Int): UploadResult {
         return when(commentApiService.deleteTreeComment(id)) {
             is RetrofitResult.Success -> {
                 UploadResult.Success

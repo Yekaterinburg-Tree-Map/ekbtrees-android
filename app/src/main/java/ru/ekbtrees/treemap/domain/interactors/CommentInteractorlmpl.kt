@@ -5,7 +5,7 @@ import ru.ekbtrees.treemap.domain.repositories.CommentsRepository
 import ru.ekbtrees.treemap.domain.repositories.UploadResult
 
 class CommentInteractorlmpl(private val commentRepository: CommentsRepository) : CommentInteractor {
-    override suspend fun getTreeCommentBy(id: String): List<TreeCommentEntity> {
+    override suspend fun getTreeCommentBy(id: Int): List<TreeCommentEntity> {
         return commentRepository.getTreeCommentBy(id)
     }
 
@@ -13,11 +13,11 @@ class CommentInteractorlmpl(private val commentRepository: CommentsRepository) :
         return commentRepository.saveTreeComment(newTreeCommentEntity)
     }
 
-    override suspend fun updateTreeComment(id: String): UploadResult {
+    override suspend fun updateTreeComment(id: Int): UploadResult {
         return commentRepository.updateTreeComment(id)
     }
 
-    override suspend fun deleteTreeComment(id: String): UploadResult {
+    override suspend fun deleteTreeComment(id: Int): UploadResult {
         return commentRepository.deleteTreeComment(id)
     }
 }
