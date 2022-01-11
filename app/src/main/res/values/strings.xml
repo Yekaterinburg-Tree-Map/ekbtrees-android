@@ -59,4 +59,5 @@
     <string name="topAppBar">topAppBar</string>
     <string name="some_comment">Some comment</string>
     <string name="user_name">user name</string>
+    <string name="no_comments">Нет комментариев по данному дереву</string>
 </resources>

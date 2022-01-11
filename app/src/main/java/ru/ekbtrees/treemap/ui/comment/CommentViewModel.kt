@@ -49,20 +49,26 @@ class CommentViewModel @Inject constructor(
     private suspend fun loadNewComment() {
         try {
             val treeComments = interactor.getTreeCommentBy(currTreeId)
-            setState(CommentContract.CommentState.Loaded(treeComments.toList()))
+            if (treeComments.isEmpty()) {
+                setState(CommentContract.CommentState.NoComments)
+            } else {
+                setState(CommentContract.CommentState.Loaded(treeComments.toList()))
+            }
         } catch (e: Exception) {
             setState((CommentContract.CommentState.Error))
         }
     }
 
-    private suspend fun saveNewComment(commText: String){
+    private suspend fun saveNewComment(commText: String) {
         val arr = arrayOf(Constants.UsersNames.ME.name, Constants.UsersNames.ANOTHER_USER.name)
-        interactor.saveTreeComment(NewTreeCommentEntity(
-            treeId = currTreeId,
-            authorId = Random().nextInt(arr.size).toLong(),
-            text = commText,
-            createTime = System.currentTimeMillis().toString()
-        ))
+        interactor.saveTreeComment(
+            NewTreeCommentEntity(
+                treeId = currTreeId,
+                authorId = Random().nextInt(arr.size).toLong(),
+                text = commText,
+                createTime = System.currentTimeMillis().toString()
+            )
+        )
     }
 
 }

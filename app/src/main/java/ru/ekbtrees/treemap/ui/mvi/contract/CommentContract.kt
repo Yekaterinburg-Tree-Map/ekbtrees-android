@@ -12,6 +12,7 @@ class CommentContract {
         object Idle : CommentState()
         object Loading : CommentState()
         object Error : CommentState()
+        object NoComments : CommentState()
         data class Loaded(var comments: List<TreeCommentEntity>) : CommentState()
     }
     sealed class CommentEvent: UiEvent {

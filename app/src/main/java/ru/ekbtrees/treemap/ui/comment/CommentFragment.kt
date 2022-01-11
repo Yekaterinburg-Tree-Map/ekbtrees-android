@@ -61,6 +61,9 @@ class CommentFragment : Fragment() {
                     is CommentContract.CommentState.Loading -> {
                         onDataLoadingState()
                     }
+                    is CommentContract.CommentState.NoComments -> {
+                        onNoCommentsState()
+                    }
                 }
 
             }
@@ -70,6 +73,11 @@ class CommentFragment : Fragment() {
     private fun cleanUI() {
         binding.loadingContent.visibility = View.GONE
         binding.errorContent.visibility = View.GONE
+        binding.noCommentsContent.visibility = View.GONE
+    }
+
+    private fun onNoCommentsState(){
+        binding.noCommentsContent.visibility = View.VISIBLE
     }
 
     private fun onDataLoadingState() {
