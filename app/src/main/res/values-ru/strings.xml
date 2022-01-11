@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">EkbTrees</string>
+    <string name="title_activity_maps">Карта</string>
+    <string name="edit_tree">Редактировать</string>
+    <string name="basic_information">Базовая информация</string>
+    <string name="cancel">Отменить</string>
+    <string name="add_new_tree">Добавить</string>
+    <string name="tree_location">Координаты</string>
+    <string name="latitude">Широта</string>
+    <string name="longitude">Долгота</string>
+    <string name="show_description">Описание</string>
+    <string name="close">Закрыть</string>
+    <string name="save_tree">Сохранить</string>
+    <string name="change_location">Изменить координаты</string>
+    <string name="new_tree">Новое дерево</string>
+    <string name="species">Порода</string>
+    <string name="height">Высота</string>
+    <string name="number_of_trunks">Число стволов</string>
+    <string name="trunk_girth">Обхват самого толстого ствола</string>
+    <string name="diameter_of_crown">Диаметр кроны (в метрах)</string>
+    <string name="age">Возраст</string>
+    <string name="select_tree_species">Выберите породу</string>
+    <string name="tree_planting_type">Тип посадки деревьев</string>
+    <string name="status">Статус дерева</string>
+    <string name="height_of_the_first_branch">Высота первой ветви (в метрах)</string>
+    <string name="condition_assessment">Визуальное состояние</string>
+    <string name="tree_id">Id дерева</string>
+    <string name="author_of_tree">Кто добавил</string>
+    <string name="condition_assessment_holder">%1$s/5</string>
+    <string name="create_time">Время моздания</string>
+    <string name="update_time">Время обновления</string>
+    <string name="user_location">Координаты пользователя</string>
+    <string-array name="status_types">
+        <item>Выберите состояние</item>
+        <item>Живое</item>
+        <item>В опасности</item>
+        <item>Не живое</item>
+    </string-array>
+    <string name="tree_detail">Детали дерева</string>
+    <string name="tree_location_holder">%1$s, %2$s</string>
+    <string name="location_access_denied">Location access denied</string>
+    <string name="tree_id_plug">Появится после создания</string>
+    <string-array name="planting_types">
+        <item>Выберите тип…</item>
+        <item>Самосев</item>
+        <item>Культурная посадка</item>
+    </string-array>
+    <string name="select_species">Выберите породу дерева</string>
+    <string name="empty_field_warning">Это поле не может быть пустым</string>
+    <string name="error_message">Не удалось загрузить данные</string>
+    <string name="loading">Загрузка…</string>
+    <string name="loading_error_massage">Ошибка при загрузке данных</string>
+    <string name="try_again">Попробуй снова</string>
+
+
+    <!--Descriptions-->
+    <string name="tree_marker">Маркер</string>
+    <string name="gradient">Градиент</string>
+
+
+</resources>

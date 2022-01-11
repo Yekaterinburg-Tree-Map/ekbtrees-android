@@ -30,12 +30,13 @@ interface TreesApiService {
         @Path("id") treeId: Int
     ): RetrofitResult<TreeDetailDto>
 
-    @POST("tree/save")
+    @PUT("tree/save/{id}")
     suspend fun saveTreeDetail(
+        @Path("id") treeId: Int,
         @Body treeDetailDto: TreeDetailDto
     ): RetrofitResult<Unit>
 
-    @POST("tree/save")
+    @POST("tree")
     suspend fun createNewTreeDetail(
         @Body treeDetailDto: NewTreeDetailDto
     ): RetrofitResult<Unit>
