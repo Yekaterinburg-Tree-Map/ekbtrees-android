@@ -25,7 +25,7 @@ class BaseAuthAuthenticatorInterceptor(
             if (accessToken != null) {
                 request()
                     .newBuilder()
-                    .addHeader("Authorization", "Basic $accessToken")
+                    .addHeader("Authorization", "Bearer $accessToken")
                     .build()
             } else {
                 request()
