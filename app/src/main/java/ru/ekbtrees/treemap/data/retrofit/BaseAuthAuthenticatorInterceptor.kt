@@ -1,6 +1,7 @@
 package ru.ekbtrees.treemap.data.retrofit
 
 import okhttp3.*
+import okhttp3.RequestBody.Companion.toRequestBody
 
 class BaseAuthAuthenticatorInterceptor(
     private val authUrl: String,
@@ -12,7 +13,7 @@ class BaseAuthAuthenticatorInterceptor(
     private var accessToken: String? = null
 
     override fun authenticate(route: Route?, response: Response): Request {
-        return buildAuthenticateRequest(response.request())
+        return buildAuthenticateRequest(response.request)
     }
 
     override fun intercept(chain: Interceptor.Chain): Response = chain.run {
@@ -34,9 +35,9 @@ class BaseAuthAuthenticatorInterceptor(
         )
     }
 
-    override fun saveFromResponse(url: HttpUrl, cookies: MutableList<Cookie>) {
+    override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
         accessToken = cookies
-            .first { it.name().equals("AccessToken") }.value()
+            .first { it.name == "AccessToken" }.value
     }
 
     override fun loadForRequest(url: HttpUrl): MutableList<Cookie> = mutableListOf()
@@ -44,7 +45,7 @@ class BaseAuthAuthenticatorInterceptor(
     private fun buildAuthenticateRequest(request: Request): Request {
         return request.newBuilder()
             .url(authUrl)
-            .method("POST", RequestBody.create(null, ""))
+            .method("POST", "".toRequestBody(null))
             .header("Authorization", credential)
             .build()
     }
