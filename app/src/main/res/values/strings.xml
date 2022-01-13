@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">treemap</string>
+    <string name="app_name">EkbTrees</string>
     <string name="title_activity_maps">Map</string>
     <string name="tree_marker">Tree marker</string>
     <string name="edit_tree">Edit tree</string>
@@ -11,7 +11,6 @@
     <string name="longitude">Longitude</string>
     <string name="show_description">Show description</string>
     <string name="close">Close</string>
-    <string name="loading_map">Loading map</string>
     <string name="gradient">Gradient</string>
     <string name="save_tree">Save tree</string>
     <string name="change_location">Change location</string>

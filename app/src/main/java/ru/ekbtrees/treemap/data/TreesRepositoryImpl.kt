@@ -98,7 +98,7 @@ class TreesRepositoryImpl(
 
     override suspend fun uploadTreeDetail(treeDetail: TreeDetailEntity): UploadResult {
         val treeDetailDto = treeDetail.toTreeDetailDto()
-        return when (treesApiService.saveTreeDetail(treeDetailDto)) {
+        return when (treesApiService.saveTreeDetail(treeDetailDto.id, treeDetailDto)) {
             is RetrofitResult.Success -> {
                 UploadResult.Success
             }
