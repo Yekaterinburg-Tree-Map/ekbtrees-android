@@ -9,6 +9,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.ekbtrees.treemap.BuildConfig
+import ru.ekbtrees.treemap.data.api.CommentApiService
 import ru.ekbtrees.treemap.data.api.TreesApiService
 import ru.ekbtrees.treemap.data.retrofit.BaseAuthAuthenticatorInterceptor
 import ru.ekbtrees.treemap.data.retrofit.ResultAdapterFactory
@@ -67,4 +68,9 @@ object NetworkModule {
     @Provides
     fun provideTreesApiService(retrofit: Retrofit): TreesApiService =
         retrofit.create(TreesApiService::class.java)
+
+    @Singleton
+    @Provides
+    fun provideCommentApiService(retrofit: Retrofit): CommentApiService =
+        retrofit.create(CommentApiService::class.java)
 }

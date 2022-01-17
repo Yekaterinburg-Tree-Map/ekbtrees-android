@@ -101,3 +101,23 @@ data class NewTreeDetailDto(
     @SerializedName("fileIds")
     val fileIds: List<Int>?
 )
+
+data class TreeCommentDto(
+    @SerializedName("id")
+    val id: Int,
+    @SerializedName("created")
+    val createTime: String,
+    @SerializedName("authorId")
+    val authorId: Int,
+    @SerializedName("text")
+    val text: String,
+    @SerializedName("treeId")
+    val treeId: Int
+)
+
+data class NewTreeCommentDto(
+    @SerializedName("text")
+    val text: String,
+    @SerializedName("treeId")
+    val treeId: Int
+)

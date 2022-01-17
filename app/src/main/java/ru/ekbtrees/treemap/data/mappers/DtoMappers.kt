@@ -3,6 +3,7 @@ package ru.ekbtrees.treemap.data.mappers
 import android.graphics.Color
 import ru.ekbtrees.treemap.data.dto.*
 import ru.ekbtrees.treemap.domain.entity.*
+import ru.ekbtrees.treemap.domain.entity.commentsEntity.*
 
 fun MapTreeDto.toTreeEntity(speciesEntity: SpeciesEntity): TreeEntity {
     val latLonEntity = coord.toLatLonEntity()
@@ -85,5 +86,40 @@ fun NewTreeDetailEntity.toNewTreeDetailDto(): NewTreeDetailDto {
         authorId = authorId,
         status = status,
         fileIds = fileIds as List<Int>
+    )
+}
+
+fun TreeCommentEntity.toTreeCommentDto(): TreeCommentDto{
+    return TreeCommentDto(
+        id = id,
+        createTime = createTime,
+        authorId = authorId,
+        text = text,
+        treeId = treeId
+    )
+}
+
+fun NewTreeCommentEntity.toNewTreeCommentDto(): NewTreeCommentDto {
+    return NewTreeCommentDto(
+        text = text,
+        treeId = treeId
+    )
+}
+
+fun TreeCommentDto.toTreeCommentEntity(): TreeCommentEntity {
+    return TreeCommentEntity(
+        id = id,
+        createTime = createTime,
+        authorId = authorId,
+        text = text,
+        treeId = treeId
+    )
+}
+
+
+fun NewTreeCommentDto.toNewTreeCommentEntity(): NewTreeCommentEntity {
+    return NewTreeCommentEntity(
+        text = text,
+        treeId = treeId
     )
 }

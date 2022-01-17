@@ -9,4 +9,9 @@
     <color name="white">#FFFFFFFF</color>
     <color name="green">#0BB80B</color>
     <color name="red">#AF0D0D</color>
+    <color name="dark_green">#A4DFB2</color>
+    <color name="light_green">#EAFFF4</color>
+    <color name="green_appbar">#DAF0E0</color>
+    <color name="green_my_comm">#C0E4CB</color>
+    <color name="very_dark_green">#396345</color>
 </resources>

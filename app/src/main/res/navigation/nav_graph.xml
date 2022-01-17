@@ -44,6 +44,10 @@
         <argument
             android:name="treeId"
             app:argType="string" />
+        <action
+            android:id="@+id/action_treeDetailFragment_to_CommentFragment"
+            app:destination="@id/CommentFragment"
+            app:popUpTo="@id/treeDetailFragment"/>
     </fragment>
     <fragment
         android:id="@+id/changeLocationFragment"
@@ -56,5 +60,15 @@
         <argument
             android:name="treeDetail"
             app:argType="ru.ekbtrees.treemap.ui.model.TreeDetailUIModel" />
+    </fragment>
+    <fragment
+        android:id="@+id/CommentFragment"
+        android:name="ru.ekbtrees.treemap.ui.comment.CommentFragment"
+        android:label="fragment_comment"
+        tools:layout="@layout/fragment_comment">
+
+        <argument
+            android:name="treeId"
+            app:argType="string" />
     </fragment>
 </navigation>
