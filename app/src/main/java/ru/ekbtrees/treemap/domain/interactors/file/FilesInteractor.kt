@@ -1,4 +1,4 @@
-package ru.ekbtrees.treemap.domain.interactors.files
+package ru.ekbtrees.treemap.domain.interactors.file
 
 import ru.ekbtrees.treemap.domain.utils.Resource
 

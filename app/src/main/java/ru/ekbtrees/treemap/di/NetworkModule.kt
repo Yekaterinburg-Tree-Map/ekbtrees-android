@@ -11,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import ru.ekbtrees.treemap.BuildConfig
 import ru.ekbtrees.treemap.data.api.TreesApiService
 import ru.ekbtrees.treemap.data.retrofit.BaseAuthAuthenticatorInterceptor
-import ru.ekbtrees.treemap.data.files.api.FilesApiService
+import ru.ekbtrees.treemap.data.file.api.FileApiService
 import ru.ekbtrees.treemap.data.retrofit.ResultAdapterFactory
 import javax.inject.Singleton
 
@@ -70,6 +70,6 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideUploadFileApiService(retrofit: Retrofit): FilesApiService =
-        retrofit.create(FilesApiService::class.java)
+    fun provideFileApiService(retrofit: Retrofit): FileApiService =
+        retrofit.create(FileApiService::class.java)
 }

@@ -7,7 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
 import ru.ekbtrees.treemap.domain.interactors.TreesInteractor
-import ru.ekbtrees.treemap.domain.interactors.files.FilesInteractor
+import ru.ekbtrees.treemap.domain.interactors.file.FilesInteractor
 import ru.ekbtrees.treemap.domain.utils.Resource
 import ru.ekbtrees.treemap.domain.utils.UploadResult
 import ru.ekbtrees.treemap.ui.mappers.toNewTreeDetailEntity

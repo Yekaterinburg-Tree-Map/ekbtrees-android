@@ -11,9 +11,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import ru.ekbtrees.treemap.data.TreesRepositoryImpl
 import ru.ekbtrees.treemap.data.api.TreesApiService
-import ru.ekbtrees.treemap.data.files.FilesRepositoryImpl
-import ru.ekbtrees.treemap.data.files.api.FilesApiService
-import ru.ekbtrees.treemap.domain.repositories.FilesRepository
+import ru.ekbtrees.treemap.data.file.FileRepositoryImpl
+import ru.ekbtrees.treemap.data.file.api.FileApiService
+import ru.ekbtrees.treemap.domain.repositories.FileRepository
 import ru.ekbtrees.treemap.domain.repositories.TreesRepository
 import javax.inject.Singleton
 
@@ -38,11 +38,11 @@ object DataModule {
     @Provides
     fun provideFilesRepository(
         @ApplicationContext context: Context,
-        filesApiService: FilesApiService
-    ): FilesRepository {
-        return FilesRepositoryImpl(
+        fileApiService: FileApiService
+    ): FileRepository {
+        return FileRepositoryImpl(
             context = context as Application,
-            apiService = filesApiService
+            apiService = fileApiService
         )
     }
 }
