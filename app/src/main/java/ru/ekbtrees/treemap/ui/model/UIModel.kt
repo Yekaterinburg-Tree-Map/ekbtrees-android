@@ -1,6 +1,5 @@
 package ru.ekbtrees.treemap.ui.model
 
-import android.net.Uri
 import android.os.Parcelable
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.parcelize.Parcelize
@@ -52,21 +51,3 @@ data class SpeciesUIModel(
     val color: Int,
     val name: String
 ) : Parcelable
-
-data class PhotoUIModel(
-    val uri: Uri?,
-    val link: String?
-) {
-    override fun equals(other: Any?): Boolean {
-        if (other !is PhotoUIModel) {
-            return false
-        }
-        return other.uri == uri || other.link == link
-    }
-
-    override fun hashCode(): Int {
-        var result = uri?.hashCode() ?: 0
-        result = 31 * result + (link?.hashCode() ?: 0)
-        return result
-    }
-}

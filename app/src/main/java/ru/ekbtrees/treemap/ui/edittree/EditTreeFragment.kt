@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.SeekBar
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
@@ -30,6 +29,8 @@ import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentEditTreeBinding
 import ru.ekbtrees.treemap.ui.common.TreePhotosAdapter
+import ru.ekbtrees.treemap.ui.common.extentions.addOnProgressChangeListener
+import ru.ekbtrees.treemap.ui.edittree.extentions.getInputListeners
 import ru.ekbtrees.treemap.ui.model.NewTreeDetailUIModel
 import ru.ekbtrees.treemap.ui.model.SpeciesUIModel
 import ru.ekbtrees.treemap.ui.model.TreeDetailUIModel
@@ -68,21 +69,11 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
         val args: EditTreeFragmentArgs by navArgs()
         viewModel.provideInstanceValue(args.instanceValue)
         observeViewModel()
-        binding.conditionAssessmentValue.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                binding.conditionAssessmentTextValue.text = getString(
-                    R.string.condition_assessment_holder, progress.toString()
-                )
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-            }
-
-        })
+        binding.conditionAssessmentValue.addOnProgressChangeListener { progress ->
+            binding.conditionAssessmentTextValue.text = getString(
+                R.string.condition_assessment_holder, progress.toString()
+            )
+        }
 
         binding.getPhotoButton.setOnClickListener {
             BottomSheetImagePicker.Builder(getString(R.xml.files_paths)).apply {
@@ -109,17 +100,7 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
                 if (!checkInputFields()) {
                     return@launch
                 }
-                val treeDetail: EditTreeContract.TreeDetailFragmentModel =
-                    when (viewModel.currentState) {
-                        is EditTreeContract.EditTreeViewState.DataLoaded -> {
-                            EditTreeContract.TreeDetailFragmentModel.TreeDetail(getTreeDetail())
-                        }
-                        is EditTreeContract.EditTreeViewState.NewTreeData -> {
-                            EditTreeContract.TreeDetailFragmentModel.NewTreeDetail(getNewTreeDetail())
-                        }
-                        else -> return@launch
-                    }
-                viewModel.setEvent(EditTreeContract.EditTreeEvent.OnSaveButtonClicked(treeDetail))
+                viewModel.setEvent(EditTreeContract.EditTreeEvent.OnSaveButtonClicked)
             }
         }
 
@@ -141,6 +122,10 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
                 ).show()
             })
         binding.photos.adapter = photoAdapter
+
+        binding.getInputListeners { newValue ->
+            viewModel.handleEvent(EditTreeContract.EditTreeEvent.OnEditField(newValue))
+        }
     }
 
     /**
@@ -317,112 +302,11 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
         }
     }
 
-    /**
-     * Собирает введённые пользоваетелем данные и обёртывет их в класс.
-     * @return Объект класса [TreeDetailUIModel] с заполненными данными
-     * @throws IllegalStateException функция вызвана вне состояния NewTreeDetail
-     * @see [checkInputFields]
-     * */
-    private suspend fun getNewTreeDetail(): NewTreeDetailUIModel {
-        val state = viewModel.currentState
-        if (state !is EditTreeContract.EditTreeViewState.NewTreeData) {
-            throw IllegalStateException()
-        }
-        return NewTreeDetailUIModel(
-            coord = state.treeDetail.coord,
-            species = viewModel.getSpeciesByName(binding.treeSpeciesValue.selectedItem.toString())!!,
-            height = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
-                binding.heightOfTheFirstBranchValue.text.toString().toDouble()
-            else null,
-            numberOfTrunks = if (!binding.numberOfTrunksValue.text.isNullOrBlank())
-                binding.numberOfTrunksValue.text.toString().toInt()
-            else null,
-            trunkGirth = if (!binding.trunkGirthValue.text.isNullOrBlank())
-                binding.trunkGirthValue.text.toString().toDouble()
-            else null,
-            diameterOfCrown = if (!binding.diameterOfCrownValue.text.isNullOrBlank())
-                binding.diameterOfCrownValue.text.toString().toDouble()
-            else throw IllegalArgumentException("Поле ${binding.diameterOfCrownValue::class.simpleName} не должно быть пустым!"),
-            heightOfTheFirstBranch = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
-                binding.heightOfTheFirstBranchValue.text.toString().toDouble()
-            else null,
-            conditionAssessment = binding.conditionAssessmentValue.progress,
-            age = if (!binding.ageValue.text.isNullOrBlank())
-                binding.ageValue.text.toString().toInt()
-            else null,
-            treePlantingType = if (binding.plantingTypeValue.selectedItem.toString()
-                != resources.getStringArray(R.array.planting_types)[0]
-            ) {
-                binding.plantingTypeValue.selectedItem.toString()
-            } else null,
-            createTime = state.treeDetail.createTime,
-            updateTime = state.treeDetail.updateTime,
-            authorId = state.treeDetail.authorId,
-            status = if (binding.treeStatusValue.selectedItem.toString()
-                != resources.getStringArray(R.array.status_types)[0]
-            ) {
-                binding.treeStatusValue.selectedItem.toString()
-            } else null,
-            fileIds = emptyList()
-        )
-    }
-
-    /**
-     * Собирает данные из всех полей ввода.
-     * @return Объект класса [TreeDetailUIModel] с заполненными данными
-     * @throws IllegalStateException функция вызвана вне состояния DataLoaded
-     * @see [checkInputFields]
-     * */
-    private suspend fun getTreeDetail(): TreeDetailUIModel {
-        val state = viewModel.currentState
-        if (state !is EditTreeContract.EditTreeViewState.DataLoaded) {
-            throw IllegalStateException("")
-        }
-        return TreeDetailUIModel(
-            id = state.treeData.id,
-            coord = state.treeData.coord,
-            species = viewModel.getSpeciesByName(binding.treeSpeciesValue.selectedItem.toString())!!,
-            height = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
-                binding.heightOfTheFirstBranchValue.text.toString().toDouble()
-            else null,
-            numberOfTrunks = if (!binding.numberOfTrunksValue.text.isNullOrBlank())
-                binding.numberOfTrunksValue.text.toString().toInt()
-            else null,
-            trunkGirth = if (!binding.trunkGirthValue.text.isNullOrBlank())
-                binding.trunkGirthValue.text.toString().toDouble()
-            else null,
-            diameterOfCrown = if (!binding.diameterOfCrownValue.text.isNullOrBlank())
-                binding.diameterOfCrownValue.text.toString().toDouble()
-            else throw IllegalArgumentException("Поле ${binding.diameterOfCrownValue::class.simpleName} не должно быть пустым!"),
-            heightOfTheFirstBranch = if (!binding.heightOfTheFirstBranchValue.text.isNullOrBlank())
-                binding.heightOfTheFirstBranchValue.text.toString().toDouble()
-            else null,
-            conditionAssessment = binding.conditionAssessmentValue.progress,
-            age = if (!binding.ageValue.text.isNullOrBlank())
-                binding.ageValue.text.toString().toInt()
-            else null,
-            treePlantingType = if (binding.plantingTypeValue.selectedItem.toString()
-                != resources.getStringArray(R.array.planting_types)[0]
-            ) {
-                binding.plantingTypeValue.selectedItem.toString()
-            } else null,
-            createTime = state.treeData.createTime,
-            updateTime = System.currentTimeMillis().toString(),
-            authorId = state.treeData.authorId,
-            status = if (binding.treeStatusValue.selectedItem.toString()
-                != resources.getStringArray(R.array.status_types)[0]
-            ) {
-                binding.treeStatusValue.selectedItem.toString()
-            } else null,
-            fileIds = emptyList()
-        )
-    }
-
     private fun formatTextTime(textTime: String): String {
         val date = if ('.' in textTime) {
             Date(textTime.toDouble().toLong() * 1000)
         } else Date(textTime.toLong())
-        return SimpleDateFormat("dd-MM-yyyy hh:mm:ss").format(date)
+        return SimpleDateFormat("dd-MM-yyyy hh:mm:ss", Locale.getDefault()).format(date)
     }
 
     /**

@@ -1,8 +1,5 @@
 package ru.ekbtrees.treemap.ui.mvi.contract
 
-import android.graphics.Bitmap
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 import ru.ekbtrees.treemap.ui.mvi.base.UiEffect
 import ru.ekbtrees.treemap.ui.mvi.base.UiEvent
 import ru.ekbtrees.treemap.ui.mvi.base.UiState
@@ -35,28 +32,30 @@ class EditTreeContract {
          * */
         object OnReloadButtonClicked : EditTreeEvent()
 
+        class OnEditField(val newValue: EditTreeInputField) : EditTreeEvent()
+
         /**
          * Инициируем сохранение введённых данных.
          */
-        class OnSaveButtonClicked(val treeDetail: TreeDetailFragmentModel) : EditTreeEvent()
+        object OnSaveButtonClicked : EditTreeEvent()
 
-        class OnImagesSelected(
-            //val treeDetail: TreeDetailFragmentModel,
-            val filePath: List<String>
-        ) : EditTreeEvent()
+        class OnImagesSelected(val filePath: List<String>) : EditTreeEvent()
     }
 
     sealed class TreeDetailEffect : UiEffect {
         object BackOnBackStack : TreeDetailEffect()
         object ShowErrorMessage : TreeDetailEffect()
     }
+}
 
-    sealed class TreeDetailFragmentModel : Parcelable {
-        @Parcelize
-        data class TreeDetail(val treeDetail: TreeDetailUIModel) : TreeDetailFragmentModel()
-
-        @Parcelize
-        data class NewTreeDetail(val newTreeDetail: NewTreeDetailUIModel) :
-            TreeDetailFragmentModel()
-    }
+sealed class EditTreeInputField {
+    class HeightOfTheFirstBranch(val newValue: String) : EditTreeInputField()
+    class NumberOfTrunks(val newValue: String) : EditTreeInputField()
+    class TrunkGirth(val newValue: String) : EditTreeInputField()
+    class DiameterOfCrown(val newValue: String) : EditTreeInputField()
+    class ConditionAssessment(val newValue: String) : EditTreeInputField()
+    class Age(val newValue: String) : EditTreeInputField()
+    class PlantingType(val newValue: String) : EditTreeInputField()
+    class Species(val newValue: String) : EditTreeInputField()
+    class Status(val newValue: String) : EditTreeInputField()
 }
