@@ -547,7 +547,7 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
 
     private suspend fun observePhotoStateFlow(photoStateFlow: StateFlow<List<PhotoUiModel>>) {
         photoStateFlow.collect {
-            // photoAdapter.submitList(it)
+            photoAdapter.submitList(it)
         }
     }
 
@@ -583,7 +583,6 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
 
     override fun onImagesSelected(uris: List<Uri>, tag: String?) {
         val imagePaths = uris.map { it.toString() }
-        photoAdapter.submitList(imagePaths)
         viewModel.setEvent(EditTreeContract.EditTreeEvent.OnImagesSelected(imagePaths))
     }
 }

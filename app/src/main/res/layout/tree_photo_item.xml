@@ -8,7 +8,16 @@
         android:id="@+id/tree_photo"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:contentDescription="@string/tree_photo" />
+        android:contentDescription="@string/tree_photo"
+        android:visibility="gone" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/error_text"
+        android:text="@string/error_message"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone" />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/progress_bar"
