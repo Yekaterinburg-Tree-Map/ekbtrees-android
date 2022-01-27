@@ -25,12 +25,14 @@ import com.kroegerama.imgpicker.BottomSheetImagePicker
 import com.kroegerama.imgpicker.ButtonType
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentEditTreeBinding
 import ru.ekbtrees.treemap.ui.common.TreePhotosAdapter
 import ru.ekbtrees.treemap.ui.model.NewTreeDetailUIModel
+import ru.ekbtrees.treemap.ui.model.PhotoUiModel
 import ru.ekbtrees.treemap.ui.model.SpeciesUIModel
 import ru.ekbtrees.treemap.ui.model.TreeDetailUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.EditTreeContract
@@ -422,7 +424,7 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
         val date = if ('.' in textTime) {
             Date(textTime.toDouble().toLong() * 1000)
         } else Date(textTime.toLong())
-        return SimpleDateFormat("dd-MM-yyyy hh:mm:ss").format(date)
+        return SimpleDateFormat("dd-MM-yyyy hh:mm:ss", Locale.getDefault()).format(date)
     }
 
     /**
@@ -507,6 +509,7 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
                     is EditTreeContract.EditTreeViewState.NewTreeData -> {
                         binding.topAppBar.setTitle(R.string.new_tree)
                         onNewTreeDataState(treeDetail = editTreeViewState.treeDetail)
+                        observePhotoStateFlow(editTreeViewState.photoStateFlow)
                     }
                     is EditTreeContract.EditTreeViewState.DataLoading -> {
                         onDataLoadingState()
@@ -514,6 +517,7 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
                     is EditTreeContract.EditTreeViewState.DataLoaded -> {
                         binding.topAppBar.title = editTreeViewState.treeData.species.name
                         onDataLoadedState(treeDetail = editTreeViewState.treeData)
+                        observePhotoStateFlow(editTreeViewState.photoStateFlow)
                     }
                     is EditTreeContract.EditTreeViewState.Error -> {
                         onErrorState()
@@ -538,6 +542,12 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
                     }
                 }
             }
+        }
+    }
+
+    private suspend fun observePhotoStateFlow(photoStateFlow: StateFlow<List<PhotoUiModel>>) {
+        photoStateFlow.collect {
+            // photoAdapter.submitList(it)
         }
     }
 

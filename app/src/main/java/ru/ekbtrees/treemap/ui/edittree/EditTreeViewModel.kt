@@ -4,7 +4,9 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import ru.ekbtrees.treemap.constants.NetworkConstants
 import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
 import ru.ekbtrees.treemap.domain.interactors.TreesInteractor
 import ru.ekbtrees.treemap.domain.interactors.file.FilesInteractor
@@ -15,6 +17,7 @@ import ru.ekbtrees.treemap.ui.mappers.toSpeciesUIModel
 import ru.ekbtrees.treemap.ui.mappers.toTreeDetailEntity
 import ru.ekbtrees.treemap.ui.mappers.toTreeDetailUIModel
 import ru.ekbtrees.treemap.ui.model.NewTreeDetailUIModel
+import ru.ekbtrees.treemap.ui.model.PhotoUiModel
 import ru.ekbtrees.treemap.ui.model.SpeciesUIModel
 import ru.ekbtrees.treemap.ui.model.TreeDetailUIModel
 import ru.ekbtrees.treemap.ui.mvi.base.BaseViewModel
@@ -35,6 +38,7 @@ class EditTreeViewModel @Inject constructor(
 ) : BaseViewModel<EditTreeContract.EditTreeEvent, EditTreeContract.EditTreeViewState, EditTreeContract.TreeDetailEffect>() {
 
     private var treeId: String? = null
+    private val photoStateFlow = MutableStateFlow<List<PhotoUiModel>>(emptyList())
 
     suspend fun getTreeSpecies(): Collection<SpeciesEntity> {
         return treesInteractor.getAllSpecies()
@@ -71,7 +75,12 @@ class EditTreeViewModel @Inject constructor(
                     status = "",
                     fileIds = emptyList()
                 )
-                setState(EditTreeContract.EditTreeViewState.NewTreeData(newTreeDetail))
+                setState(
+                    EditTreeContract.EditTreeViewState.NewTreeData(
+                        newTreeDetail,
+                        photoStateFlow
+                    )
+                )
             }
             is EditTreeInstanceValue.TreeId -> {
                 treeId = instanceValue.treeId
@@ -79,7 +88,12 @@ class EditTreeViewModel @Inject constructor(
                     setState(EditTreeContract.EditTreeViewState.DataLoading)
                     try {
                         val treeDetail = treesInteractor.getTreeDetailBy(instanceValue.treeId)
-                        setState(EditTreeContract.EditTreeViewState.DataLoaded(treeDetail.toTreeDetailUIModel()))
+                        setState(
+                            EditTreeContract.EditTreeViewState.DataLoaded(
+                                treeDetail.toTreeDetailUIModel(),
+                                photoStateFlow
+                            )
+                        )
                     } catch (e: Exception) {
                         setState(EditTreeContract.EditTreeViewState.Error)
                     }
@@ -109,20 +123,34 @@ class EditTreeViewModel @Inject constructor(
         }
     }
 
-    private fun uploadFiles(
-        //treeDetail: EditTreeContract.TreeDetailFragmentModel,
-        filesPaths: List<String>
-    ) {
+    private fun uploadFiles(filesPaths: List<String>) {
         viewModelScope.launch(Dispatchers.IO) {
-            filesPaths.forEach { filePath ->
-                when (val resource = filesInteractor.sendFile(filePath)) {
-                    is Resource.Error -> {
-                        // что-то делаем. Скорее всего показываем ошибку отправки этого фото.
+            when (currentState) {
+                is EditTreeContract.EditTreeViewState.DataLoaded -> {
+                    error("Реализовать прикрепление фотографий к дереву")
+                }
+                is EditTreeContract.EditTreeViewState.NewTreeData -> {
+                    filesPaths.forEachIndexed { index, filePath ->
+                        val existedPhotos = photoStateFlow.value
+                        val newPhotos: MutableList<PhotoUiModel> =
+                            filesPaths.map { PhotoUiModel.Uploading(filePath) }.toMutableList()
+                        photoStateFlow.value = newPhotos + existedPhotos
+                        when (val resource = filesInteractor.sendFile(filePath)) {
+                            is Resource.Success -> {
+                                Log.d(TAG, "Successful upload file $filePath=${resource.data}")
+                                newPhotos[index] =
+                                    PhotoUiModel.Photo(NetworkConstants.FILE_DOWNLOAD_URL + resource.data.toString())
+                                photoStateFlow.value = newPhotos + existedPhotos
+                            }
+                            is Resource.Error -> {
+                                newPhotos[index] = PhotoUiModel.Error
+                                photoStateFlow.value = newPhotos + existedPhotos
+                            }
+                        }
                     }
-                    is Resource.Success -> {
-                        Log.d(TAG, "Successful upload file $filePath=${resource.data}")
-                        // тоже что-то делаем. Мутируем текущее состояние.
-                    }
+                }
+                else -> {
+                    error("Unexpected event for this state: $currentState")
                 }
             }
         }
@@ -162,7 +190,12 @@ class EditTreeViewModel @Inject constructor(
             if (treeId != null) {
                 try {
                     val treeDetail = treesInteractor.getTreeDetailBy(treeId!!)
-                    setState(EditTreeContract.EditTreeViewState.DataLoaded(treeData = treeDetail.toTreeDetailUIModel()))
+                    setState(
+                        EditTreeContract.EditTreeViewState.DataLoaded(
+                            treeData = treeDetail.toTreeDetailUIModel(),
+                            photoStateFlow
+                        )
+                    )
                 } catch (e: Exception) {
                     setState(EditTreeContract.EditTreeViewState.Error)
                 }
@@ -192,9 +225,14 @@ class EditTreeViewModel @Inject constructor(
                 status = treeDetail.status,
                 fileIds = treeDetail.fileIds
             )
-            setState(EditTreeContract.EditTreeViewState.NewTreeData(newTreeDetail))
+            setState(
+                EditTreeContract.EditTreeViewState.NewTreeData(
+                    newTreeDetail,
+                    photoStateFlow
+                )
+            )
         } else {
-            setState(EditTreeContract.EditTreeViewState.DataLoaded(treeDetail))
+            setState(EditTreeContract.EditTreeViewState.DataLoaded(treeDetail, photoStateFlow))
         }
     }
 }
