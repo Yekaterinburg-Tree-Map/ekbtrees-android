@@ -3,7 +3,6 @@ package ru.ekbtrees.treemap.ui.edittree
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import ru.ekbtrees.treemap.constants.NetworkConstants
 import ru.ekbtrees.treemap.domain.entity.SpeciesEntity
@@ -24,6 +23,7 @@ import ru.ekbtrees.treemap.ui.mvi.base.UiEvent
 import ru.ekbtrees.treemap.ui.mvi.contract.EditTreeContract
 import javax.inject.Inject
 
+@Suppress("UNUSED")
 private const val TAG = "EditTreeViewModel"
 
 /**
@@ -37,7 +37,6 @@ class EditTreeViewModel @Inject constructor(
 ) : BaseViewModel<EditTreeContract.EditTreeEvent, EditTreeContract.EditTreeViewState, EditTreeContract.TreeDetailEffect>() {
 
     private var treeId: String? = null
-    private val photoStateFlow = MutableStateFlow<List<PhotoUiModel>>(emptyList())
 
     suspend fun getTreeSpecies(): Collection<SpeciesEntity> {
         return treesInteractor.getAllSpecies()
@@ -87,10 +86,16 @@ class EditTreeViewModel @Inject constructor(
                     setState(EditTreeContract.EditTreeViewState.DataLoading)
                     try {
                         val treeDetail = treesInteractor.getTreeDetailBy(instanceValue.treeId)
+                            .toTreeDetailUIModel()
                         setState(
                             EditTreeContract.EditTreeViewState.DataLoaded(
-                                treeDetail.toTreeDetailUIModel(),
-                                photoStateFlow.value
+                                treeDetail,
+                                treeDetail.fileIds.map { fileId ->
+                                    PhotoUiModel.Photo(
+                                        photoUrl = NetworkConstants.FILE_DOWNLOAD_URL + fileId,
+                                        photoId = fileId.toLong()
+                                    )
+                                }
                             )
                         )
                     } catch (e: Exception) {
@@ -133,10 +138,10 @@ class EditTreeViewModel @Inject constructor(
                 }
                 is EditTreeContract.EditTreeViewState.NewTreeData -> {
                     filesPaths.forEachIndexed { index, filePath ->
-                        val existedPhotos = photoStateFlow.value
+                        val existedPhotos = state.photoList
                         val newPhotos: MutableList<PhotoUiModel> =
                             filesPaths.map { PhotoUiModel.Uploading(filePath) }.toMutableList()
-                        photoStateFlow.value = newPhotos + existedPhotos
+                        setState(state.copy(photoList = newPhotos + existedPhotos))
                         when (val resource = filesInteractor.sendFile(filePath)) {
                             is Resource.Success -> {
                                 newPhotos[index] =
@@ -148,7 +153,6 @@ class EditTreeViewModel @Inject constructor(
                             }
                             is Resource.Error -> {
                                 newPhotos[index] = PhotoUiModel.Error
-                                photoStateFlow.value = newPhotos + existedPhotos
                             }
                         }
                     }
@@ -223,7 +227,12 @@ class EditTreeViewModel @Inject constructor(
                     setState(
                         EditTreeContract.EditTreeViewState.DataLoaded(
                             treeData = treeDetail.toTreeDetailUIModel(),
-                            photoStateFlow.value
+                            treeDetail.fileIds.map { fileId ->
+                                PhotoUiModel.Photo(
+                                    photoUrl = NetworkConstants.FILE_DOWNLOAD_URL + fileId,
+                                    photoId = fileId.toLong()
+                                )
+                            }
                         )
                     )
                 } catch (e: Exception) {
@@ -257,15 +266,20 @@ class EditTreeViewModel @Inject constructor(
             )
             setState(
                 EditTreeContract.EditTreeViewState.NewTreeData(
-                    newTreeDetail,
-                    photoStateFlow.value
+                    treeDetail = newTreeDetail,
+                    photoList = emptyList()
                 )
             )
         } else {
             setState(
                 EditTreeContract.EditTreeViewState.DataLoaded(
                     treeDetail,
-                    photoStateFlow.value
+                    treeDetail.fileIds.map { fileId ->
+                        PhotoUiModel.Photo(
+                            photoUrl = NetworkConstants.FILE_DOWNLOAD_URL + fileId,
+                            photoId = fileId.toLong()
+                        )
+                    }
                 )
             )
         }
