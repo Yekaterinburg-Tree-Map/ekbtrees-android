@@ -139,7 +139,7 @@ class EditTreeViewModel @Inject constructor(
                             is Resource.Success -> {
                                 Log.d(TAG, "Successful upload file $filePath=${resource.data}")
                                 newPhotos[index] =
-                                    PhotoUiModel.Photo(NetworkConstants.FILE_DOWNLOAD_URL + resource.data.toString())
+                                    PhotoUiModel.Photo("${NetworkConstants.FILE_DOWNLOAD_URL}${resource.data}")
                                 photoStateFlow.value = newPhotos + existedPhotos
                             }
                             is Resource.Error -> {

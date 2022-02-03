@@ -7,12 +7,16 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
+import com.facebook.shimmer.Shimmer
+import com.facebook.shimmer.Shimmer.Direction.LEFT_TO_RIGHT
+import com.facebook.shimmer.ShimmerDrawable
 import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.TreePhotoItemBinding
 import ru.ekbtrees.treemap.ui.model.PhotoUiModel
 
 private object ViewType {
-    const val Loading = 0
     const val Uploading = 1
     const val Photo = 2
     const val Error = 3
@@ -35,13 +39,25 @@ class TreePhotosAdapter(private val onItemClick: ((String) -> Unit)? = null) :
                     onItemClick?.invoke(photoUri)
                 }
             }
-            Glide.with(view).load(photoUri).into(binding.treePhoto)
-        }
-    }
-
-    private class LoadingViewHolder(view: View) : BaseViewHolder(view) {
-        fun bind() {
-            binding.progressBar.visibility = View.VISIBLE
+            binding.deleteButton.apply {
+                visibility = View.VISIBLE
+                setOnClickListener {  }
+            }
+            val shimmer = Shimmer.AlphaHighlightBuilder().apply {
+                setDuration(1000)
+                setBaseAlpha(0.7f)
+                setHighlightAlpha(0.6f)
+                setDirection(LEFT_TO_RIGHT)
+                setAutoStart(true)
+            }.build()
+            val shimmerDrawable = ShimmerDrawable().apply {
+                setShimmer(shimmer)
+            }
+            val factory = DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
+            Glide.with(view).load(photoUri)
+                .placeholder(shimmerDrawable)
+                .transition(DrawableTransitionOptions.withCrossFade(factory))
+                .into(binding.treePhoto)
         }
     }
 
@@ -62,9 +78,6 @@ class TreePhotosAdapter(private val onItemClick: ((String) -> Unit)? = null) :
             PhotoUiModel.Error -> {
                 ViewType.Error
             }
-            PhotoUiModel.Loading -> {
-                ViewType.Loading
-            }
             is PhotoUiModel.Photo -> {
                 ViewType.Photo
             }
@@ -79,9 +92,6 @@ class TreePhotosAdapter(private val onItemClick: ((String) -> Unit)? = null) :
             .inflate(R.layout.tree_photo_item, parent, false)
 
         return when (viewType) {
-            ViewType.Loading -> {
-                LoadingViewHolder(view = view)
-            }
             ViewType.Uploading -> {
                 UploadingViewHolder(view = view)
             }
@@ -100,9 +110,6 @@ class TreePhotosAdapter(private val onItemClick: ((String) -> Unit)? = null) :
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
         when (holder.itemViewType) {
-            ViewType.Loading -> {
-                (holder as LoadingViewHolder).bind()
-            }
             ViewType.Uploading -> {
                 (holder as UploadingViewHolder).bind()
             }
@@ -125,9 +132,6 @@ class TreePhotosAdapter(private val onItemClick: ((String) -> Unit)? = null) :
                 PhotoUiModel.Error -> {
                     return newItem is PhotoUiModel.Error
                 }
-                PhotoUiModel.Loading -> {
-                    return oldItem is PhotoUiModel.Loading
-                }
                 is PhotoUiModel.Photo -> {
                     if (newItem is PhotoUiModel.Photo) {
                         return oldItem.photoUrl == newItem.photoUrl
@@ -145,17 +149,14 @@ class TreePhotosAdapter(private val onItemClick: ((String) -> Unit)? = null) :
 
         override fun areContentsTheSame(oldItem: PhotoUiModel, newItem: PhotoUiModel): Boolean {
             return when (oldItem) {
-                PhotoUiModel.Error -> {
-                    newItem is PhotoUiModel.Error
-                }
-                PhotoUiModel.Loading -> {
-                    newItem is PhotoUiModel.Loading
-                }
                 is PhotoUiModel.Photo -> {
                     newItem is PhotoUiModel.Photo
                 }
                 is PhotoUiModel.Uploading -> {
                     newItem is PhotoUiModel.Uploading
+                }
+                PhotoUiModel.Error -> {
+                    newItem is PhotoUiModel.Error
                 }
             }
         }
