@@ -22,8 +22,10 @@ private object ViewType {
     const val Error = 3
 }
 
-class TreePhotosAdapter(private val onItemClick: ((String) -> Unit)? = null) :
-    ListAdapter<PhotoUiModel, RecyclerView.ViewHolder>(PhotoItemDiffCallback()) {
+class TreePhotosAdapter(
+    private val onItemClick: ((String) -> Unit)? = null,
+    private val onDeleteButtonClick: ((Pair<Int, String>) -> Unit)? = null
+) : ListAdapter<PhotoUiModel, RecyclerView.ViewHolder>(PhotoItemDiffCallback()) {
 
     private abstract class BaseViewHolder(protected val view: View) :
         RecyclerView.ViewHolder(view) {
@@ -32,7 +34,11 @@ class TreePhotosAdapter(private val onItemClick: ((String) -> Unit)? = null) :
     }
 
     private class PhotoViewHolder(view: View) : BaseViewHolder(view) {
-        fun bind(photoUri: String, onItemClick: ((String) -> Unit)? = null) {
+        fun bind(
+            photoUri: String,
+            onItemClick: ((String) -> Unit)?,
+            onDeleteButtonClick: ((String) -> Unit)?
+        ) {
             binding.treePhoto.apply {
                 visibility = View.VISIBLE
                 setOnClickListener {
@@ -41,7 +47,9 @@ class TreePhotosAdapter(private val onItemClick: ((String) -> Unit)? = null) :
             }
             binding.deleteButton.apply {
                 visibility = View.VISIBLE
-                setOnClickListener {  }
+                setOnClickListener {
+                    onDeleteButtonClick?.invoke(photoUri)
+                }
             }
             val shimmer = Shimmer.AlphaHighlightBuilder().apply {
                 setDuration(1000)
@@ -117,7 +125,10 @@ class TreePhotosAdapter(private val onItemClick: ((String) -> Unit)? = null) :
                 val photoItem = item as PhotoUiModel.Photo
                 (holder as PhotoViewHolder).bind(
                     photoUri = photoItem.photoUrl,
-                    onItemClick = onItemClick
+                    onItemClick = onItemClick,
+                    onDeleteButtonClick = {
+                        onDeleteButtonClick?.invoke(position to it)
+                    }
                 )
             }
             ViewType.Error -> {

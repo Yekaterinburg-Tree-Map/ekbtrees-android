@@ -1,7 +1,6 @@
 package ru.ekbtrees.treemap.ui.mvi.contract
 
 import android.os.Parcelable
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.parcelize.Parcelize
 import ru.ekbtrees.treemap.ui.mvi.base.UiEffect
 import ru.ekbtrees.treemap.ui.mvi.base.UiEvent
@@ -23,14 +22,14 @@ class EditTreeContract {
         object Idle : EditTreeViewState()
         object DataLoading : EditTreeViewState()
         object Error : EditTreeViewState()
-        class NewTreeData(
+        data class NewTreeData(
             val treeDetail: NewTreeDetailUIModel,
-            val photoStateFlow: StateFlow<List<PhotoUiModel>>
+            val photoList: List<PhotoUiModel>
         ) : EditTreeViewState()
 
-        class DataLoaded(
+        data class DataLoaded(
             val treeData: TreeDetailUIModel,
-            val photoStateFlow: StateFlow<List<PhotoUiModel>>
+            val photoList: List<PhotoUiModel>
         ) : EditTreeViewState()
     }
 
@@ -48,10 +47,9 @@ class EditTreeContract {
          */
         class OnSaveButtonClicked(val treeDetail: TreeDetailFragmentModel) : EditTreeEvent()
 
-        class OnImagesSelected(
-            //val treeDetail: TreeDetailFragmentModel,
-            val filePath: List<String>
-        ) : EditTreeEvent()
+        class OnImagesSelected(val filePath: List<String>) : EditTreeEvent()
+
+        class OnDeletePhoto(val filePath: String, val position: Int) : EditTreeEvent()
     }
 
     sealed class TreeDetailEffect : UiEffect {

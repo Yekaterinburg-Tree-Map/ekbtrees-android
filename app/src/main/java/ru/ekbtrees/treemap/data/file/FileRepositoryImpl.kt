@@ -49,4 +49,16 @@ class FileRepositoryImpl(
             }
         }
     }
+
+    override suspend fun deleteFile(fileId: Long): Resource<Unit> =
+        when (apiService.deleteFile(fileId = fileId)) {
+            is RetrofitResult.Success -> {
+                Log.d(TAG, "Successful deleted file $fileId")
+                Resource.Success(Unit)
+            }
+            is RetrofitResult.Failure<*> -> {
+                Log.d(TAG, "Failed to delete file $fileId")
+                Resource.Error()
+            }
+        }
 }

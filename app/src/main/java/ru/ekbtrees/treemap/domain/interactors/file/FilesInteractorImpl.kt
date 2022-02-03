@@ -8,4 +8,7 @@ class FilesInteractorImpl @Inject constructor(private val fileRepository: FileRe
     FilesInteractor {
     override suspend fun sendFile(filePath: String): Resource<Long> =
         fileRepository.upload(filePath = filePath)
+
+    override suspend fun deleteFile(fileId: Long): Resource<Unit> =
+        fileRepository.deleteFile(fileId = fileId)
 }

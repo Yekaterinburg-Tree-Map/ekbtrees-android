@@ -9,4 +9,7 @@ interface FileApiService {
     @POST("file/upload")
     @Multipart
     suspend fun sendFile(@Part body: MultipartBody.Part): RetrofitResult<String>
+
+    @DELETE("file/{file_id}")
+    suspend fun deleteFile(@Path("file_id") fileId: Long): RetrofitResult<Unit>
 }
