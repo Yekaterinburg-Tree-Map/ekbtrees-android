@@ -3,7 +3,7 @@ package ru.ekbtrees.treemap.domain.interactors.file
 import ru.ekbtrees.treemap.domain.utils.Resource
 
 interface FilesInteractor {
-    suspend fun sendFile(filePath: String): Resource<Long>
+    suspend fun sendFiles(filePaths: List<String>, onFileUploaded: (Int, Resource<Long>) -> Unit)
 
     suspend fun deleteFile(fileId: Long): Resource<Unit>
 }

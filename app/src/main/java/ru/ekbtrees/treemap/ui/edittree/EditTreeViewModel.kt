@@ -137,22 +137,22 @@ class EditTreeViewModel @Inject constructor(
                     error("Реализовать прикрепление фотографий к дереву")
                 }
                 is EditTreeContract.EditTreeViewState.NewTreeData -> {
-                    filesPaths.forEachIndexed { index, filePath ->
-                        val existedPhotos = state.photoList
-                        val newPhotos: MutableList<PhotoUiModel> =
-                            filesPaths.map { PhotoUiModel.Uploading(filePath) }.toMutableList()
-                        setState(state.copy(photoList = newPhotos + existedPhotos))
-                        when (val resource = filesInteractor.sendFile(filePath)) {
+                    val existedPhotos = state.photoList
+                    val newPhotos: MutableList<PhotoUiModel> =
+                        filesPaths.map { PhotoUiModel.Uploading(it) }.toMutableList()
+                    setState(state.copy(photoList = newPhotos + existedPhotos))
+                    filesInteractor.sendFiles(filesPaths) { position, result ->
+                        when (result) {
                             is Resource.Success -> {
-                                newPhotos[index] =
-                                    PhotoUiModel.Photo(
-                                        "${NetworkConstants.FILE_DOWNLOAD_URL}${resource.data}",
-                                        photoId = resource.data
-                                    )
+                                newPhotos[position] = PhotoUiModel.Photo(
+                                    photoUrl = "${NetworkConstants.FILE_DOWNLOAD_URL}${result.data}",
+                                    photoId = result.data
+                                )
                                 setState(state.copy(photoList = newPhotos + existedPhotos))
                             }
                             is Resource.Error -> {
-                                newPhotos[index] = PhotoUiModel.Error
+                                newPhotos[position] = PhotoUiModel.Error
+                                setState(state.copy(photoList = newPhotos + existedPhotos))
                             }
                         }
                     }
