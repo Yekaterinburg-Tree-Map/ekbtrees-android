@@ -51,6 +51,8 @@
     <string name="loading">Загрузка…</string>
     <string name="loading_error_massage">Ошибка при загрузке данных</string>
     <string name="try_again">Попробуй снова</string>
+    <string name="photos">Фотографии</string>
+    <string name="add_photos">Добавить фотографии</string>
 
 
     <!--Descriptions-->

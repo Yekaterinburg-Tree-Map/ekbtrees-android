@@ -53,5 +53,6 @@
     <string name="loading">Loading…</string>
     <string name="loading_error_massage">Error while loading data</string>
     <string name="try_again">Try again</string>
-    <string name="tree_photo">Tree photo</string>
+    <string name="photos">Photos</string>
+    <string name="add_photos">Add photos</string>
 </resources>
