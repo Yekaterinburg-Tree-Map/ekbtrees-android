@@ -12,7 +12,9 @@ import android.widget.SeekBar
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -31,6 +33,7 @@ import ru.ekbtrees.treemap.R
 import ru.ekbtrees.treemap.databinding.FragmentEditTreeBinding
 import ru.ekbtrees.treemap.ui.common.TreePhotosAdapter
 import ru.ekbtrees.treemap.ui.model.NewTreeDetailUIModel
+import ru.ekbtrees.treemap.ui.model.PhotoUiModel
 import ru.ekbtrees.treemap.ui.model.SpeciesUIModel
 import ru.ekbtrees.treemap.ui.model.TreeDetailUIModel
 import ru.ekbtrees.treemap.ui.mvi.contract.EditTreeContract
@@ -133,10 +136,15 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
         }
 
         photoAdapter = TreePhotosAdapter(
-            onItemClick = {
+            onItemClick = { photoUri ->
+                val list =
+                    (viewModel.uiState.value as EditTreeContract.EditTreeViewState.NewTreeData).photoList.map { (it as PhotoUiModel.Photo).photoUrl }
+                val action =
+                    EditTreeFragmentDirections.actionEditTreeFragmentToTreePhotoViewFragment(list.toTypedArray())
+                findNavController().navigate(action)
                 Toast.makeText(
                     requireContext(),
-                    "Photo Uri: $it",
+                    "Photo Uri: $photoUri",
                     Toast.LENGTH_SHORT
                 ).show()
             },
@@ -506,45 +514,48 @@ class EditTreeFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedList
     }
 
     private fun observeViewModel() {
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.uiState.collect { editTreeViewState ->
-                cleanUI()
-                when (editTreeViewState) {
-                    is EditTreeContract.EditTreeViewState.Idle -> {
-                    }
-                    is EditTreeContract.EditTreeViewState.NewTreeData -> {
-                        binding.topAppBar.setTitle(R.string.new_tree)
-                        onNewTreeDataState(treeDetail = editTreeViewState.treeDetail)
-                        photoAdapter.submitList(editTreeViewState.photoList)
-                    }
-                    is EditTreeContract.EditTreeViewState.DataLoading -> {
-                        onDataLoadingState()
-                    }
-                    is EditTreeContract.EditTreeViewState.DataLoaded -> {
-                        binding.topAppBar.title = editTreeViewState.treeData.species.name
-                        onDataLoadedState(treeDetail = editTreeViewState.treeData)
-                        photoAdapter.submitList(editTreeViewState.photoList)
-                    }
-                    is EditTreeContract.EditTreeViewState.Error -> {
-                        onErrorState()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.uiState.collect { editTreeViewState ->
+                        cleanUI()
+                        when (editTreeViewState) {
+                            is EditTreeContract.EditTreeViewState.Idle -> {
+                            }
+                            is EditTreeContract.EditTreeViewState.NewTreeData -> {
+                                binding.topAppBar.setTitle(R.string.new_tree)
+                                onNewTreeDataState(treeDetail = editTreeViewState.treeDetail)
+                                photoAdapter.submitList(editTreeViewState.photoList)
+                            }
+                            is EditTreeContract.EditTreeViewState.DataLoading -> {
+                                onDataLoadingState()
+                            }
+                            is EditTreeContract.EditTreeViewState.DataLoaded -> {
+                                binding.topAppBar.title = editTreeViewState.treeData.species.name
+                                onDataLoadedState(treeDetail = editTreeViewState.treeData)
+                                photoAdapter.submitList(editTreeViewState.photoList)
+                            }
+                            is EditTreeContract.EditTreeViewState.Error -> {
+                                onErrorState()
+                            }
+                        }
                     }
                 }
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.effect.collect { effect ->
-                when (effect) {
-                    is EditTreeContract.TreeDetailEffect.ShowErrorMessage -> {
-                        Toast.makeText(
-                            requireContext(),
-                            getString(R.string.error_message),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    is EditTreeContract.TreeDetailEffect.BackOnBackStack -> {
-                        val navController = findNavController()
-                        navController.popBackStack()
+                launch {
+                    viewModel.effect.collect { effect ->
+                        when (effect) {
+                            is EditTreeContract.TreeDetailEffect.ShowErrorMessage -> {
+                                Toast.makeText(
+                                    requireContext(),
+                                    getString(R.string.error_message),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            is EditTreeContract.TreeDetailEffect.BackOnBackStack -> {
+                                val navController = findNavController()
+                                navController.popBackStack()
+                            }
+                        }
                     }
                 }
             }
